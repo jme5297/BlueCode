@@ -2,6 +2,10 @@
 # jme5297
 # This could be done in MUCH smarter of a fashion
 
+# For Atom's gcc-make-run (still doesn't seem to be working on mac)
+run:
+	./main
+
 CC = g++
 INC = -I../include/
 CFLAGS = -c -Wall
