@@ -1,3 +1,9 @@
+# Atom compiling error text file
+src/compiling_error.txt
+
+# Main build
+bin/main
+
 # Prerequisites
 *.d
 
