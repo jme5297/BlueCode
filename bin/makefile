@@ -6,6 +6,7 @@
 run:
 	./main
 
+# These are compiler flags
 CC = g++
 INC = -I../include/
 CFLAGS = -c -Wall
