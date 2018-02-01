@@ -23,7 +23,7 @@ void NavPlanner::AddWaypoint(int index, double c1, double c2)
 	coord.lat = c2;
 
 	// Retrieve the current coordinates in the active nav plan
-	std::vector<Coordinate> myCoords = std::get<0>(activeNavPlan);
+	std::vector<Coordinate> myCoords = activeNavPlan.coordinates;
 
 	// If index is -1, then add to the end of the list. Otherwise, insert
 	// the waypoint at a specific location.
@@ -32,21 +32,21 @@ void NavPlanner::AddWaypoint(int index, double c1, double c2)
 		myCoords.push_back(coord);
 	}else if(index <= (int)myCoords.size() - 1)
 	{
-		auto it = myCoords.begin();
+		std::vector<Coordinate>::iterator it = myCoords.begin();
 		myCoords.insert(it+index, coord);
 	}
 
 	// Update the coordinates
-	std::get<0>(activeNavPlan) = myCoords;
+	activeNavPlan.coordinates = myCoords;
 	return;
 }
 
-// Reorganize nav plan and construct movement headings for 
+// Reorganize nav plan and construct movement headings for
 // the nav plan executed in the shortest amount of time.
 void NavPlanner::ConstructNavPlan()
 {
 	// This function populates the allCoordinatePermutations vector
-	GenerateAllCoordinatePermutations(std::get<0>(activeNavPlan), 0);
+	GenerateAllCoordinatePermutations(activeNavPlan.coordinates, 0);
 
 	std::cout << std::to_string(totalPermutations) + " possible permutations.\n";
 
@@ -66,7 +66,7 @@ void NavPlanner::ConstructNavPlan()
 	std::cout << "Permutation " + std::to_string(shortestDistanceIndex) + " is the shortest!\n";
 
 	// Update the nav plan coordinate order
-	std::get<0>(activeNavPlan) = allCoordinatePermutations[shortestDistanceIndex];
+	activeNavPlan.coordinates = allCoordinatePermutations[shortestDistanceIndex];
 
 	// Calculate the distances and headings required.
 	ConstructMovements();
@@ -78,18 +78,18 @@ void NavPlanner::ConstructNavPlan()
 void NavPlanner::ConstructMovements(){
 
 	std::vector<Movement> moves;
-	std::vector<Coordinate> coords = std::get<0>(activeNavPlan);
+	std::vector<Coordinate> coords = activeNavPlan.coordinates;
 
 	// First movement is from the current location to the first nav plan coordinate.
 	Coordinate myLoc = sensors::GPS::GetCurrentGPSCoordinates();
 	moves.push_back(CalculateMovement(myLoc, coords[0]));
 
 	// All other movements are from nav plan coordinates to other nav plan coordinates.
-	for(unsigned int i = 0; i < std::get<0>(activeNavPlan).size() - 1; i++){
+	for(unsigned int i = 0; i < activeNavPlan.coordinates.size() - 1; i++){
 		moves.push_back(CalculateMovement(coords[i], coords[i+1]));
 	}
 
-	std::get<1>(activeNavPlan) = moves;
+	activeNavPlan.movements = moves;
 
 	return;
 }
@@ -139,7 +139,7 @@ double NavPlanner::DistanceBetweenCoordinates(Coordinate c1, Coordinate c2)
 
 void NavPlanner::GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex)
 {
-	if (nextIndex==coords.size()){ 
+	if (nextIndex==coords.size()){
 		totalPermutations++;
 		//PrintCoordinatePermutation(coords);
 		allCoordinatePermutations.push_back(coords);
@@ -147,27 +147,27 @@ void NavPlanner::GenerateAllCoordinatePermutations(std::vector<Coordinate>& coor
 		return;
 	}
 
-	for (unsigned int i = nextIndex; i < coords.size(); i++){ 
+	for (unsigned int i = nextIndex; i < coords.size(); i++){
 		SwapCoordinates(coords[i], coords[nextIndex]);
 		GenerateAllCoordinatePermutations(coords, nextIndex+1);
 		SwapCoordinates(coords[i], coords[nextIndex]);
 	}
 }
 
-void NavPlanner::SwapCoordinates(Coordinate& a, Coordinate& b){ 
+void NavPlanner::SwapCoordinates(Coordinate& a, Coordinate& b){
 	Coordinate x = a;
 	a = b;
 	b = x;
 }
 
 // Not currently being used
-void NavPlanner::PrintCoordinatePermutation(std::vector<Coordinate>& vec){ 
+void NavPlanner::PrintCoordinatePermutation(std::vector<Coordinate>& vec){
 	for (unsigned int i=0; i<vec.size(); i++)
 		std::cout << vec[i].lon << "," << vec[i].lat << "||";
 }
 
-std::vector<Coordinate> NavPlanner::GetWaypoints(){ return std::get<0>(activeNavPlan); }
-std::vector<Movement> NavPlanner::GetMovements(){ return std::get<1>(activeNavPlan); }
-bool NavPlanner::IsPopulated(){ return std::get<0>(activeNavPlan).size(); }
+std::vector<Coordinate> NavPlanner::GetWaypoints(){ return activeNavPlan.coordinates; }
+std::vector<Movement> NavPlanner::GetMovements(){ return activeNavPlan.movements; }
+bool NavPlanner::IsPopulated(){ return activeNavPlan.coordinates.size(); }
 bool NavPlanner::IsConstructed(){ return isConstructed;}
-std::tuple<std::vector<Coordinate>, std::vector<Movement>> NavPlanner::GetNavPlan(){ return activeNavPlan; }
+NavPlan NavPlanner::GetNavPlan(){ return activeNavPlan; }

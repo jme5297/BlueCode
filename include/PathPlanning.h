@@ -1,5 +1,4 @@
 #include <vector>
-#include <tuple>
 #include <algorithm>
 #include <cmath>
 #include <sensors/GPS/GPS_generic.h>
@@ -11,6 +10,11 @@ namespace PathPlanning {
 	struct Movement{
 		double heading;
 		double distance;
+	};
+
+	struct NavPlan{
+		std::vector<Coordinate> coordinates;
+		std::vector<Movement> movements;
 	};
 
 	class NavPlanner{
@@ -25,7 +29,7 @@ namespace PathPlanning {
 		// Utility functions
 		void AddWaypoint(int index, double c1, double c2);
 		void AddWaypoints(std::vector<Coordinate> coords);
-		double CalculateTotalNavPlanDistance(std::vector<Coordinate>);
+		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords);
 		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);
 		Movement CalculateMovement(Coordinate c1, Coordinate c2);
 
@@ -34,7 +38,7 @@ namespace PathPlanning {
 		void ConstructMovements();
 
 		// Accessor functions
-		std::tuple<std::vector<Coordinate>, std::vector<Movement>> GetNavPlan();
+		NavPlan GetNavPlan();
 		std::vector<Coordinate> GetWaypoints();
 		std::vector<Movement> GetMovements();
 
@@ -44,14 +48,14 @@ namespace PathPlanning {
 		void SwapCoordinates(Coordinate& a, Coordinate& b);
 		void PrintCoordinatePermutation(std::vector<Coordinate>& vec);
 		void GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex);
-		std::vector<std::vector<Coordinate>> allCoordinatePermutations;
+		std::vector< std::vector<Coordinate> > allCoordinatePermutations;
 		int totalPermutations;
 
 		bool isConstructed;
 
-		std::tuple<std::vector<Coordinate>, std::vector<Movement>> activeNavPlan;
+		NavPlan activeNavPlan;
 		std::vector<Coordinate> waypoints;
-		std::vector<Movement> movements; 
+		std::vector<Movement> movements;
 	};
 
 }

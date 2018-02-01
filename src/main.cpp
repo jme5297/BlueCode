@@ -4,8 +4,8 @@ using namespace PathPlanning;
 
 // FUNCTION PROTOTYPES
 void InputNavPlan();
-bool ProgramSetup(NavPlanner myNavPlan);
-void MainOperations(NavPlanner myNavPlan);
+bool ProgramSetup(NavPlanner& myNavPlan);
+void MainOperations(NavPlanner& myNavPlan);
 void CleanupOperations();
 bool TestSensorConnectivity();
 NavPlanner InputNavPlanCoordinates();
@@ -17,19 +17,26 @@ int main(){
 	// Create a generic nav plan
 	NavPlanner myNavPlan;
 
+	// ProgramSetup handles constructing the nav plan, and ensuring
+	// that all sensors are connected. This will return true if setup has finished correctly.
 	bool setup = ProgramSetup(myNavPlan);
+
+	// If failure in setup at any given time, then program cannot continue.
 	if(!setup){
 		std::cout << "Error setting up program. Exiting program.\n";
 		return 0;
+	}else{
+		std::cout << "Nav Plan constructed successfully!\n\n";
+		PrintNavPlanInfo(myNavPlan);
 	}
 
 	MainOperations(myNavPlan);
 	CleanupOperations();
-	
+
 	return 0;
 }
 
-bool ProgramSetup(NavPlanner myNavPlan)
+bool ProgramSetup(NavPlanner& myNavPlan)
 {
 	std::cout << "\nHello!\n\n" << std::endl;
 
@@ -60,15 +67,12 @@ bool ProgramSetup(NavPlanner myNavPlan)
 	if(!myNavPlan.IsConstructed()){
 		std::cout << "ERROR: Nav Plan not properly constructed. Exiting program.\n";
 		return false;
-	}else{
-		std::cout << "Nav Plan constructed successfully!\n\n";
-		PrintNavPlanInfo(myNavPlan);
 	}
 
 	return true;
 }
 
-void MainOperations(NavPlanner myNavPlan){
+void MainOperations(NavPlanner& myNavPlan){
 
 	return;
 }
@@ -153,8 +157,8 @@ NavPlanner InputNavPlanCoordinates(){
 
 void PrintNavPlanInfo(NavPlanner np){
 
-	std::vector<Coordinate> coords = std::get<0>(np.GetNavPlan());
-	std::vector<Movement> moves = std::get<1>(np.GetNavPlan());
+	std::vector<Coordinate> coords = np.GetWaypoints();
+	std::vector<Movement> moves = np.GetMovements();
 	Coordinate myLoc = sensors::GPS::GetCurrentGPSCoordinates();
 
 	std::cout << "===CURRENT NAV PLAN===\n";

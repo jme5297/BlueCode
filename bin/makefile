@@ -5,7 +5,7 @@
 # These are compiler flags
 CC = g++
 INC = -I../include/
-CFLAGS = -c -Wall -std=c++11
+CFLAGS = -c -Wall # -std=c++11
 ODIR = obj
 SRC = ../src
 dir_guard = @mkdir -p $(@D)
@@ -19,7 +19,7 @@ main: $(ODIR)/GPS_generic.o $(ODIR)/PathPlanning.o $(ODIR)/main.o
 $(ODIR)/GPS_generic.o: $(SRC)/GPS_generic.cpp
 	$(dir_guard)
 	$(CC) $(CFLAGS) $(INC) $(SRC)/GPS_generic.cpp -o $(ODIR)/GPS_generic.o
-	
+
 $(ODIR)/PathPlanning.o: $(SRC)/PathPlanning.cpp
 	$(dir_guard)
 	$(CC) $(CFLAGS) $(INC) $(SRC)/PathPlanning.cpp -o $(ODIR)/PathPlanning.o
