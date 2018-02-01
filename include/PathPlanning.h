@@ -7,55 +7,56 @@ namespace PathPlanning {
 
 	using namespace sensors::GPS;
 
+	// Second part of a Nav Plan. Contains distance and heading information.
 	struct Movement{
 		double heading;
 		double distance;
 	};
 
+	// One Nav Plan contains all information for a complete path through several obstacles.
 	struct NavPlan{
 		std::vector<Coordinate> coordinates;
 		std::vector<Movement> movements;
 	};
 
+	// Main class for handling Nav Plan construction and operations.
 	class NavPlanner{
 	public:
 		NavPlanner();
 		~NavPlanner();
 
-		// Path Planning activities
-		bool IsPopulated();
-		bool IsConstructed();
-
 		// Utility functions
-		void AddWaypoint(int index, double c1, double c2);
-		void AddWaypoints(std::vector<Coordinate> coords);
-		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords);
-		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);
-		Movement CalculateMovement(Coordinate c1, Coordinate c2);
+		bool IsPopulated();														// Returns if Nav Plan has been populated with coordinates
+		bool IsConstructed();													// Returns if Nav Plan has been constructed and movements have been calculated
+		void AddCoordinate(int index, double c1, double c2);					// Add a coordinate to the Nav Plan's list of coordinates
+		void AddCoordinates(std::vector<Coordinate> coords);					// Add a collection of coordinates to the list of coordinates
+		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords);	// Calculate entire distance of a certain Nav Plan
+		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);		// Calculate distane between two coordinates
+		Movement CalculateMovement(Coordinate c1, Coordinate c2);				// Calculate heading & direction between two coordinates
 
-		// Function for constructing NavPlan from waypoints
-		void ConstructNavPlan();
-		void ConstructMovements();
+		// Nav Plan construction functions
+		void ConstructNavPlan();		// Determine the most optimal path between Nav Plan coordinates
+		void PopulateMovements();		// Populate the required headings and distances between optimal path
 
 		// Accessor functions
-		NavPlan GetNavPlan();
-		std::vector<Coordinate> GetWaypoints();
-		std::vector<Movement> GetMovements();
+		NavPlan GetNavPlan();						// Return the active Nav Plan
+		std::vector<Coordinate> GetWaypoints();		// Return the Waypoints of the current Nav Plan
+		std::vector<Movement> GetMovements();		// Return the movements of the current Nav Plan
 
 	protected:
 
 		// Utility functions for nav plan construction
-		void SwapCoordinates(Coordinate& a, Coordinate& b);
-		void PrintCoordinatePermutation(std::vector<Coordinate>& vec);
-		void GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex);
-		std::vector< std::vector<Coordinate> > allCoordinatePermutations;
-		int totalPermutations;
+		void SwapCoordinates(Coordinate& a, Coordinate& b);					// Swap two coordinates in a vector of coordinates
+		void PrintCoordinatePermutation(std::vector<Coordinate>& vec);		// Print a specific permutation [DEBUG ONLY]
+		void GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex); 	// Generate all permutations from a list
+		std::vector< std::vector<Coordinate> > allCoordinatePermutations;	// Vector for storing all permutation combinations
+		int totalPermutations;												// Total amount of permutations [DEBUG ONLY]
 
+		// For determining if Nav Plan has been properly been constructed
 		bool isConstructed;
 
+		// Current Nav Plan connected to this Nav Planner class
 		NavPlan activeNavPlan;
-		std::vector<Coordinate> waypoints;
-		std::vector<Movement> movements;
 	};
 
 }

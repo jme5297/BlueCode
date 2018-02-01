@@ -67,6 +67,8 @@ bool ProgramSetup(NavPlanner& myNavPlan)
 	if(!myNavPlan.IsConstructed()){
 		std::cout << "ERROR: Nav Plan not properly constructed. Exiting program.\n";
 		return false;
+	}else{
+		myNavPlan.PopulateMovements();
 	}
 
 	return true;
@@ -115,7 +117,7 @@ NavPlanner InputNavPlanCoordinates(){
 		std::cin >> c2;
 
 		// Add these two coordinates to the planned nav plan
-		navPlan.AddWaypoint(-1, c1, c2);
+		navPlan.AddCoordinate(-1, c1, c2);
 
 		index++;
 
@@ -130,26 +132,40 @@ NavPlanner InputNavPlanCoordinates(){
 	}
 	*/
 
-	// Debugging case 1 - generic heading test
-	navPlan.AddWaypoint(-1, 1.0, -21.0);
-	navPlan.AddWaypoint(-1, 11.0, 12.0);
-	navPlan.AddWaypoint(-1, 12.0, 2.0);
-	navPlan.AddWaypoint(-1, 10.0, 0.0);
-	navPlan.AddWaypoint(-1, -3.0, 3.0);
-	navPlan.AddWaypoint(-1, 9.0, 5.0);
+	// Debugging case 1 - generic test
+	/*
+	navPlan.AddCoordinate(-1, 1.0, -21.0);
+	navPlan.AddCoordinate(-1, 11.0, 12.0);
+	navPlan.AddCoordinate(-1, 12.0, 2.0);
+	navPlan.AddCoordinate(-1, 10.0, 0.0);
+	navPlan.AddCoordinate(-1, -3.0, 3.0);
+	navPlan.AddCoordinate(-1, 9.0, 5.0);
+	*/
 
 	// Debugging case 2 - stress test
+	navPlan.AddCoordinate(-1, 1.0, 1.0);
+	navPlan.AddCoordinate(-1, -2.0, 10.0);
+	navPlan.AddCoordinate(-1, 2.0, 2.0);
+	navPlan.AddCoordinate(-1, 9.0, -1.0);
+	navPlan.AddCoordinate(-1, -6.0, 3.0);
+	navPlan.AddCoordinate(-1, 8.0, -8.0);
+	navPlan.AddCoordinate(-1, 4.0, 0.0);
+	navPlan.AddCoordinate(-1, -3.0, 7.0);
+	navPlan.AddCoordinate(-1, 5.0, 6.0);
+	navPlan.AddCoordinate(-1, 6.0, 1.0);
+	navPlan.AddCoordinate(-1, -2.0, 6.0);
+	//navPlan.AddCoordinate(-1, 10.0, 6.0);
+
+	// Debugging case 3 - heading test and patterns
 	/*
-	navPlan.AddWaypoint(-1, 1.0, 1.0);
-	navPlan.AddWaypoint(-1, 10.0, 10.0);
-	navPlan.AddWaypoint(-1, 2.0, 2.0);
-	navPlan.AddWaypoint(-1, 9.0, 9.0);
-	navPlan.AddWaypoint(-1, 3.0, 3.0);
-	navPlan.AddWaypoint(-1, 8.0, 8.0);
-	navPlan.AddWaypoint(-1, 4.0, 4.0);
-	navPlan.AddWaypoint(-1, 7.0, 7.0);
-	navPlan.AddWaypoint(-1, 5.0, 5.0);
-	navPlan.AddWaypoint(-1, 6.0, 6.0);
+	navPlan.AddCoordinate(-1, 1.0, 1.0);
+	navPlan.AddCoordinate(-1, -2.0, 2.0);
+	navPlan.AddCoordinate(-1, -3.0, -3.0);
+	navPlan.AddCoordinate(-1, 4.0, -4.0);
+	navPlan.AddCoordinate(-1, 5.0, 5.0);
+	navPlan.AddCoordinate(-1, -6.0, 6.0);
+	navPlan.AddCoordinate(-1, -7.0, -7.0);
+	navPlan.AddCoordinate(-1, 8.0, -8.0);
 	*/
 
 	return navPlan;

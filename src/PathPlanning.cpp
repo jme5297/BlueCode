@@ -15,9 +15,11 @@ NavPlanner::~NavPlanner()
 
 }
 
-void NavPlanner::AddWaypoint(int index, double c1, double c2)
+// Add a coordinate to the vector list of coordinates of the specific active Nav Plan.
+// NOTE: This must be done before constructing the Nav Plan.
+void NavPlanner::AddCoordinate(int index, double c1, double c2)
 {
-	// Construct coordinate
+	// Create a coordinate from the two incoming values.
 	Coordinate coord;
 	coord.lon = c1;
 	coord.lat = c2;
@@ -36,13 +38,12 @@ void NavPlanner::AddWaypoint(int index, double c1, double c2)
 		myCoords.insert(it+index, coord);
 	}
 
-	// Update the coordinates
+	// Update the vector of coordinates to the active Nav Plan
 	activeNavPlan.coordinates = myCoords;
 	return;
 }
 
-// Reorganize nav plan and construct movement headings for
-// the nav plan executed in the shortest amount of time.
+// Reorganize Nav Plan for most optimal path.
 void NavPlanner::ConstructNavPlan()
 {
 	// This function populates the allCoordinatePermutations vector
@@ -59,7 +60,7 @@ void NavPlanner::ConstructNavPlan()
 		if(dist < shortestDistance){
 			shortestDistance = dist;
 			shortestDistanceIndex = i;
-			// std::cout << "Permutation " + std::to_string(i) + " is the shortest so far at " + std::to_string(shortestDistance) + ".\n";
+			std::cout << "Permutation " + std::to_string(i) + " is the shortest so far at " + std::to_string(shortestDistance) + ".\n";
 		}
 	}
 
@@ -68,15 +69,15 @@ void NavPlanner::ConstructNavPlan()
 	// Update the nav plan coordinate order
 	activeNavPlan.coordinates = allCoordinatePermutations[shortestDistanceIndex];
 
-	// Calculate the distances and headings required.
-	ConstructMovements();
-
 	isConstructed = true;
 	return;
 }
 
-void NavPlanner::ConstructMovements(){
+// Populate the movement array, which stores heading and distance information to all waypoints.
+// NOTE: ConstructNavPlan() is not required to be run, but is highly recommended.
+void NavPlanner::PopulateMovements(){
 
+	// Create a generic movement vector, and store the active Nav Plan coordinates.
 	std::vector<Movement> moves;
 	std::vector<Coordinate> coords = activeNavPlan.coordinates;
 
@@ -85,60 +86,58 @@ void NavPlanner::ConstructMovements(){
 	moves.push_back(CalculateMovement(myLoc, coords[0]));
 
 	// All other movements are from nav plan coordinates to other nav plan coordinates.
-	for(unsigned int i = 0; i < activeNavPlan.coordinates.size() - 1; i++){
+	for(unsigned int i = 0; i < coords.size() - 1; i++){
 		moves.push_back(CalculateMovement(coords[i], coords[i+1]));
 	}
 
+	// If we have to return to the original location, then include this.
+	// moves.push_back(CalculateMovement(coords[coords.size() - 1], myLoc));
+
+	// Update the total movement vector to the Active Nav Plan.
 	activeNavPlan.movements = moves;
 
 	return;
 }
 
+// Calculate the heading and distance between two coordinates.
 Movement NavPlanner::CalculateMovement(Coordinate c1, Coordinate c2){
-
-	Movement m;
 
 	double dx = c2.lon - c1.lon;
 	double dy = c2.lat - c1.lat;
 	double z = atan2(dy, dx) * 180.0 / PI;
 	double head = 90.0 - z;
-	m.heading = (head < 0.0) ? 360.0 + head : head;
 
-	double dist = DistanceBetweenCoordinates(c1, c2);
-	m.distance = dist;
+	Movement m;
+	m.heading = (head < 0.0) ? 360.0 + head : head;
+	m.distance = DistanceBetweenCoordinates(c1, c2);;
 
 	return m;
-
 }
 
-double NavPlanner::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords)
-{
+// Calculate the total distance from a specific set of coordinates.
+double NavPlanner::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords){
+	
 	// Remember, you're not starting at the first location!
 	Coordinate myLoc = sensors::GPS::GetCurrentGPSCoordinates();
 
 	double totalDistance = 0.0;
-
 	totalDistance += DistanceBetweenCoordinates(myLoc, coords[0]);
 
-	for(unsigned int i = 0; i < coords.size() - 1; i++)
-	{
+	for(unsigned int i = 0; i < coords.size() - 1; i++){
 		totalDistance += DistanceBetweenCoordinates(coords[i], coords[i+1]);
 	}
 
-	// If we don't have to return to the original location, this is not necessary.
+	// If we have to return to the original location, then include this.
 	// totalDistance += DistanceBetweenCoordinates(myLoc, coords[coords.size() - 1]);
 
 	return totalDistance;
 }
 
-double NavPlanner::DistanceBetweenCoordinates(Coordinate c1, Coordinate c2)
-{
-	double distance = pow( pow( c2.lat - c1.lat ,2.0) + pow( c2.lon - c1.lon ,2.0),0.5);
-	return distance;
-}
-
-void NavPlanner::GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex)
-{
+// Main permutation function (recursive) for coordinate vector permutations.
+// 
+// Source:
+// http://www.cplusplus.com/forum/general/44552/
+void NavPlanner::GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex){
 	if (nextIndex==coords.size()){
 		totalPermutations++;
 		//PrintCoordinatePermutation(coords);
@@ -166,6 +165,7 @@ void NavPlanner::PrintCoordinatePermutation(std::vector<Coordinate>& vec){
 		std::cout << vec[i].lon << "," << vec[i].lat << "||";
 }
 
+double NavPlanner::DistanceBetweenCoordinates(Coordinate c1, Coordinate c2){ return pow( pow( c2.lat - c1.lat ,2.0) + pow( c2.lon - c1.lon ,2.0),0.5); }
 std::vector<Coordinate> NavPlanner::GetWaypoints(){ return activeNavPlan.coordinates; }
 std::vector<Movement> NavPlanner::GetMovements(){ return activeNavPlan.movements; }
 bool NavPlanner::IsPopulated(){ return activeNavPlan.coordinates.size(); }

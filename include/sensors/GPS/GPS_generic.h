@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <tuple>
 
 namespace sensors{
 	namespace GPS {

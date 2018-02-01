@@ -5,7 +5,7 @@
 # These are compiler flags
 CC = g++
 INC = -I../include/
-CFLAGS = -c -Wall # -std=c++11
+CFLAGS = -c -Wall -std=c++11
 ODIR = obj
 SRC = ../src
 dir_guard = @mkdir -p $(@D)
