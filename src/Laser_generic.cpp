@@ -18,5 +18,14 @@ bool Laser::Reset(){
 }
 double Laser::ReadLaser(){
 
+	#ifdef SIM // sim mode
+	return PlantModel::GetVehicle().GetLaser().val;
+	#else
+	// ACTUAL laser information here
+
+	
 	return 1.0;
+	#endif
+
+
 }
