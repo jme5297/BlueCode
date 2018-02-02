@@ -1,5 +1,6 @@
 #pragma once
 #include <sensors/Sensors_generic.h>
+#include <cmath>
 
 using namespace sensors;
 
@@ -29,9 +30,9 @@ public:
   pLas& GetLaser();
   pMot& GetMotorL();
   pMot& GetMotorR();
+  void SetHeading(double val);
 protected:
   double heading;
-  double speed;
   pGPS gps;
   pCam cam;
   pLas las;
@@ -42,6 +43,7 @@ protected:
 class PlantModel{
 public:
   static void Initialize();
+  static void Run();
   static Coordinate GetGPSCoords();
   static Vehicle& GetVehicle();
 

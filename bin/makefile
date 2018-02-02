@@ -16,13 +16,19 @@ main: $(ODIR)/PlantModel.o \
 			$(ODIR)/Laser_generic.o \
 			$(ODIR)/Camera_generic.o \
 			$(ODIR)/GPS_generic.o \
-			$(ODIR)/SensorHub.o $(ODIR)/PathPlanning.o $(ODIR)/main.o
+			$(ODIR)/SensorHub.o \
+			$(ODIR)/PathPlanning.o \
+			$(ODIR)/Controller.o \
+			$(ODIR)/main.o
 	$(dir_guard)
 	$(CC) $(ODIR)/PlantModel.o \
 	$(ODIR)/GPS_generic.o \
 	$(ODIR)/Laser_generic.o \
 	$(ODIR)/Camera_generic.o \
-	$(ODIR)/SensorHub.o $(ODIR)/PathPlanning.o $(ODIR)/main.o -o main
+	$(ODIR)/SensorHub.o \
+	$(ODIR)/PathPlanning.o \
+	$(ODIR)/Controller.o \
+	$(ODIR)/main.o -o main
 
 $(ODIR)/PlantModel.o: $(SRC)/PlantModel.cpp
 	$(dir_guard)
@@ -47,6 +53,10 @@ $(ODIR)/SensorHub.o: $(SRC)/SensorHub.cpp
 $(ODIR)/PathPlanning.o: $(SRC)/PathPlanning.cpp
 	$(dir_guard)
 	$(CC) $(CFLAGS) $(INC) $(SRC)/PathPlanning.cpp -o $(ODIR)/PathPlanning.o
+
+$(ODIR)/Controller.o: $(SRC)/Controller.cpp
+	$(dir_guard)
+	$(CC) $(CFLAGS) $(INC) $(SRC)/Controller.cpp -o $(ODIR)/Controller.o
 
 $(ODIR)/main.o: $(SRC)/main.cpp
 	$(dir_guard)

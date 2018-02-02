@@ -1,4 +1,5 @@
 #pragma once
+#include <sensors/Sensors_generic.h>
 #include <sensors/GPS/GPS_generic.h>
 #include <sensors/Laser/Laser_generic.h>
 #include <sensors/Camera/Camera_generic.h>

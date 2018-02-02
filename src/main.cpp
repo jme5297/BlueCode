@@ -1,14 +1,18 @@
 #include <PlantModel.h>
 #include <PathPlanning.h>
+#include <Controller.h>
 #include <iostream>
+#include <fstream>
 using namespace PathPlanning;
 
 // FUNCTION PROTOTYPES
 void InputNavPlan();
 bool ProgramSetup(NavPlanner& myNavPlanner,
-									SensorHub& mySensorHub);
+									SensorHub& mySensorHub,
+									Controller& myController);
 void MainOperations(NavPlanner& myNavPlanner,
-									SensorHub& mySensorHub);
+									SensorHub& mySensorHub,
+									Controller& myController);
 void CleanupOperations();
 bool TestSensorConnectivity();
 NavPlanner InputNavPlanCoordinates();
@@ -20,6 +24,7 @@ int main(){
 	// Create all of the structures that we'll need.
 	NavPlanner myNavPlanner;
 	SensorHub mySensorHub;
+	Controller myController;
 
 	#ifdef SIM
 	PlantModel::Initialize();
@@ -27,7 +32,7 @@ int main(){
 
 	// ProgramSetup handles constructing the nav plan, and ensuring
 	// that all sensors are connected. This will return true if setup has finished correctly.
-	bool setup = ProgramSetup(myNavPlanner, mySensorHub);
+	bool setup = ProgramSetup(myNavPlanner, mySensorHub, myController);
 
 	// If failure in setup at any given time, then program cannot continue.
 	if(!setup){
@@ -38,13 +43,13 @@ int main(){
 		PrintNavPlanInfo(myNavPlanner, mySensorHub);
 	}
 
-	MainOperations(myNavPlanner, mySensorHub);
+	MainOperations(myNavPlanner, mySensorHub, myController);
 	CleanupOperations();
 
 	return 0;
 }
 
-bool ProgramSetup(NavPlanner& myNavPlanner, SensorHub& mySensorHub)
+bool ProgramSetup(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller& myController)
 {
 	std::cout << "\nHello!\n\n" << std::endl;
 
@@ -82,10 +87,36 @@ bool ProgramSetup(NavPlanner& myNavPlanner, SensorHub& mySensorHub)
 	return true;
 }
 
-void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub){
+void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller& myController){
 
+	#ifdef SIM
+	std::ofstream output;
+	output.open("out.csv");
+	PlantModel::GetVehicle().SetHeading(-45.0);
+	myController.SetMotorLSpeed(1.0);
+	myController.SetMotorRSpeed(0.8);
+	#endif
 
+	int i = 0;
+	bool running = true;
+	while(running){
+		#ifdef SIM
+		PlantModel::Run();
+		#endif
+		double lon = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lon;
+		double lat = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lat;
 
+		std::cout << "Lon: " << lon << ", Lat: " << lat << "\n";
+		output << lon << "," << lat << "\n";
+
+		i++;
+		if (i > 50){
+			running = false;
+		}
+	}
+
+	std::cout << "Main operations complete.\n";
+	output.close();
 	return;
 }
 
