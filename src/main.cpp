@@ -1,25 +1,33 @@
+#include <PlantModel.h>
 #include <PathPlanning.h>
 #include <iostream>
 using namespace PathPlanning;
 
 // FUNCTION PROTOTYPES
 void InputNavPlan();
-bool ProgramSetup(NavPlanner& myNavPlan);
-void MainOperations(NavPlanner& myNavPlan);
+bool ProgramSetup(NavPlanner& myNavPlanner,
+									SensorHub& mySensorHub);
+void MainOperations(NavPlanner& myNavPlanner,
+									SensorHub& mySensorHub);
 void CleanupOperations();
 bool TestSensorConnectivity();
 NavPlanner InputNavPlanCoordinates();
-void PrintNavPlanInfo(NavPlanner np);
+void PrintNavPlanInfo(NavPlanner& np, SensorHub& sh);
 
 // MAIN LOGIC ENTRANCE
 int main(){
 
-	// Create a generic nav plan
-	NavPlanner myNavPlan;
+	// Create all of the structures that we'll need.
+	NavPlanner myNavPlanner;
+	SensorHub mySensorHub;
+
+	#ifdef SIM
+	PlantModel::Initialize();
+	#endif
 
 	// ProgramSetup handles constructing the nav plan, and ensuring
 	// that all sensors are connected. This will return true if setup has finished correctly.
-	bool setup = ProgramSetup(myNavPlan);
+	bool setup = ProgramSetup(myNavPlanner, mySensorHub);
 
 	// If failure in setup at any given time, then program cannot continue.
 	if(!setup){
@@ -27,23 +35,23 @@ int main(){
 		return 0;
 	}else{
 		std::cout << "Nav Plan constructed successfully!\n\n";
-		PrintNavPlanInfo(myNavPlan);
+		PrintNavPlanInfo(myNavPlanner, mySensorHub);
 	}
 
-	MainOperations(myNavPlan);
+	MainOperations(myNavPlanner, mySensorHub);
 	CleanupOperations();
 
 	return 0;
 }
 
-bool ProgramSetup(NavPlanner& myNavPlan)
+bool ProgramSetup(NavPlanner& myNavPlanner, SensorHub& mySensorHub)
 {
 	std::cout << "\nHello!\n\n" << std::endl;
 
 	// Ensure all sensors are connected. If not, exit program.
-	std::cout << "Testing sensor connection... \n";
-	if(!TestSensorConnectivity()){
-		std::cout << "ERROR: Not all sensors have established connectivity. Exiting program.\n";
+	std::cout << "Initializing sensor connections... \n";
+	if(!mySensorHub.InitAllSensors()){
+		std::cout << "ERROR: Not all sensors have initialized. Exiting program.\n";
 		return false;
 	}else{
 		std::cout << "Connection with sensors established!\n";
@@ -51,30 +59,32 @@ bool ProgramSetup(NavPlanner& myNavPlan)
 
 	// Construct our navigation plan once we know sensors are connected.
 	std::cout << "\n===WAYPOINT INPUT===\n";
-	myNavPlan = InputNavPlanCoordinates();
+	myNavPlanner = InputNavPlanCoordinates();
 
 	// Make sure that there was at-least one nav plan coordinate added.
-	if(!myNavPlan.IsPopulated()){
+	if(!myNavPlanner.IsPopulated()){
 		std::cout << "ERROR: Nav Plan not properly populated. Exiting program.\n";
 		return false;
 	}
 
 	// Construct the nav plan based on the waypoints provided.
 	std::cout << "\n===NAV PLAN CONSTRUCTION===\n";
-	myNavPlan.ConstructNavPlan();
+	myNavPlanner.ConstructNavPlan(mySensorHub);
 
 	// Make sure the nav plan was properly constructed.
-	if(!myNavPlan.IsConstructed()){
+	if(!myNavPlanner.IsConstructed()){
 		std::cout << "ERROR: Nav Plan not properly constructed. Exiting program.\n";
 		return false;
 	}else{
-		myNavPlan.PopulateMovements();
+		myNavPlanner.PopulateMovements(mySensorHub);
 	}
 
 	return true;
 }
 
-void MainOperations(NavPlanner& myNavPlan){
+void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub){
+
+
 
 	return;
 }
@@ -86,6 +96,8 @@ void CleanupOperations(){
 
 // Ensure that all connected sensors are working properly.
 bool TestSensorConnectivity(){
+
+
 	return true;
 }
 
@@ -98,9 +110,9 @@ NavPlanner InputNavPlanCoordinates(){
 	// THE FOLLOWING CODE WORKS. For now, just testing with debug cases.
 	// -----
 
-	/*
 	// Currently, only works with 2-D coordinates. This would most likely be
 	// fine considering small angle approximations.
+	/*
 	int response;
 	int index = 0;
 	std::cout << "Add waypoint #" + std::to_string(index) + "? (1=y,0=n): ";
@@ -133,16 +145,17 @@ NavPlanner InputNavPlanCoordinates(){
 	*/
 
 	// Debugging case 1 - generic test
-	/*
+
 	navPlan.AddCoordinate(-1, 1.0, -21.0);
 	navPlan.AddCoordinate(-1, 11.0, 12.0);
 	navPlan.AddCoordinate(-1, 12.0, 2.0);
 	navPlan.AddCoordinate(-1, 10.0, 0.0);
 	navPlan.AddCoordinate(-1, -3.0, 3.0);
 	navPlan.AddCoordinate(-1, 9.0, 5.0);
-	*/
+
 
 	// Debugging case 2 - stress test
+	/*
 	navPlan.AddCoordinate(-1, 1.0, 1.0);
 	navPlan.AddCoordinate(-1, -2.0, 10.0);
 	navPlan.AddCoordinate(-1, 2.0, 2.0);
@@ -155,6 +168,7 @@ NavPlanner InputNavPlanCoordinates(){
 	navPlan.AddCoordinate(-1, 6.0, 1.0);
 	navPlan.AddCoordinate(-1, -2.0, 6.0);
 	//navPlan.AddCoordinate(-1, 10.0, 6.0);
+	*/
 
 	// Debugging case 3 - heading test and patterns
 	/*
@@ -171,11 +185,11 @@ NavPlanner InputNavPlanCoordinates(){
 	return navPlan;
 }
 
-void PrintNavPlanInfo(NavPlanner np){
+void PrintNavPlanInfo(NavPlanner& np, SensorHub& sh){
 
 	std::vector<Coordinate> coords = np.GetWaypoints();
 	std::vector<Movement> moves = np.GetMovements();
-	Coordinate myLoc = sensors::GPS::GetCurrentGPSCoordinates();
+	Coordinate myLoc = sh.GetGPS().GetCurrentGPSCoordinates();
 
 	std::cout << "===CURRENT NAV PLAN===\n";
 	std::cout << "Current location of (" + std::to_string(myLoc.lon) + "," + std::to_string(myLoc.lat) + ").\n";

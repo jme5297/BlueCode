@@ -1,17 +1,34 @@
+#include <preprocdef.h>
 #include <sensors/GPS/GPS_generic.h>
 
-namespace sensors{
-	namespace GPS{
+using namespace sensors;
 
-		Coordinate GetCurrentGPSCoordinates(){
+GPS::GPS(){
 
-			Coordinate cd;
-			cd.lat = 0.0;
-			cd.lon = 0.0;
-
-			return cd;
-		}
-		
-	}	
 }
+GPS::~GPS(){
 
+}
+bool GPS::Init(){
+
+	#ifdef SIM
+	PlantModel::GetVehicle().InitializeGPS();
+	return PlantModel::GetVehicle().GetGPS().initialized;
+	#else
+
+	#endif
+
+	return true;
+}
+bool GPS::Reset(){
+
+	return true;
+}
+Coordinate GPS::GetCurrentGPSCoordinates(){
+
+	#ifdef SIM
+	return PlantModel::GetVehicle().GetGPS().coords;
+	#else
+
+	#endif
+}

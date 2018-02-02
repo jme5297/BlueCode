@@ -12,13 +12,37 @@ dir_guard = @mkdir -p $(@D)
 
 all: main
 
-main: $(ODIR)/GPS_generic.o $(ODIR)/PathPlanning.o $(ODIR)/main.o
+main: $(ODIR)/PlantModel.o \
+			$(ODIR)/Laser_generic.o \
+			$(ODIR)/Camera_generic.o \
+			$(ODIR)/GPS_generic.o \
+			$(ODIR)/SensorHub.o $(ODIR)/PathPlanning.o $(ODIR)/main.o
 	$(dir_guard)
-	$(CC) $(ODIR)/GPS_generic.o $(ODIR)/PathPlanning.o $(ODIR)/main.o -o main
+	$(CC) $(ODIR)/PlantModel.o \
+	$(ODIR)/GPS_generic.o \
+	$(ODIR)/Laser_generic.o \
+	$(ODIR)/Camera_generic.o \
+	$(ODIR)/SensorHub.o $(ODIR)/PathPlanning.o $(ODIR)/main.o -o main
+
+$(ODIR)/PlantModel.o: $(SRC)/PlantModel.cpp
+	$(dir_guard)
+	$(CC) $(CFLAGS) $(INC) $(SRC)/PlantModel.cpp -o $(ODIR)/PlantModel.o
+
+$(ODIR)/Laser_generic.o: $(SRC)/Laser_generic.cpp
+	$(dir_guard)
+	$(CC) $(CFLAGS) $(INC) $(SRC)/Laser_generic.cpp -o $(ODIR)/Laser_generic.o
+
+$(ODIR)/Camera_generic.o: $(SRC)/Camera_generic.cpp
+	$(dir_guard)
+	$(CC) $(CFLAGS) $(INC) $(SRC)/Camera_generic.cpp -o $(ODIR)/Camera_generic.o
 
 $(ODIR)/GPS_generic.o: $(SRC)/GPS_generic.cpp
 	$(dir_guard)
 	$(CC) $(CFLAGS) $(INC) $(SRC)/GPS_generic.cpp -o $(ODIR)/GPS_generic.o
+
+$(ODIR)/SensorHub.o: $(SRC)/SensorHub.cpp
+	$(dir_guard)
+	$(CC) $(CFLAGS) $(INC) $(SRC)/SensorHub.cpp -o $(ODIR)/SensorHub.o
 
 $(ODIR)/PathPlanning.o: $(SRC)/PathPlanning.cpp
 	$(dir_guard)

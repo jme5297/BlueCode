@@ -2,6 +2,7 @@
 
 #include <PathPlanning.h>
 #include <iostream>
+
 using namespace PathPlanning;
 
 NavPlanner::NavPlanner()
@@ -44,7 +45,7 @@ void NavPlanner::AddCoordinate(int index, double c1, double c2)
 }
 
 // Reorganize Nav Plan for most optimal path.
-void NavPlanner::ConstructNavPlan()
+void NavPlanner::ConstructNavPlan(SensorHub& sh)
 {
 	// This function populates the allCoordinatePermutations vector
 	GenerateAllCoordinatePermutations(activeNavPlan.coordinates, 0);
@@ -56,7 +57,7 @@ void NavPlanner::ConstructNavPlan()
 	double shortestDistance = 1.0e30;
 	for(unsigned int i = 0; i < allCoordinatePermutations.size(); i++)
 	{
-		double dist = CalculateTotalNavPlanDistance(allCoordinatePermutations[i]);
+		double dist = CalculateTotalNavPlanDistance(allCoordinatePermutations[i], sh);
 		if(dist < shortestDistance){
 			shortestDistance = dist;
 			shortestDistanceIndex = i;
@@ -75,14 +76,14 @@ void NavPlanner::ConstructNavPlan()
 
 // Populate the movement array, which stores heading and distance information to all waypoints.
 // NOTE: ConstructNavPlan() is not required to be run, but is highly recommended.
-void NavPlanner::PopulateMovements(){
+void NavPlanner::PopulateMovements(SensorHub& sh){
 
 	// Create a generic movement vector, and store the active Nav Plan coordinates.
 	std::vector<Movement> moves;
 	std::vector<Coordinate> coords = activeNavPlan.coordinates;
 
 	// First movement is from the current location to the first nav plan coordinate.
-	Coordinate myLoc = sensors::GPS::GetCurrentGPSCoordinates();
+	Coordinate myLoc = sh.GetGPS().GetCurrentGPSCoordinates();
 	moves.push_back(CalculateMovement(myLoc, coords[0]));
 
 	// All other movements are from nav plan coordinates to other nav plan coordinates.
@@ -115,10 +116,10 @@ Movement NavPlanner::CalculateMovement(Coordinate c1, Coordinate c2){
 }
 
 // Calculate the total distance from a specific set of coordinates.
-double NavPlanner::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords){
-	
+double NavPlanner::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords, SensorHub& sh){
+
 	// Remember, you're not starting at the first location!
-	Coordinate myLoc = sensors::GPS::GetCurrentGPSCoordinates();
+	Coordinate myLoc = sh.GetGPS().GetCurrentGPSCoordinates();
 
 	double totalDistance = 0.0;
 	totalDistance += DistanceBetweenCoordinates(myLoc, coords[0]);
@@ -134,7 +135,7 @@ double NavPlanner::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords)
 }
 
 // Main permutation function (recursive) for coordinate vector permutations.
-// 
+//
 // Source:
 // http://www.cplusplus.com/forum/general/44552/
 void NavPlanner::GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex){

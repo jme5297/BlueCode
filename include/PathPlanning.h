@@ -1,11 +1,12 @@
+#pragma once
 #include <vector>
 #include <algorithm>
 #include <cmath>
-#include <sensors/GPS/GPS_generic.h>
+#include <sensors/SensorHub.h>
 
 namespace PathPlanning {
 
-	using namespace sensors::GPS;
+	using namespace sensors;
 
 	// Second part of a Nav Plan. Contains distance and heading information.
 	struct Movement{
@@ -30,13 +31,14 @@ namespace PathPlanning {
 		bool IsConstructed();													// Returns if Nav Plan has been constructed and movements have been calculated
 		void AddCoordinate(int index, double c1, double c2);					// Add a coordinate to the Nav Plan's list of coordinates
 		void AddCoordinates(std::vector<Coordinate> coords);					// Add a collection of coordinates to the list of coordinates
-		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords);	// Calculate entire distance of a certain Nav Plan
+		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords,
+															SensorHub& sh);	// Calculate entire distance of a certain Nav Plan
 		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);		// Calculate distane between two coordinates
 		Movement CalculateMovement(Coordinate c1, Coordinate c2);				// Calculate heading & direction between two coordinates
 
 		// Nav Plan construction functions
-		void ConstructNavPlan();		// Determine the most optimal path between Nav Plan coordinates
-		void PopulateMovements();		// Populate the required headings and distances between optimal path
+		void ConstructNavPlan(SensorHub& sh);		// Determine the most optimal path between Nav Plan coordinates
+		void PopulateMovements(SensorHub& sh);		// Populate the required headings and distances between optimal path
 
 		// Accessor functions
 		NavPlan GetNavPlan();						// Return the active Nav Plan
