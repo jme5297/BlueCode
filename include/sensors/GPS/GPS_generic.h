@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <sensors/Sensors_generic.h>
-#include <PlantModel.h>
+#include <PlantModel/PlantModel.h>
 
 namespace sensors{
 

@@ -1,5 +1,6 @@
 #include <Controller.h>
 
+using namespace Plant;
 
 Controller::Controller(){
 
@@ -9,7 +10,7 @@ Controller::~Controller(){
 }
 
 void Controller::SetMotorSpeeds(double speed){
-	
+
 	motorLSpeed = speed;
 	motorRSpeed = speed;
 
@@ -27,7 +28,7 @@ void Controller::SetMotorSpeeds(double speed){
 void Controller::SetMotorLSpeed(double speed){
 
 	motorLSpeed = speed;
-	
+
 	#ifdef SIM
 	PlantModel::GetVehicle().GetMotorL().val = speed;
 	#else

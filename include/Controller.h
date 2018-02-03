@@ -1,6 +1,6 @@
 #pragma once
 #include <preprocdef.h>
-#include <PlantModel.h>
+#include <PlantModel/PlantModel.h>
 
 class Controller{
 

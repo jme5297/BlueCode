@@ -2,6 +2,7 @@
 #include <sensors/GPS/GPS_generic.h>
 
 using namespace sensors;
+using namespace Plant;
 
 GPS::GPS(){
 

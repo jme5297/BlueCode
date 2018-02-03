@@ -1,6 +1,7 @@
 #include <sensors/Laser/Laser_generic.h>
 
 using namespace sensors;
+using namespace Plant;
 
 Laser::Laser(){
 
@@ -23,7 +24,7 @@ double Laser::ReadLaser(){
 	#else
 	// ACTUAL laser information here
 
-	
+
 	return 1.0;
 	#endif
 

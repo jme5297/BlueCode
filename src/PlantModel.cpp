@@ -1,8 +1,9 @@
 #define PI 3.14159265
-#include <PlantModel.h>
+#include <PlantModel/PlantModel.h>
 #include <iostream>
 
 using namespace sensors;
+using namespace Plant;
 
 // Declare statics
 Vehicle PlantModel::veh;
@@ -20,58 +21,34 @@ void PlantModel::Initialize(){
 }
 
 void PlantModel::Run(){
-  
+
   // Really, really simple physics model.
 
-  double speedL = veh.motL.val;
-  double speedR = veh.motR.val;
+  double speedL = veh.GetMotorL().val;
+  double speedR = veh.GetMotorR().val;
 
   // Update position based on speed
   double factor = 1.0;
   double x,y;
-  Coordinate gpsCoords = veh.gps.coords;
+  Coordinate gpsCoords = veh.GetGPS().coords;
   x = gpsCoords.lon;
   y = gpsCoords.lat;
 
   double diff = speedL - speedR;
- 
+
   // Update heading if the vehicle is turning.
-  veh.heading += 10.0*diff;
+  veh.SetHeading( veh.GetHeading() + 10.0*diff );
 
   double dist = factor*(speedL + speedR)/2.0;
 
-  x += dist*sin(veh.heading * PI / 180.0);
-  y += dist*cos(veh.heading * PI / 180.0);
+  x += dist*sin(veh.GetHeading() * PI / 180.0);
+  y += dist*cos(veh.GetHeading() * PI / 180.0);
 
   Coordinate updatedCoords = {x, y};
-  veh.gps.coords = updatedCoords;
+  veh.GetGPS().coords = updatedCoords;
 
-  return;
-}
-
-void Vehicle::SetHeading(double val){
-  heading = val;
-  return;
-}
-void Vehicle::InitializeGPS(){
-  gps.initialized = true;
   return;
 }
 Vehicle& PlantModel::GetVehicle(){
   return veh;
-}
-pGPS& Vehicle::GetGPS(){
-  return gps;
-}
-pCam& Vehicle::GetCamera(){
-  return cam;
-}
-pLas& Vehicle::GetLaser(){
-  return las;
-}
-pMot& Vehicle::GetMotorL(){
-  return motL;
-}
-pMot& Vehicle::GetMotorR(){
-  return motR;
 }

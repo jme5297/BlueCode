@@ -1,9 +1,11 @@
-#include <PlantModel.h>
+#include <PlantModel/PlantModel.h>
 #include <PathPlanning.h>
 #include <Controller.h>
 #include <iostream>
 #include <fstream>
+
 using namespace PathPlanning;
+using namespace Plant;
 
 // FUNCTION PROTOTYPES
 void InputNavPlan();
@@ -100,13 +102,14 @@ void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller
 	int i = 0;
 	bool running = true;
 	while(running){
+		
 		#ifdef SIM
 		PlantModel::Run();
 		#endif
 		double lon = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lon;
 		double lat = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lat;
 
-		std::cout << "Lon: " << lon << ", Lat: " << lat << "\n";
+		// std::cout << "Lon: " << lon << ", Lat: " << lat << "\n";
 		output << lon << "," << lat << "\n";
 
 		i++;
@@ -143,7 +146,7 @@ NavPlanner InputNavPlanCoordinates(){
 
 	// Currently, only works with 2-D coordinates. This would most likely be
 	// fine considering small angle approximations.
-	/*
+
 	int response;
 	int index = 0;
 	std::cout << "Add waypoint #" + std::to_string(index) + "? (1=y,0=n): ";
@@ -173,17 +176,16 @@ NavPlanner InputNavPlanCoordinates(){
 	{
 		navPlan = InputNavPlanCoordinates();
 	}
-	*/
 
 	// Debugging case 1 - generic test
-
+	/*
 	navPlan.AddCoordinate(-1, 1.0, -21.0);
 	navPlan.AddCoordinate(-1, 11.0, 12.0);
 	navPlan.AddCoordinate(-1, 12.0, 2.0);
 	navPlan.AddCoordinate(-1, 10.0, 0.0);
 	navPlan.AddCoordinate(-1, -3.0, 3.0);
 	navPlan.AddCoordinate(-1, 9.0, 5.0);
-
+	*/
 
 	// Debugging case 2 - stress test
 	/*
