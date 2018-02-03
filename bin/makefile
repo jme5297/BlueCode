@@ -3,7 +3,7 @@
 # This could be done in MUCH smarter of a fashion
 
 # These are compiler flags
-CC = g++
+CC = g++ 
 INC = -I../include/
 CFLAGS = -c -Wall -std=c++11
 ODIR = obj
@@ -18,7 +18,7 @@ main: $(ODIR)/Vehicle.o \
 			$(ODIR)/Camera_generic.o \
 			$(ODIR)/GPS_generic.o \
 			$(ODIR)/SensorHub.o \
-			$(ODIR)/PathPlanning.o \
+			$(ODIR)/Navigation.o \
 			$(ODIR)/Controller.o \
 			$(ODIR)/main.o
 	$(dir_guard)
@@ -28,7 +28,7 @@ main: $(ODIR)/Vehicle.o \
 	$(ODIR)/Laser_generic.o \
 	$(ODIR)/Camera_generic.o \
 	$(ODIR)/SensorHub.o \
-	$(ODIR)/PathPlanning.o \
+	$(ODIR)/Navigation.o \
 	$(ODIR)/Controller.o \
 	$(ODIR)/main.o -o main
 
@@ -56,9 +56,9 @@ $(ODIR)/SensorHub.o: $(SRC)/SensorHub.cpp
 	$(dir_guard)
 	$(CC) $(CFLAGS) $(INC) $(SRC)/SensorHub.cpp -o $(ODIR)/SensorHub.o
 
-$(ODIR)/PathPlanning.o: $(SRC)/PathPlanning.cpp
+$(ODIR)/Navigation.o: $(SRC)/Navigation.cpp
 	$(dir_guard)
-	$(CC) $(CFLAGS) $(INC) $(SRC)/PathPlanning.cpp -o $(ODIR)/PathPlanning.o
+	$(CC) $(CFLAGS) $(INC) $(SRC)/Navigation.cpp -o $(ODIR)/Navigation.o
 
 $(ODIR)/Controller.o: $(SRC)/Controller.cpp
 	$(dir_guard)

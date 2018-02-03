@@ -1,9 +1,9 @@
 #define PI 3.14159265
 
-#include <PathPlanning.h>
+#include <Navigation.h>
 #include <iostream>
 
-using namespace PathPlanning;
+using namespace Navigation;
 
 NavPlanner::NavPlanner()
 {
@@ -14,6 +14,11 @@ NavPlanner::NavPlanner()
 NavPlanner::~NavPlanner()
 {
 
+}
+
+void NavPlanner::Run(Controller& c){
+
+	return;
 }
 
 // Add a coordinate to the vector list of coordinates of the specific active Nav Plan.

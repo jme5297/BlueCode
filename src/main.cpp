@@ -1,10 +1,12 @@
 #include <PlantModel/PlantModel.h>
-#include <PathPlanning.h>
+#include <Navigation.h>
 #include <Controller.h>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
-using namespace PathPlanning;
+using namespace Navigation;
+using namespace Control;
 using namespace Plant;
 
 // FUNCTION PROTOTYPES
@@ -19,6 +21,19 @@ void CleanupOperations();
 bool TestSensorConnectivity();
 NavPlanner InputNavPlanCoordinates();
 void PrintNavPlanInfo(NavPlanner& np, SensorHub& sh);
+
+// Generic time counters
+std::chrono::time_point<std::chrono::system_clock> beginMainOpsTime;
+std::chrono::time_point<std::chrono::system_clock> lastPrintTime;
+std::chrono::time_point<std::chrono::system_clock> lastWriteTime;
+std::chrono::time_point<std::chrono::system_clock> lastPlantStep;
+std::chrono::time_point<std::chrono::system_clock> lastNavStep;
+std::chrono::time_point<std::chrono::system_clock> lastControlStep;
+double dtPrint = 1.0;
+double dtWrite = 0.001;
+double dtPlant = 0.001;
+double dtNav = 0.1;			// Update Nav on 10 Hz cycle
+double dtControl = 0.1;	// Update control on 10 Hz cycle
 
 // MAIN LOGIC ENTRANCE
 int main(){
@@ -45,6 +60,8 @@ int main(){
 		PrintNavPlanInfo(myNavPlanner, mySensorHub);
 	}
 
+	// Begin main operations now.
+	beginMainOpsTime = std::chrono::system_clock::now();
 	MainOperations(myNavPlanner, mySensorHub, myController);
 	CleanupOperations();
 
@@ -91,35 +108,84 @@ bool ProgramSetup(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller& 
 
 void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller& myController){
 
+	std::cout << "Running...\n";
+
+	lastPrintTime = std::chrono::system_clock::now();
+	lastWriteTime = std::chrono::system_clock::now();
+	lastPlantStep = std::chrono::system_clock::now();
+	lastNavStep = std::chrono::system_clock::now();
+	lastControlStep = std::chrono::system_clock::now();
+
 	#ifdef SIM
 	std::ofstream output;
 	output.open("out.csv");
-	PlantModel::GetVehicle().SetHeading(-45.0);
+	// Generic testing
+	PlantModel::GetVehicle()->heading = -45.0;
 	myController.SetMotorLSpeed(1.0);
-	myController.SetMotorRSpeed(0.8);
+	myController.SetMotorRSpeed(0.9);
 	#endif
 
-	int i = 0;
+	// Generic dt variable to use
+	std::chrono::duration<double> dt;
+
+	// Main logic loop - I EXPECT TO BE HERE FOR A WHILE
 	bool running = true;
 	while(running){
-		
+
 		#ifdef SIM
-		PlantModel::Run();
+		dt = std::chrono::system_clock::now() - lastPlantStep;
+		if(dt.count() >= dtPlant){
+			PlantModel::Run(dt.count());
+			lastPlantStep = std::chrono::system_clock::now();
+		}
 		#endif
+
+		// Run guidance and Navigation (and pass the controller)
+		dt = std::chrono::system_clock::now() - lastNavStep;
+		if(dt.count() >= dtNav){
+			myNavPlanner.Run(myController);
+			lastNavStep = std::chrono::system_clock::now();
+		}
+
+		// Run controls
+		dt = std::chrono::system_clock::now() - lastControlStep;
+		if(dt.count() >= dtControl){
+			myController.Run();
+			lastNavStep = std::chrono::system_clock::now();
+		}
+
 		double lon = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lon;
 		double lat = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lat;
 
-		// std::cout << "Lon: " << lon << ", Lat: " << lat << "\n";
-		output << lon << "," << lat << "\n";
-
-		i++;
-		if (i > 50){
-			running = false;
+		// Print info to screen
+		dt = std::chrono::system_clock::now() - lastPrintTime;
+		if(dt.count() > dtPrint){
+			PlantModel::PrintStatus();
+			lastPrintTime = std::chrono::system_clock::now();
 		}
+
+		// Write plant model info to a file
+		dt = std::chrono::system_clock::now() - lastWriteTime;
+		if(dt.count() > dtWrite){
+			output << PlantModel::GetElapsedSeconds() << ","
+				<< lon << ","
+				<< lat << ","
+				<< PlantModel::GetVehicle()->heading << "\n";
+			lastWriteTime = std::chrono::system_clock::now();
+		}
+
+		// Stop sim after a certain amount of time
+		#ifdef SIM
+		std::chrono::duration<double> elapsed = std::chrono::system_clock::now() - beginMainOpsTime;
+		double runTime = elapsed.count();
+		if(runTime >= 10.0){ running = false; }
+		#endif
 	}
 
 	std::cout << "Main operations complete.\n";
 	output.close();
+
+	// std::cout << ">>>done>>>  " << PlantModel::GetVehicle()->gps.coords.lat << "\n";
 	return;
 }
 

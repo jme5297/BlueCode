@@ -13,10 +13,10 @@ GPS::~GPS(){
 bool GPS::Init(){
 
 	#ifdef SIM
-	PlantModel::GetVehicle().InitializeGPS();
-	return PlantModel::GetVehicle().GetGPS().initialized;
+	PlantModel::GetVehicle()->InitializeGPS();
+	return PlantModel::GetVehicle()->gps.initialized;
 	#else
-
+	// Actual GPS initialization code goes here
 	#endif
 
 	return true;
@@ -28,8 +28,8 @@ bool GPS::Reset(){
 Coordinate GPS::GetCurrentGPSCoordinates(){
 
 	#ifdef SIM
-	return PlantModel::GetVehicle().GetGPS().coords;
+	return PlantModel::GetVehicle()->gps.coords;
 	#else
-
+	// Actual code goes here to get GPS coordinates
 	#endif
 }

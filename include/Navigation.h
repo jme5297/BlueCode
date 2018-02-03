@@ -3,10 +3,12 @@
 #include <algorithm>
 #include <cmath>
 #include <sensors/SensorHub.h>
+#include <Controller.h>
 
-namespace PathPlanning {
+namespace Navigation {
 
 	using namespace sensors;
+	using namespace Control;
 
 	// Second part of a Nav Plan. Contains distance and heading information.
 	struct Movement{
@@ -44,6 +46,9 @@ namespace PathPlanning {
 		NavPlan GetNavPlan();						// Return the active Nav Plan
 		std::vector<Coordinate> GetWaypoints();		// Return the Waypoints of the current Nav Plan
 		std::vector<Movement> GetMovements();		// Return the movements of the current Nav Plan
+
+		// Main execution loop
+		void Run(Controller& c);
 
 	protected:
 

@@ -7,48 +7,64 @@ using namespace Plant;
 
 // Declare statics
 Vehicle PlantModel::veh;
+std::chrono::time_point<std::chrono::system_clock> PlantModel::initTime;
+std::chrono::time_point<std::chrono::system_clock> PlantModel::lastRunCall;
+bool PlantModel::fp_run;
 
 void PlantModel::Initialize(){
-  /*
-  veh.speed = 0.0;
-  veh.heading = 0.0;
-  veh.gps = { false, {0.0, 0.0}};
-  veh.cam = { false, false };
-  veh.las = { false, 0.0 };
-  veh.motL = { false, 0.0 };
-  veh.motR = { false, 0.0 };
-  */
+  std::cout << "PLANT INITIALIZED " << GetVehicle()->gps.coords.lon << "\n\n";
+  initTime = std::chrono::system_clock::now();
+  fp_run = true;
 }
 
-void PlantModel::Run(){
+// Really, really simple physics model.
+void PlantModel::Run(double dt){
 
-  // Really, really simple physics model.
+  switch(GetVehicle()->vehicleType){
+    case VehicleType::Track:{
+      double speedL = GetVehicle()->motL.val;
+      double speedR = GetVehicle()->motR.val;
+      // Angle is in RADIANS
+      double dtheta = (speedL - speedR) / GetVehicle()->width * dt;
+      // Update heading if the vehicle is turning.
+      GetVehicle()->heading += dtheta * 180.0 / PI ;
+      GetVehicle()->heading = fmod(GetVehicle()->heading, 360.0);
+      // Turning radius
+      double r;
+      double dx;
+      double dy;
+      if(dtheta <= 1e-15){
+        r = -1.0; // turning radius is infinity here.
+        dx = speedL*dt*sin(GetVehicle()->heading * PI / 180.0);
+        dy = speedL*dt*cos(GetVehicle()->heading * PI / 180.0);
+      }else{
+        r = speedR * dt / dtheta;
+        dx = (r + GetVehicle()->width/2.0)*dtheta*sin(GetVehicle()->heading * PI / 180.0);
+        dy = (r + GetVehicle()->width/2.0)*dtheta*cos(GetVehicle()->heading * PI / 180.0);
+      }
+      GetVehicle()->gps.coords.lon += dx;
+      GetVehicle()->gps.coords.lat += dy;
+      break;
+    }
+    case VehicleType::Wheel:
 
-  double speedL = veh.GetMotorL().val;
-  double speedR = veh.GetMotorR().val;
-
-  // Update position based on speed
-  double factor = 1.0;
-  double x,y;
-  Coordinate gpsCoords = veh.GetGPS().coords;
-  x = gpsCoords.lon;
-  y = gpsCoords.lat;
-
-  double diff = speedL - speedR;
-
-  // Update heading if the vehicle is turning.
-  veh.SetHeading( veh.GetHeading() + 10.0*diff );
-
-  double dist = factor*(speedL + speedR)/2.0;
-
-  x += dist*sin(veh.GetHeading() * PI / 180.0);
-  y += dist*cos(veh.GetHeading() * PI / 180.0);
-
-  Coordinate updatedCoords = {x, y};
-  veh.GetGPS().coords = updatedCoords;
+      break;
+  }
 
   return;
 }
-Vehicle& PlantModel::GetVehicle(){
-  return veh;
+void PlantModel::PrintStatus(){
+  std::cout << "t: " << GetElapsedSeconds() <<
+    " --- lat: " << std::to_string(GetVehicle()->gps.coords.lat) << ", lon: " << GetVehicle()->gps.coords.lon << "\n";
+}
+std::chrono::duration<double> PlantModel::GetSimDuration(){
+  return std::chrono::system_clock::now()-initTime;
+}
+double PlantModel::GetElapsedSeconds(){
+  std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now()-initTime;
+  return elapsed_seconds.count();
+}
+
+Vehicle * PlantModel::GetVehicle(){
+  return &veh;
 }
