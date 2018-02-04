@@ -2,6 +2,7 @@
 #include <Navigation.h>
 // #include <Control.h>
 #include <chrono>
+#include <cmath>
 
 namespace Guidance{
 
@@ -13,6 +14,7 @@ namespace Guidance{
   enum ManeuverState{
 		Calibrate,
 		Maintain,
+    Turn,
 		AvoidDiverge,
 		AvoidConverge,
 		PayloadDrop,
@@ -23,9 +25,10 @@ namespace Guidance{
 	public:
 		int index;
 		ManeuverState state;
-		system_clock::time_point beginGuidanceManeuver;
-		system_clock::time_point endGuidanceManeuver;
-		double turnToHeading;
+		steady_clock::time_point beginGuidanceManeuver;
+		steady_clock::time_point endGuidanceManeuver;
+		int turnDirection;
+    double speed;
 		bool done;
 	};
 

@@ -7,6 +7,7 @@ bin/main
 # Any output files and post process files
 *.csv
 *.m
+*.m~
 
 # Prerequisites
 *.d

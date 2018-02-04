@@ -14,11 +14,8 @@ Controller::~Controller(){
 
 void Controller::Run(Guider& g){
 
-	// Account for a breif period where there is nothing occuring
-	if(g.GetGuidanceManeuverBuffer().empty()){ return; }
-
 	// If the buffer is empty, then don't run anything.
-	if(g.GetCurrentGuidanceManeuver().done){
+	if(g.GetGuidanceManeuverBuffer().empty() || g.GetCurrentGuidanceManeuver().done){
 		switch(currentVehicleMode){
 			case VehicleMode::Wheel:
 				SetWheelSpeed(0.0);
@@ -29,6 +26,38 @@ void Controller::Run(Guider& g){
 				break;
 		}
 		return;
+	}
+	else{
+		switch(g.GetCurrentGuidanceManeuver().state){
+			case ManeuverState::Turn:
+				switch(currentVehicleMode){
+					case VehicleMode::Wheel:
+						SetWheelSpeed(g.GetCurrentGuidanceManeuver().speed);
+						SetWheelSteering((double)g.GetCurrentGuidanceManeuver().turnDirection);
+						break;
+					case VehicleMode::Track:
+						if(g.GetCurrentGuidanceManeuver().turnDirection == -1){
+							SetMotorLSpeed(g.GetCurrentGuidanceManeuver().speed*0.8);
+							SetMotorRSpeed(g.GetCurrentGuidanceManeuver().speed);
+						}else{
+							SetMotorLSpeed(g.GetCurrentGuidanceManeuver().speed);
+							SetMotorRSpeed(g.GetCurrentGuidanceManeuver().speed*0.8);
+						}
+						break;
+				}
+				break;
+			case ManeuverState::Maintain:
+				switch(currentVehicleMode){
+					case VehicleMode::Wheel:
+						SetWheelSpeed(g.GetCurrentGuidanceManeuver().speed);
+						SetWheelSteering(0.0);
+						break;
+					case VehicleMode::Track:
+						SetMotorSpeeds(1.0);
+						break;
+				}
+				break;
+		}
 	}
 
 	return;

@@ -110,16 +110,16 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 	std::cout << "Running...\n";
 
-	tm.InitProccessCounter("Nav", 0.1);
-	tm.InitProccessCounter("Guid", 0.1);
-	tm.InitProccessCounter("Ctrl", 0.1);
+	tm.InitProccessCounter("Nav", 0.05);
+	tm.InitProccessCounter("Guid", 0.05);
+	tm.InitProccessCounter("Ctrl", 0.05);
 	tm.InitProccessCounter("Write", 0.01);
 	tm.InitProccessCounter("Print", 1.0);
 
 	#ifdef SIM
 	tm.InitProccessCounter("Plant", 0.01);
 	// Generic testing
-	PlantModel::GetVehicle()->heading = -180.0;
+	PlantModel::GetVehicle()->heading = 5.0;
 	myController.SetMotorLSpeed(1.0);
 	myController.SetMotorRSpeed(1.0);
 	#endif
@@ -173,15 +173,15 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 		// Stop sim after a certain amount of time
 		#ifdef SIM
 		double elapsed = tm.GetElapsedTime("BeginMainOpsTime");
-		if(elapsed >= 10.0){
+		if(elapsed >= 500.0){
 			running = false;
 		}
 		#endif
 
 		// Determine if we're all done here.
-		if(myGuider.IsNavPlanComplete() && myGuider.GetCurrentGuidanceManeuver().done){
+		if(myGuider.IsNavPlanComplete()){
 			//std::cout << "COMPLETE!\n";
-			//running = false;
+			running = false;
 		}
 	}
 

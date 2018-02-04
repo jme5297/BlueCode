@@ -1,5 +1,4 @@
 #define PI 3.14159265
-#define PLDIST 5.0
 
 #include <Navigation.h>
 #include <iostream>
@@ -25,8 +24,16 @@ void Navigator::Run(SensorHub& sh){
 	Coordinate curPos = sh.GetGPS().GetCurrentGPSCoordinates();
 
 	// Calculate our heading
-	Coordinate c1 = curPos;
-	Coordinate c2 = lastCoordinates;
+	Coordinate c1 = lastCoordinates;
+	Coordinate c2 = curPos;
+
+	// Don't know why this is happening
+	if((lastCoordinates.lat == curPos.lat)
+		&& (lastCoordinates.lon == curPos.lon)){
+			std::cout << "GPS REPEAT" << std::endl;
+		return;
+	}
+
 	double dx = c2.lon - c1.lon;
 	double dy = c2.lat - c1.lat;
 	double z = atan2(dy, dx) * 180.0 / PI;
