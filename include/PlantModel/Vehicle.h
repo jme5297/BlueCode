@@ -46,6 +46,6 @@ namespace Plant{
     pMot motR;
     VehicleType vehicleType;
     double wheelSpeed;
-    double wheelHeading;
+    double wheelSteering;
   };
 }

@@ -1,4 +1,5 @@
 #define PI 3.14159265
+#define PLDIST 5.0
 
 #include <Navigation.h>
 #include <iostream>
@@ -9,6 +10,9 @@ NavPlanner::NavPlanner()
 {
 	isConstructed = false;
 	totalPermutations = 0;
+	isWaypointAcheived = false;
+	isNavPlanComplete = false;
+	coordinateIndex = 0;
 }
 
 NavPlanner::~NavPlanner()
@@ -16,7 +20,40 @@ NavPlanner::~NavPlanner()
 
 }
 
-void NavPlanner::Run(Controller& c){
+void NavPlanner::Run(SensorHub& sh, Controller& c){
+
+	// Get our current position
+	Coordinate curPos = sh.GetGPS().GetCurrentGPSCoordinates();
+
+	// Calculate our heading
+	Coordinate c1 = curPos;
+	Coordinate c2 = lastCoordinates;
+	double dx = c2.lon - c1.lon;
+	double dy = c2.lat - c1.lat;
+	double z = atan2(dy, dx) * 180.0 / PI;
+	double head = 90.0 - z;
+	head = (head < 0.0) ? 360.0 + head : head;
+	lastCoordinates = curPos;
+	vehicleHeading = head;
+
+	// Get the vector of control moves
+	std::vector<ControlMove> buf  = c.GetControlMoveBuffer();
+
+	// Determine if we're ready to drop a payload.
+	if(DistanceBetweenCoordinates(curPos, activeNavPlan.coordinates[coordinateIndex]) <= PLDIST){
+		std::cout << "Payload drop time!" << std::endl;
+		//Push back a control move to drop payload.
+		ControlMove cm;
+		cm.state = ControlState::PayloadDrop;
+		c.RequestControlMove(cm);
+
+		coordinateIndex++;
+		// If this is the last coordinate of the nav plan, then let's wrap it up here.
+		if(coordinateIndex == activeNavPlan.coordinates.size()){
+			isNavPlanComplete = true;
+		}
+		return;
+	}
 
 	return;
 }
@@ -177,3 +214,5 @@ std::vector<Movement> NavPlanner::GetMovements(){ return activeNavPlan.movements
 bool NavPlanner::IsPopulated(){ return activeNavPlan.coordinates.size(); }
 bool NavPlanner::IsConstructed(){ return isConstructed;}
 NavPlan NavPlanner::GetNavPlan(){ return activeNavPlan; }
+bool NavPlanner::IsNavPlanComplete() { return isNavPlanComplete; }
+double NavPlanner::GetHeading(){ return vehicleHeading; }

@@ -48,7 +48,10 @@ namespace Navigation {
 		std::vector<Movement> GetMovements();		// Return the movements of the current Nav Plan
 
 		// Main execution loop
-		void Run(Controller& c);
+		void Run(SensorHub& sh, Controller& c);
+
+		double GetHeading();
+		bool IsNavPlanComplete();
 
 	protected:
 
@@ -64,6 +67,16 @@ namespace Navigation {
 
 		// Current Nav Plan connected to this Nav Planner class
 		NavPlan activeNavPlan;
+
+		// Nav Plan information
+		double vehicleHeading;
+
+		bool isWaypointAcheived;
+		int coordinateIndex;
+		
+		bool isNavPlanComplete;
+
+		Coordinate lastCoordinates;
 	};
 
 }

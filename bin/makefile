@@ -3,9 +3,9 @@
 # This could be done in MUCH smarter of a fashion
 
 # These are compiler flags
-CC = g++ 
+CC = g++
 INC = -I../include/
-CFLAGS = -c -Wall -std=c++11
+CFLAGS = -c -Wall -std=c++11 -g
 ODIR = obj
 SRC = ../src
 dir_guard = @mkdir -p $(@D)

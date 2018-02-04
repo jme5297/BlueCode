@@ -8,6 +8,7 @@
 using namespace Navigation;
 using namespace Control;
 using namespace Plant;
+using namespace std::chrono;
 
 // FUNCTION PROTOTYPES
 void InputNavPlan();
@@ -23,12 +24,12 @@ NavPlanner InputNavPlanCoordinates();
 void PrintNavPlanInfo(NavPlanner& np, SensorHub& sh);
 
 // Generic time counters
-std::chrono::time_point<std::chrono::system_clock> beginMainOpsTime;
-std::chrono::time_point<std::chrono::system_clock> lastPrintTime;
-std::chrono::time_point<std::chrono::system_clock> lastWriteTime;
-std::chrono::time_point<std::chrono::system_clock> lastPlantStep;
-std::chrono::time_point<std::chrono::system_clock> lastNavStep;
-std::chrono::time_point<std::chrono::system_clock> lastControlStep;
+time_point<system_clock> beginMainOpsTime;
+time_point<system_clock> lastPrintTime;
+time_point<system_clock> lastWriteTime;
+time_point<system_clock> lastPlantStep;
+time_point<system_clock> lastNavStep;
+time_point<system_clock> lastControlStep;
 double dtPrint = 1.0;
 double dtWrite = 0.001;
 double dtPlant = 0.001;
@@ -120,9 +121,9 @@ void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller
 	std::ofstream output;
 	output.open("out.csv");
 	// Generic testing
-	PlantModel::GetVehicle()->heading = -45.0;
+	PlantModel::GetVehicle()->heading = -180.0;
 	myController.SetMotorLSpeed(1.0);
-	myController.SetMotorRSpeed(0.9);
+	myController.SetMotorRSpeed(1.0);
 	#endif
 
 	// Generic dt variable to use
@@ -133,7 +134,7 @@ void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller
 	while(running){
 
 		#ifdef SIM
-		dt = std::chrono::system_clock::now() - lastPlantStep;
+		dt = duration_cast<seconds>(system_clock::now() - lastPlantStep);
 		if(dt.count() >= dtPlant){
 			PlantModel::Run(dt.count());
 			lastPlantStep = std::chrono::system_clock::now();
@@ -143,7 +144,7 @@ void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller
 		// Run guidance and Navigation (and pass the controller)
 		dt = std::chrono::system_clock::now() - lastNavStep;
 		if(dt.count() >= dtNav){
-			myNavPlanner.Run(myController);
+			myNavPlanner.Run(mySensorHub, myController);
 			lastNavStep = std::chrono::system_clock::now();
 		}
 
@@ -151,7 +152,7 @@ void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller
 		dt = std::chrono::system_clock::now() - lastControlStep;
 		if(dt.count() >= dtControl){
 			myController.Run();
-			lastNavStep = std::chrono::system_clock::now();
+			lastControlStep = std::chrono::system_clock::now();
 		}
 
 		double lon = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lon;
@@ -180,6 +181,12 @@ void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller
 		double runTime = elapsed.count();
 		if(runTime >= 10.0){ running = false; }
 		#endif
+
+		// Determine if we're all done here.
+		if(myNavPlanner.IsNavPlanComplete() && myController.GetCurrentControlMove().done){
+			std::cout << "COMPLETE!\n";
+			running = false;
+		}
 	}
 
 	std::cout << "Main operations complete.\n";

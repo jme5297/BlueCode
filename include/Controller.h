@@ -2,16 +2,37 @@
 #include <preprocdef.h>
 #include <vector>
 #include <PlantModel/PlantModel.h>
+#include <chrono>
 
 namespace Control{
 
-	enum ControlMode{
+	using namespace std::chrono;
+
+	enum VehicleMode{
 		Track,
 		Wheel
 	};
 
-	class Controller{
+	enum ControlState{
+		Calibrate,
+		Maintain,
+		AvoidDiverge,
+		AvoidConverge,
+		PayloadDrop,
+		Complete
+	};
 
+	struct ControlMove{
+	public:
+		int index;
+		ControlState state;
+		system_clock::time_point beginControlMove;
+		system_clock::time_point endControlMove;
+		double turnToHeading;
+		bool done;
+	};
+
+	class Controller{
 	public:
 		Controller();
 		~Controller();
@@ -33,9 +54,15 @@ namespace Control{
 		void Run();
 
 		int GetControlMoveIndex();
-		void RequestControlMove();
+		void RequestControlMove(ControlMove cm);
+		std::vector<ControlMove> GetControlMoveBuffer();
+		ControlMove GetCurrentControlMove();
 
-		ControlMode currentControlMode;
+		VehicleMode currentVehicleMode;
+		ControlMove currentControlMove;
+
+		// Controls
+		void PayloadDrop();
 
 	protected:
 		// For track system
@@ -47,6 +74,7 @@ namespace Control{
 		double wheelSteering;
 
 		int controlMoveIndex;
+		std::vector<ControlMove> controlMoveBuffer;
 
 	};
 }
