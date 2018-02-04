@@ -31,5 +31,6 @@ Coordinate GPS::GetCurrentGPSCoordinates(){
 	return PlantModel::GetVehicle()->gps.coords;
 	#else
 	// Actual code goes here to get GPS coordinates
+	return {0.0, 0.0};
 	#endif
 }

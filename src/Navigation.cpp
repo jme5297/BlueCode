@@ -5,12 +5,12 @@
 #include <iostream>
 
 using namespace Navigation;
+using namespace Guidance;
 
 NavPlanner::NavPlanner()
 {
 	isConstructed = false;
 	totalPermutations = 0;
-	isWaypointAcheived = false;
 	isNavPlanComplete = false;
 	coordinateIndex = 0;
 }
@@ -20,7 +20,7 @@ NavPlanner::~NavPlanner()
 
 }
 
-void NavPlanner::Run(SensorHub& sh, Controller& c){
+void NavPlanner::Run(SensorHub& sh, Guider& g){
 
 	// Get our current position
 	Coordinate curPos = sh.GetGPS().GetCurrentGPSCoordinates();
@@ -36,16 +36,13 @@ void NavPlanner::Run(SensorHub& sh, Controller& c){
 	lastCoordinates = curPos;
 	vehicleHeading = head;
 
-	// Get the vector of control moves
-	std::vector<ControlMove> buf  = c.GetControlMoveBuffer();
-
 	// Determine if we're ready to drop a payload.
 	if(DistanceBetweenCoordinates(curPos, activeNavPlan.coordinates[coordinateIndex]) <= PLDIST){
 		std::cout << "Payload drop time!" << std::endl;
 		//Push back a control move to drop payload.
-		ControlMove cm;
-		cm.state = ControlState::PayloadDrop;
-		c.RequestControlMove(cm);
+		GuidanceManeuver cm;
+		cm.state = ManeuverState::PayloadDrop;
+		g.RequestGuidanceManeuver(cm);
 
 		coordinateIndex++;
 		// If this is the last coordinate of the nav plan, then let's wrap it up here.

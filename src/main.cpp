@@ -1,56 +1,55 @@
 #include <PlantModel/PlantModel.h>
 #include <Navigation.h>
-#include <Controller.h>
+#include <Guidance.h>
+#include <Control.h>
+#include <TimeModule.h>
 #include <iostream>
 #include <fstream>
 #include <chrono>
 
 using namespace Navigation;
+using namespace Guidance;
 using namespace Control;
 using namespace Plant;
 using namespace std::chrono;
+using namespace Times;
 
 // FUNCTION PROTOTYPES
 void InputNavPlan();
-bool ProgramSetup(NavPlanner& myNavPlanner,
-									SensorHub& mySensorHub,
+bool ProgramSetup(SensorHub& mySensorHub,
+									NavPlanner& myNavPlanner,
+									Guider& myGuider,
 									Controller& myController);
-void MainOperations(NavPlanner& myNavPlanner,
-									SensorHub& mySensorHub,
-									Controller& myController);
+void MainOperations(SensorHub& mySensorHub,
+									NavPlanner& myNavPlanner,
+									Guider& myGuider,
+									Controller& myController,
+									TimeModule& tm);
 void CleanupOperations();
 bool TestSensorConnectivity();
 NavPlanner InputNavPlanCoordinates();
 void PrintNavPlanInfo(NavPlanner& np, SensorHub& sh);
-
-// Generic time counters
-time_point<system_clock> beginMainOpsTime;
-time_point<system_clock> lastPrintTime;
-time_point<system_clock> lastWriteTime;
-time_point<system_clock> lastPlantStep;
-time_point<system_clock> lastNavStep;
-time_point<system_clock> lastControlStep;
-double dtPrint = 1.0;
-double dtWrite = 0.001;
-double dtPlant = 0.001;
-double dtNav = 0.1;			// Update Nav on 10 Hz cycle
-double dtControl = 0.1;	// Update control on 10 Hz cycle
 
 // MAIN LOGIC ENTRANCE
 int main(){
 
 	// Create all of the structures that we'll need.
 	NavPlanner myNavPlanner;
+	Guider myGuider;
 	SensorHub mySensorHub;
 	Controller myController;
+	TimeModule tm;
 
 	#ifdef SIM
 	PlantModel::Initialize();
+	#ifdef DEBUG
+	tm.SetTimeSimDelta(0.0001);
+	#endif
 	#endif
 
 	// ProgramSetup handles constructing the nav plan, and ensuring
 	// that all sensors are connected. This will return true if setup has finished correctly.
-	bool setup = ProgramSetup(myNavPlanner, mySensorHub, myController);
+	bool setup = ProgramSetup(mySensorHub, myNavPlanner, myGuider, myController);
 
 	// If failure in setup at any given time, then program cannot continue.
 	if(!setup){
@@ -62,14 +61,14 @@ int main(){
 	}
 
 	// Begin main operations now.
-	beginMainOpsTime = std::chrono::system_clock::now();
-	MainOperations(myNavPlanner, mySensorHub, myController);
+	tm.AddMilestone("BeginMainOpsTime");
+	MainOperations(mySensorHub, myNavPlanner, myGuider, myController, tm);
 	CleanupOperations();
 
 	return 0;
 }
 
-bool ProgramSetup(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller& myController)
+bool ProgramSetup(SensorHub& mySensorHub, NavPlanner& myNavPlanner, Guider& myGuider, Controller& myController)
 {
 	std::cout << "\nHello!\n\n" << std::endl;
 
@@ -107,83 +106,80 @@ bool ProgramSetup(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller& 
 	return true;
 }
 
-void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller& myController){
+void MainOperations(SensorHub& mySensorHub, NavPlanner& myNavPlanner, Guider& myGuider, Controller& myController, TimeModule& tm){
 
 	std::cout << "Running...\n";
 
-	lastPrintTime = std::chrono::system_clock::now();
-	lastWriteTime = std::chrono::system_clock::now();
-	lastPlantStep = std::chrono::system_clock::now();
-	lastNavStep = std::chrono::system_clock::now();
-	lastControlStep = std::chrono::system_clock::now();
+	tm.InitProccessCounter("Nav", 0.1);
+	tm.InitProccessCounter("Guid", 0.1);
+	tm.InitProccessCounter("Ctrl", 0.1);
+	tm.InitProccessCounter("Write", 0.01);
+	tm.InitProccessCounter("Print", 1.0);
 
 	#ifdef SIM
-	std::ofstream output;
-	output.open("out.csv");
+	tm.InitProccessCounter("Plant", 0.01);
 	// Generic testing
 	PlantModel::GetVehicle()->heading = -180.0;
 	myController.SetMotorLSpeed(1.0);
 	myController.SetMotorRSpeed(1.0);
 	#endif
 
-	// Generic dt variable to use
-	std::chrono::duration<double> dt;
+	std::ofstream output;
+	output.open("out.csv");
 
 	// Main logic loop - I EXPECT TO BE HERE FOR A WHILE
 	bool running = true;
 	while(running){
 
 		#ifdef SIM
-		dt = duration_cast<seconds>(system_clock::now() - lastPlantStep);
-		if(dt.count() >= dtPlant){
-			PlantModel::Run(dt.count());
-			lastPlantStep = std::chrono::system_clock::now();
+		#ifdef DEBUG
+		tm.Run();
+		#endif
+		if(tm.ProccessUpdate("Plant")){
+			PlantModel::Run(tm.GetLastProccessDelta("Plant"));
 		}
 		#endif
 
 		// Run guidance and Navigation (and pass the controller)
-		dt = std::chrono::system_clock::now() - lastNavStep;
-		if(dt.count() >= dtNav){
-			myNavPlanner.Run(mySensorHub, myController);
-			lastNavStep = std::chrono::system_clock::now();
+		if(tm.ProccessUpdate("Nav")){
+			myNavPlanner.Run(mySensorHub, myGuider);
+		}
+
+		if(tm.ProccessUpdate("Guid")){
+			myGuider.Run(myController);
 		}
 
 		// Run controls
-		dt = std::chrono::system_clock::now() - lastControlStep;
-		if(dt.count() >= dtControl){
+		if(tm.ProccessUpdate("Ctrl")){
 			myController.Run();
-			lastControlStep = std::chrono::system_clock::now();
 		}
 
 		double lon = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lon;
 		double lat = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lat;
 
 		// Print info to screen
-		dt = std::chrono::system_clock::now() - lastPrintTime;
-		if(dt.count() > dtPrint){
+		if(tm.ProccessUpdate("Print")){
 			PlantModel::PrintStatus();
-			lastPrintTime = std::chrono::system_clock::now();
 		}
 
 		// Write plant model info to a file
-		dt = std::chrono::system_clock::now() - lastWriteTime;
-		if(dt.count() > dtWrite){
-			output << PlantModel::GetElapsedSeconds() << ","
+		if(tm.ProccessUpdate("Write")){
+			output << tm.GetElapsedTime("BeginMainOpsTime") << ","
 				<< lon << ","
 				<< lat << ","
 				<< PlantModel::GetVehicle()->heading << "\n";
-			lastWriteTime = std::chrono::system_clock::now();
 		}
 
 		// Stop sim after a certain amount of time
 		#ifdef SIM
-		std::chrono::duration<double> elapsed = std::chrono::system_clock::now() - beginMainOpsTime;
-		double runTime = elapsed.count();
-		if(runTime >= 10.0){ running = false; }
+		double elapsed = tm.GetElapsedTime("BeginMainOpsTime");
+		if(elapsed >= 10.0){
+			running = false;
+		}
 		#endif
 
 		// Determine if we're all done here.
-		if(myNavPlanner.IsNavPlanComplete() && myController.GetCurrentControlMove().done){
+		if(myNavPlanner.IsNavPlanComplete() && myGuider.GetCurrentGuidanceManeuver().done){
 			std::cout << "COMPLETE!\n";
 			running = false;
 		}
@@ -192,7 +188,6 @@ void MainOperations(NavPlanner& myNavPlanner, SensorHub& mySensorHub, Controller
 	std::cout << "Main operations complete.\n";
 	output.close();
 
-	// std::cout << ">>>done>>>  " << PlantModel::GetVehicle()->gps.coords.lat << "\n";
 	return;
 }
 

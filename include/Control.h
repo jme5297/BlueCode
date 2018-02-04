@@ -2,34 +2,19 @@
 #include <preprocdef.h>
 #include <vector>
 #include <PlantModel/PlantModel.h>
-#include <chrono>
+// #include <sensors/Sensors_generic.h>
+// #include <Navigation.h>
+// #include <Guidance.h>
 
 namespace Control{
 
-	using namespace std::chrono;
+	// using namespace sensors;
+	// using namespace Navigation;
+	// using namespace Guidance;
 
 	enum VehicleMode{
 		Track,
 		Wheel
-	};
-
-	enum ControlState{
-		Calibrate,
-		Maintain,
-		AvoidDiverge,
-		AvoidConverge,
-		PayloadDrop,
-		Complete
-	};
-
-	struct ControlMove{
-	public:
-		int index;
-		ControlState state;
-		system_clock::time_point beginControlMove;
-		system_clock::time_point endControlMove;
-		double turnToHeading;
-		bool done;
 	};
 
 	class Controller{
@@ -53,13 +38,7 @@ namespace Control{
 		// Main execution command
 		void Run();
 
-		int GetControlMoveIndex();
-		void RequestControlMove(ControlMove cm);
-		std::vector<ControlMove> GetControlMoveBuffer();
-		ControlMove GetCurrentControlMove();
-
 		VehicleMode currentVehicleMode;
-		ControlMove currentControlMove;
 
 		// Controls
 		void PayloadDrop();
@@ -72,9 +51,6 @@ namespace Control{
 		// For wheel system
 		double wheelSpeed;
 		double wheelSteering;
-
-		int controlMoveIndex;
-		std::vector<ControlMove> controlMoveBuffer;
 
 	};
 }
