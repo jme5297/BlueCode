@@ -1,14 +1,14 @@
 #pragma once
-// #include <Navigation.h>
-#include <Control.h>
+#include <Navigation.h>
+// #include <Control.h>
 #include <chrono>
 
 namespace Guidance{
 
   // using namespace sensors;
-  // using namespace Navigation;
+  using namespace Navigation;
   using namespace std::chrono;
-  using namespace Control;
+  //using namespace Control;
 
   enum ManeuverState{
 		Calibrate,
@@ -37,10 +37,13 @@ namespace Guidance{
 		std::vector<GuidanceManeuver> GetGuidanceManeuverBuffer();
 		GuidanceManeuver GetCurrentGuidanceManeuver();
 		GuidanceManeuver currentGuidanceManeuver;
-		void PayloadDrop(Controller& c);
-    void Run(Controller& c);
+		void PayloadDrop();
+    void Run(Navigator& n);
+    bool IsNavPlanComplete();
   protected:
     int GuidanceManeuverIndex;
 		std::vector<GuidanceManeuver> GuidanceManeuverBuffer;
+    int coordinateIndex;
+    bool isNavPlanComplete;
   };
 }

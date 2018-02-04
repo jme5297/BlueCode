@@ -1,6 +1,7 @@
 #include <Control.h>
 
 using namespace Plant;
+using namespace Guidance;
 using namespace Control;
 
 Controller::Controller(){
@@ -11,7 +12,24 @@ Controller::~Controller(){
 
 }
 
-void Controller::Run(){
+void Controller::Run(Guider& g){
+
+	// Account for a breif period where there is nothing occuring
+	if(g.GetGuidanceManeuverBuffer().empty()){ return; }
+
+	// If the buffer is empty, then don't run anything.
+	if(g.GetCurrentGuidanceManeuver().done){
+		switch(currentVehicleMode){
+			case VehicleMode::Wheel:
+				SetWheelSpeed(0.0);
+				SetWheelSteering(0.0);
+				break;
+			case VehicleMode::Track:
+				SetMotorSpeeds(0.0);
+				break;
+		}
+		return;
+	}
 
 	return;
 }

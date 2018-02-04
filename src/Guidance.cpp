@@ -1,10 +1,16 @@
+#define PI 3.14159265
+#define PLDIST 5.0
+
 #include <Guidance.h>
 
+using namespace Navigation;
 using namespace Guidance;
-using namespace Control;
+//using namespace Control;
 
 Guider::Guider(){
   GuidanceManeuverIndex = 0;
+  isNavPlanComplete = false;
+	coordinateIndex = 0;
 }
 
 void Guider::RequestGuidanceManeuver(GuidanceManeuver cm){
@@ -13,27 +19,28 @@ void Guider::RequestGuidanceManeuver(GuidanceManeuver cm){
 	return;
 }
 
-void Guider::Run(Controller& c){
+void Guider::Run(Navigator& n){
 
   // Get the vector of control moves
 	std::vector<GuidanceManeuver> buf  = GetGuidanceManeuverBuffer();
 
-  // Account for a breif period where there is nothing occuring
-	if(GuidanceManeuverBuffer.empty()){ return; }
+  // Determine if we're ready to drop a payload.
+	if(n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= PLDIST){
+		std::cout << "Payload drop time!" << std::endl;
+		//Push back a control move to drop payload.
+		GuidanceManeuver cm;
+		cm.state = ManeuverState::PayloadDrop;
+		RequestGuidanceManeuver(cm);
 
-	// If the buffer is empty, then don't run anything.
-	if(GuidanceManeuverBuffer[GuidanceManeuverIndex].done){
-		switch(c.currentVehicleMode){
-			case VehicleMode::Wheel:
-				c.SetWheelSpeed(0.0);
-				c.SetWheelSteering(0.0);
-				break;
-			case VehicleMode::Track:
-				c.SetMotorSpeeds(0.0);
-				break;
+		coordinateIndex++;
+		// If this is the last coordinate of the nav plan, then let's wrap it up here.
+		if(coordinateIndex == n.GetNavPlan().coordinates.size()){
+			isNavPlanComplete = true;
 		}
 		return;
 	}
+
+  if(GuidanceManeuverBuffer.empty() || GuidanceManeuverBuffer[GuidanceManeuverIndex].done){ return; }
 
 	GuidanceManeuver move = GuidanceManeuverBuffer[GuidanceManeuverIndex];
 	switch(move.state){
@@ -50,7 +57,7 @@ void Guider::Run(Controller& c){
 
 			break;
 		case ManeuverState::PayloadDrop:
-			PayloadDrop(c);
+			PayloadDrop();
 			break;
 		case ManeuverState::Complete:
 
@@ -60,11 +67,11 @@ void Guider::Run(Controller& c){
   return;
 }
 
-void Guider::PayloadDrop(Controller& c){
+void Guider::PayloadDrop(){
 	std::cout << "Performing payload drop... " << std::endl;
 	// Payload drop here
 	bool complete = false;
-	c.PayloadDrop();
+	// c.PayloadDrop();
 	complete = true;
 	if(complete){
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
@@ -76,3 +83,4 @@ void Guider::PayloadDrop(Controller& c){
 std::vector<GuidanceManeuver> Guider::GetGuidanceManeuverBuffer(){ return GuidanceManeuverBuffer; }
 GuidanceManeuver Guider::GetCurrentGuidanceManeuver(){ return GuidanceManeuverBuffer[GuidanceManeuverIndex]; }
 int Guider::GetGuidanceManeuverIndex(){ return GuidanceManeuverIndex; }
+bool Guider::IsNavPlanComplete() { return isNavPlanComplete; }

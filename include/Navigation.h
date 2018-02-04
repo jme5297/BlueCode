@@ -3,13 +3,13 @@
 #include <algorithm>
 #include <cmath>
 #include <sensors/SensorHub.h>
-#include <Guidance.h>
+// #include <Guidance.h>
 // include <Control.h>
 
 namespace Navigation {
 
 	using namespace sensors;
-	using namespace Guidance;
+	// using namespace Guidance;
 	// using namespace Control;
 
 	// Second part of a Nav Plan. Contains distance and heading information.
@@ -25,10 +25,10 @@ namespace Navigation {
 	};
 
 	// Main class for handling Nav Plan construction and operations.
-	class NavPlanner{
+	class Navigator{
 	public:
-		NavPlanner();
-		~NavPlanner();
+		Navigator();
+		~Navigator();
 
 		// Utility functions
 		bool IsPopulated();														// Returns if Nav Plan has been populated with coordinates
@@ -50,9 +50,10 @@ namespace Navigation {
 		std::vector<Movement> GetMovements();		// Return the movements of the current Nav Plan
 
 		// Main execution loop
-		void Run(SensorHub& sh, Guider& g);
+		void Run(SensorHub& sh);
 
 		double GetHeading();
+		Coordinate GetCoordinates();
 		bool IsNavPlanComplete();
 
 	protected:
@@ -72,8 +73,5 @@ namespace Navigation {
 		double vehicleHeading;
 		Coordinate lastCoordinates;
 
-		int coordinateIndex;
-		bool isNavPlanComplete;
 	};
-
 }

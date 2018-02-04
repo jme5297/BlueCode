@@ -15,26 +15,26 @@ using namespace std::chrono;
 using namespace Times;
 
 // FUNCTION PROTOTYPES
-void InputNavPlan();
+void InutNavPlan();
 bool ProgramSetup(SensorHub& mySensorHub,
-									NavPlanner& myNavPlanner,
+									Navigator& myNavigator,
 									Guider& myGuider,
 									Controller& myController);
 void MainOperations(SensorHub& mySensorHub,
-									NavPlanner& myNavPlanner,
+									Navigator& myNavigator,
 									Guider& myGuider,
 									Controller& myController,
 									TimeModule& tm);
 void CleanupOperations();
 bool TestSensorConnectivity();
-NavPlanner InputNavPlanCoordinates();
-void PrintNavPlanInfo(NavPlanner& np, SensorHub& sh);
+Navigator InutNavPlanCoordinates();
+void PrintNavPlanInfo(Navigator& n, SensorHub& sh);
 
 // MAIN LOGIC ENTRANCE
 int main(){
 
 	// Create all of the structures that we'll need.
-	NavPlanner myNavPlanner;
+	Navigator myNavigator;
 	Guider myGuider;
 	SensorHub mySensorHub;
 	Controller myController;
@@ -49,7 +49,7 @@ int main(){
 
 	// ProgramSetup handles constructing the nav plan, and ensuring
 	// that all sensors are connected. This will return true if setup has finished correctly.
-	bool setup = ProgramSetup(mySensorHub, myNavPlanner, myGuider, myController);
+	bool setup = ProgramSetup(mySensorHub, myNavigator, myGuider, myController);
 
 	// If failure in setup at any given time, then program cannot continue.
 	if(!setup){
@@ -57,18 +57,18 @@ int main(){
 		return 0;
 	}else{
 		std::cout << "Nav Plan constructed successfully!\n\n";
-		PrintNavPlanInfo(myNavPlanner, mySensorHub);
+		PrintNavPlanInfo(myNavigator, mySensorHub);
 	}
 
 	// Begin main operations now.
 	tm.AddMilestone("BeginMainOpsTime");
-	MainOperations(mySensorHub, myNavPlanner, myGuider, myController, tm);
+	MainOperations(mySensorHub, myNavigator, myGuider, myController, tm);
 	CleanupOperations();
 
 	return 0;
 }
 
-bool ProgramSetup(SensorHub& mySensorHub, NavPlanner& myNavPlanner, Guider& myGuider, Controller& myController)
+bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuider, Controller& myController)
 {
 	std::cout << "\nHello!\n\n" << std::endl;
 
@@ -82,31 +82,31 @@ bool ProgramSetup(SensorHub& mySensorHub, NavPlanner& myNavPlanner, Guider& myGu
 	}
 
 	// Construct our navigation plan once we know sensors are connected.
-	std::cout << "\n===WAYPOINT INPUT===\n";
-	myNavPlanner = InputNavPlanCoordinates();
+	std::cout << "\n===WAYPOINT InUT===\n";
+	myNavigator = InutNavPlanCoordinates();
 
 	// Make sure that there was at-least one nav plan coordinate added.
-	if(!myNavPlanner.IsPopulated()){
+	if(!myNavigator.IsPopulated()){
 		std::cout << "ERROR: Nav Plan not properly populated. Exiting program.\n";
 		return false;
 	}
 
 	// Construct the nav plan based on the waypoints provided.
 	std::cout << "\n===NAV PLAN CONSTRUCTION===\n";
-	myNavPlanner.ConstructNavPlan(mySensorHub);
+	myNavigator.ConstructNavPlan(mySensorHub);
 
 	// Make sure the nav plan was properly constructed.
-	if(!myNavPlanner.IsConstructed()){
+	if(!myNavigator.IsConstructed()){
 		std::cout << "ERROR: Nav Plan not properly constructed. Exiting program.\n";
 		return false;
 	}else{
-		myNavPlanner.PopulateMovements(mySensorHub);
+		myNavigator.PopulateMovements(mySensorHub);
 	}
 
 	return true;
 }
 
-void MainOperations(SensorHub& mySensorHub, NavPlanner& myNavPlanner, Guider& myGuider, Controller& myController, TimeModule& tm){
+void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuider, Controller& myController, TimeModule& tm){
 
 	std::cout << "Running...\n";
 
@@ -142,16 +142,16 @@ void MainOperations(SensorHub& mySensorHub, NavPlanner& myNavPlanner, Guider& my
 
 		// Run guidance and Navigation (and pass the controller)
 		if(tm.ProccessUpdate("Nav")){
-			myNavPlanner.Run(mySensorHub, myGuider);
+			myNavigator.Run(mySensorHub);
 		}
 
 		if(tm.ProccessUpdate("Guid")){
-			myGuider.Run(myController);
+			myGuider.Run(myNavigator);
 		}
 
 		// Run controls
 		if(tm.ProccessUpdate("Ctrl")){
-			myController.Run();
+			myController.Run(myGuider);
 		}
 
 		double lon = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lon;
@@ -179,9 +179,9 @@ void MainOperations(SensorHub& mySensorHub, NavPlanner& myNavPlanner, Guider& my
 		#endif
 
 		// Determine if we're all done here.
-		if(myNavPlanner.IsNavPlanComplete() && myGuider.GetCurrentGuidanceManeuver().done){
-			std::cout << "COMPLETE!\n";
-			running = false;
+		if(myGuider.IsNavPlanComplete() && myGuider.GetCurrentGuidanceManeuver().done){
+			//std::cout << "COMPLETE!\n";
+			//running = false;
 		}
 	}
 
@@ -203,10 +203,10 @@ bool TestSensorConnectivity(){
 	return true;
 }
 
-NavPlanner InputNavPlanCoordinates(){
+Navigator InutNavPlanCoordinates(){
 
 	// Create a new nav plan to populate
-	NavPlanner navPlan;
+	Navigator navPlan;
 
 	// -----
 	// THE FOLLOWING CODE WORKS. For now, just testing with debug cases.
@@ -242,7 +242,7 @@ NavPlanner InputNavPlanCoordinates(){
 	// If an undo is requested, then get recursive!
 	if(response == -1)
 	{
-		navPlan = InputNavPlanCoordinates();
+		navPlan = InutNavPlanCoordinates();
 	}
 
 	// Debugging case 1 - generic test
@@ -286,10 +286,10 @@ NavPlanner InputNavPlanCoordinates(){
 	return navPlan;
 }
 
-void PrintNavPlanInfo(NavPlanner& np, SensorHub& sh){
+void PrintNavPlanInfo(Navigator& n, SensorHub& sh){
 
-	std::vector<Coordinate> coords = np.GetWaypoints();
-	std::vector<Movement> moves = np.GetMovements();
+	std::vector<Coordinate> coords = n.GetWaypoints();
+	std::vector<Movement> moves = n.GetMovements();
 	Coordinate myLoc = sh.GetGPS().GetCurrentGPSCoordinates();
 
 	std::cout << "===CURRENT NAV PLAN===\n";

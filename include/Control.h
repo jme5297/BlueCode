@@ -4,13 +4,13 @@
 #include <PlantModel/PlantModel.h>
 // #include <sensors/Sensors_generic.h>
 // #include <Navigation.h>
-// #include <Guidance.h>
+#include <Guidance.h>
 
 namespace Control{
 
 	// using namespace sensors;
 	// using namespace Navigation;
-	// using namespace Guidance;
+	using namespace Guidance;
 
 	enum VehicleMode{
 		Track,
@@ -36,7 +36,7 @@ namespace Control{
 		double GetWheelSteering();
 
 		// Main execution command
-		void Run();
+		void Run(Guider& g);
 
 		VehicleMode currentVehicleMode;
 
