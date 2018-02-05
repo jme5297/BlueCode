@@ -119,9 +119,9 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 	#ifdef SIM
 	tm.InitProccessCounter("Plant", 0.01);
 	// Generic testing
-	PlantModel::GetVehicle()->heading = 5.0;
-	myController.SetMotorLSpeed(1.0);
-	myController.SetMotorRSpeed(1.0);
+	// PlantModel::GetVehicle()->heading = 5.0;
+	// myController.SetMotorLSpeed(1.0);
+	// myController.SetMotorRSpeed(1.0);
 	#endif
 
 	std::ofstream output;
@@ -173,7 +173,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 		// Stop sim after a certain amount of time
 		#ifdef SIM
 		double elapsed = tm.GetElapsedTime("BeginMainOpsTime");
-		if(elapsed >= 500.0){
+		if(elapsed >= 3600.0){
 			running = false;
 		}
 		#endif
