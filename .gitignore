@@ -7,6 +7,8 @@ bin/main
 #Doxygen documentation
 Dox/
 
+.DS_Store
+
 # Any output files and post process files
 *.csv
 *.m

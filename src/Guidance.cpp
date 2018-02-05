@@ -119,7 +119,10 @@ void Guider::PayloadDrop(){
 	std::cout << "Performing payload drop... " << std::endl;
 	// Payload drop here
 	bool complete = false;
-	// c.PayloadDrop();
+  
+  /** @todo Determine how to pass information between Controller and Guider
+   * for coordinating payload drops. Control should have the capability to
+   * set a flag for when a payload has been dropped appropriately. */
 	complete = true;
 	if(complete){
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;

@@ -5,7 +5,6 @@
 
 using namespace sensors;
 using namespace Navigation;
-// using namespace Guidance;
 
 Navigator::Navigator()
 {
@@ -31,7 +30,9 @@ void Navigator::Run(SensorHub& sh)
 	Coordinate c1 = lastCoordinates;
 	Coordinate c2 = curPos;
 
-	// Don't know why this is happening
+	/** @todo Determine what a good work-around would be for GPS Coordinates
+ 	 * that either repeat, or are withing a certain threshold. Heading should
+   * not be sparatic and should be reliable. */
 	if((lastCoordinates.lat == curPos.lat)
 		&& (lastCoordinates.lon == curPos.lon))
 	{

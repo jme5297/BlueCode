@@ -20,12 +20,12 @@ namespace Navigation {
 		std::vector<Movement> movements; 		/*!< List of recommended Movements between Coordinates. */
 	};
 
-	/*! 
-	 *  \brief     Navigation routines and Path-Planning.
+	/*!
+	 *  \brief Navigation routines and Path-Planning.
 	 * 	\details This is the main class that handles most of the navigation work for the vehicle. Path-planning
 	 *	routines handle most of the heavy lifting of making Coordinate connections. Vehicle state functions
 	 *	are populated every step and are passed to the Guider for decision-making.
-	 *  \warning   Must populate and construct Nav Plan before normal execution.
+	 *  \warning Must populate and construct Nav Plan before normal execution.
 	 */
 	class Navigator{
 	public:
@@ -63,13 +63,13 @@ namespace Navigation {
 
 		// Utility functions for nav plan construction
 		void SwapCoordinates(Coordinate& a, Coordinate& b);					///< Swap two coordinates in a vector of coordinates
-		void PrintCoordinatePermutation(std::vector<Coordinate>& vec);		///< Print a specific permutation 
+		void PrintCoordinatePermutation(std::vector<Coordinate>& vec);		///< Print a specific permutation
 		void GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex); 	///< Generate all permutations from a list
 		std::vector< std::vector<Coordinate> > allCoordinatePermutations;	///< Vector for storing all permutation combinations
 		int totalPermutations;												///< Total amount of permutations
 
 		// For determining if Nav Plan has been properly been constructed
-		bool isConstructed;	
+		bool isConstructed;
 
 		// Current Nav Plan connected to this Nav Planner class
 		NavPlan activeNavPlan;
