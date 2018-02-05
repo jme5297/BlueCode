@@ -18,6 +18,10 @@ Navigator::~Navigator()
 
 }
 
+/*!
+ * This is the main run function for the Navigation class.
+ * @param[in]	sh A reference to the Sensor Hub class.
+ */
 void Navigator::Run(SensorHub& sh){
 
 	// Get our current position

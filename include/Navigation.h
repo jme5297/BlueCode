@@ -24,21 +24,24 @@ namespace Navigation {
 		std::vector<Movement> movements;
 	};
 
-	// Main class for handling Nav Plan construction and operations.
+	/*! \brief Main Navigation class for the GNC system of BlueCode.
+	 * This class handles taking sensor information in from sensors, and converts
+	 * this information into friendly readable and passable format to the Guidance system.
+	 */
 	class Navigator{
 	public:
 		Navigator();
 		~Navigator();
 
 		// Utility functions
-		bool IsPopulated();														// Returns if Nav Plan has been populated with coordinates
-		bool IsConstructed();													// Returns if Nav Plan has been constructed and movements have been calculated
-		void AddCoordinate(int index, double c1, double c2);					// Add a coordinate to the Nav Plan's list of coordinates
-		void AddCoordinates(std::vector<Coordinate> coords);					// Add a collection of coordinates to the list of coordinates
+		bool IsPopulated();		///< Returns if Nav Plan has been populated with coordinates.
+		bool IsConstructed();		///< Returns if Nav Plan has been constructed and movements have been calculated
+		void AddCoordinate(int index, double c1, double c2);	///< Add a coordinate to the Nav Plan's list of coordinates
+		void AddCoordinates(std::vector<Coordinate> coords);	//< Add a collection of coordinates to the list of coordinates
 		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords,
-															SensorHub& sh);	// Calculate entire distance of a certain Nav Plan
-		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);		// Calculate distane between two coordinates
-		Movement CalculateMovement(Coordinate c1, Coordinate c2);				// Calculate heading & direction between two coordinates
+															SensorHub& sh);	///< Calculate entire distance of a certain Nav Plan
+		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);		///< Calculate distane between two coordinates
+		Movement CalculateMovement(Coordinate c1, Coordinate c2);	///< Calculate heading & direction between two coordinates
 
 		// Nav Plan construction functions
 		void ConstructNavPlan(SensorHub& sh);		// Determine the most optimal path between Nav Plan coordinates
@@ -50,7 +53,7 @@ namespace Navigation {
 		std::vector<Movement> GetMovements();		// Return the movements of the current Nav Plan
 
 		// Main execution loop
-		void Run(SensorHub& sh);
+		void Run(SensorHub& sh); ///< This is in the header file.
 
 		double GetHeading();
 		Coordinate GetCoordinates();

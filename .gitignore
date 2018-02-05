@@ -4,6 +4,9 @@ src/compiling_error.txt
 # Main build
 bin/main
 
+#Doxygen documentation
+Dox/
+
 # Any output files and post process files
 *.csv
 *.m
