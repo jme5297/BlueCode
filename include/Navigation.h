@@ -3,30 +3,29 @@
 #include <algorithm>
 #include <cmath>
 #include <sensors/SensorHub.h>
-// #include <Guidance.h>
-// include <Control.h>
 
 namespace Navigation {
 
 	using namespace sensors;
-	// using namespace Guidance;
-	// using namespace Control;
 
-	// Second part of a Nav Plan. Contains distance and heading information.
+	/*! Struct for storing information about movement from one Coordinate to the next. */
 	struct Movement{
-		double heading;
-		double distance;
+		double heading; 	/*!< Heading of movement in degrees. */
+		double distance; 	/*!< Distance between Coordinates in meters. */
 	};
 
-	// One Nav Plan contains all information for a complete path through several obstacles.
+	/*! Struct that contains all information for a complete path through several Coordinates. */
 	struct NavPlan{
-		std::vector<Coordinate> coordinates;
-		std::vector<Movement> movements;
+		std::vector<Coordinate> coordinates; 	/*!< List of desired/recommended Coordinates. */
+		std::vector<Movement> movements; 		/*!< List of recommended Movements between Coordinates. */
 	};
 
-	/*! \brief Main Navigation class for the GNC system of BlueCode.
-	 * This class handles taking sensor information in from sensors, and converts
-	 * this information into friendly readable and passable format to the Guidance system.
+	/*! 
+	 *  \brief     Navigation routines and Path-Planning.
+	 * 	\details This is the main class that handles most of the navigation work for the vehicle. Path-planning
+	 *	routines handle most of the heavy lifting of making Coordinate connections. Vehicle state functions
+	 *	are populated every step and are passed to the Guider for decision-making.
+	 *  \warning   Must populate and construct Nav Plan before normal execution.
 	 */
 	class Navigator{
 	public:
@@ -34,42 +33,43 @@ namespace Navigation {
 		~Navigator();
 
 		// Utility functions
-		bool IsPopulated();		///< Returns if Nav Plan has been populated with coordinates.
+		bool IsPopulated();			///< Returns if Nav Plan has been populated with coordinates.
 		bool IsConstructed();		///< Returns if Nav Plan has been constructed and movements have been calculated
 		void AddCoordinate(int index, double c1, double c2);	///< Add a coordinate to the Nav Plan's list of coordinates
 		void AddCoordinates(std::vector<Coordinate> coords);	//< Add a collection of coordinates to the list of coordinates
 		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords,
-															SensorHub& sh);	///< Calculate entire distance of a certain Nav Plan
+															SensorHub& sh);		///< Calculate entire distance of a certain Nav Plan
 		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);		///< Calculate distane between two coordinates
-		Movement CalculateMovement(Coordinate c1, Coordinate c2);	///< Calculate heading & direction between two coordinates
+		Movement CalculateMovement(Coordinate c1, Coordinate c2);				///< Calculate heading & direction between two coordinates
 
 		// Nav Plan construction functions
-		void ConstructNavPlan(SensorHub& sh);		// Determine the most optimal path between Nav Plan coordinates
-		void PopulateMovements(SensorHub& sh);		// Populate the required headings and distances between optimal path
+		void ConstructNavPlan(SensorHub& sh);		///< Determine the most optimal path between Nav Plan coordinates
+		void PopulateMovements(SensorHub& sh);		///< Populate the required headings and distances between optimal path
 
-		// Accessor functions
-		NavPlan GetNavPlan();						// Return the active Nav Plan
-		std::vector<Coordinate> GetWaypoints();		// Return the Waypoints of the current Nav Plan
-		std::vector<Movement> GetMovements();		// Return the movements of the current Nav Plan
+		// Nav Plan Accessor functions
+		NavPlan GetNavPlan();						///< Return the active Nav Plan
+		std::vector<Coordinate> GetWaypoints();		///< Return the Waypoints of the current Nav Plan
+		std::vector<Movement> GetMovements();		///< Return the movements of the current Nav Plan
 
 		// Main execution loop
-		void Run(SensorHub& sh); ///< This is in the header file.
+		void Run(SensorHub& sh); 		///< Main execution loop for the Navigator.
 
-		double GetHeading();
-		Coordinate GetCoordinates();
-		bool IsNavPlanComplete();
+		// Vehicle State functions.
+		double GetHeading(); 			///< Return vehicle heading.
+		Coordinate GetCoordinates();	///< Return vehicle GPS coordinates.
+		bool IsNavPlanComplete();		///< Check if NavPlan is complete.
 
 	protected:
 
 		// Utility functions for nav plan construction
-		void SwapCoordinates(Coordinate& a, Coordinate& b);					// Swap two coordinates in a vector of coordinates
-		void PrintCoordinatePermutation(std::vector<Coordinate>& vec);		// Print a specific permutation [DEBUG ONLY]
-		void GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex); 	// Generate all permutations from a list
-		std::vector< std::vector<Coordinate> > allCoordinatePermutations;	// Vector for storing all permutation combinations
-		int totalPermutations;												// Total amount of permutations [DEBUG ONLY]
+		void SwapCoordinates(Coordinate& a, Coordinate& b);					///< Swap two coordinates in a vector of coordinates
+		void PrintCoordinatePermutation(std::vector<Coordinate>& vec);		///< Print a specific permutation 
+		void GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex); 	///< Generate all permutations from a list
+		std::vector< std::vector<Coordinate> > allCoordinatePermutations;	///< Vector for storing all permutation combinations
+		int totalPermutations;												///< Total amount of permutations
 
 		// For determining if Nav Plan has been properly been constructed
-		bool isConstructed;
+		bool isConstructed;	
 
 		// Current Nav Plan connected to this Nav Planner class
 		NavPlan activeNavPlan;

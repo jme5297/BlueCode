@@ -1,12 +1,21 @@
-/*! \mainpage My Personal Index Page
+/*! \mainpage Blue Code
  *
- * \section intro_sec Introduction
+ * This is the main Doxygen page for the Blue Team - Coding group.
+ * 
+ * \section Members
  *
- * This is the introduction.
+ * Eric Burkhart - epb5105
  *
- * \section install_sec Installation
+ * Anthony Maenza - axm5730
  *
- * \subsection step1 Step 1: Opening the box
+ * Arthur Cruz - amc6630
  *
- * etc...
+ * Jason Everett - jme5297
+ *
+ * Mohamed Abuzaid - mza5399
+ *
+ * Wei-cheng Hsu - wfh5069
+ *
+ * Zouzhou Chen - zfc5022
+
  */

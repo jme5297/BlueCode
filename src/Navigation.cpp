@@ -18,11 +18,11 @@ Navigator::~Navigator()
 
 }
 
-/*!
- * This is the main run function for the Navigation class.
+/*! Run
  * @param[in]	sh A reference to the Sensor Hub class.
  */
-void Navigator::Run(SensorHub& sh){
+void Navigator::Run(SensorHub& sh)
+{
 
 	// Get our current position
 	Coordinate curPos = sh.GetGPS().GetCurrentGPSCoordinates();
@@ -33,7 +33,8 @@ void Navigator::Run(SensorHub& sh){
 
 	// Don't know why this is happening
 	if((lastCoordinates.lat == curPos.lat)
-		&& (lastCoordinates.lon == curPos.lon)){
+		&& (lastCoordinates.lon == curPos.lon))
+	{
 			std::cout << "GPS REPEAT" << std::endl;
 		return;
 	}
@@ -48,7 +49,8 @@ void Navigator::Run(SensorHub& sh){
 
 	return;
 }
-Coordinate Navigator::GetCoordinates(){
+Coordinate Navigator::GetCoordinates()
+{
 	return lastCoordinates;
 }
 // Add a coordinate to the vector list of coordinates of the specific active Nav Plan.
@@ -93,7 +95,8 @@ void Navigator::ConstructNavPlan(SensorHub& sh)
 	for(unsigned int i = 0; i < allCoordinatePermutations.size(); i++)
 	{
 		double dist = CalculateTotalNavPlanDistance(allCoordinatePermutations[i], sh);
-		if(dist < shortestDistance){
+		if(dist < shortestDistance)
+	{
 			shortestDistance = dist;
 			shortestDistanceIndex = i;
 			std::cout << "Permutation " + std::to_string(i) + " is the shortest so far at " + std::to_string(shortestDistance) + ".\n";
@@ -111,7 +114,8 @@ void Navigator::ConstructNavPlan(SensorHub& sh)
 
 // Populate the movement array, which stores heading and distance information to all waypoints.
 // NOTE: ConstructNavPlan() is not required to be run, but is highly recommended.
-void Navigator::PopulateMovements(SensorHub& sh){
+void Navigator::PopulateMovements(SensorHub& sh)
+{
 
 	// Create a generic movement vector, and store the active Nav Plan coordinates.
 	std::vector<Movement> moves;
@@ -122,7 +126,8 @@ void Navigator::PopulateMovements(SensorHub& sh){
 	moves.push_back(CalculateMovement(myLoc, coords[0]));
 
 	// All other movements are from nav plan coordinates to other nav plan coordinates.
-	for(unsigned int i = 0; i < coords.size() - 1; i++){
+	for(unsigned int i = 0; i < coords.size() - 1; i++)
+	{
 		moves.push_back(CalculateMovement(coords[i], coords[i+1]));
 	}
 
@@ -136,7 +141,8 @@ void Navigator::PopulateMovements(SensorHub& sh){
 }
 
 // Calculate the heading and distance between two coordinates.
-Movement Navigator::CalculateMovement(Coordinate c1, Coordinate c2){
+Movement Navigator::CalculateMovement(Coordinate c1, Coordinate c2)
+{
 
 	double dx = c2.lon - c1.lon;
 	double dy = c2.lat - c1.lat;
@@ -151,7 +157,8 @@ Movement Navigator::CalculateMovement(Coordinate c1, Coordinate c2){
 }
 
 // Calculate the total distance from a specific set of coordinates.
-double Navigator::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords, SensorHub& sh){
+double Navigator::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords, SensorHub& sh)
+{
 
 	// Remember, you're not starting at the first location!
 	Coordinate myLoc = sh.GetGPS().GetCurrentGPSCoordinates();
@@ -159,7 +166,8 @@ double Navigator::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords, 
 	double totalDistance = 0.0;
 	totalDistance += DistanceBetweenCoordinates(myLoc, coords[0]);
 
-	for(unsigned int i = 0; i < coords.size() - 1; i++){
+	for(unsigned int i = 0; i < coords.size() - 1; i++)
+	{
 		totalDistance += DistanceBetweenCoordinates(coords[i], coords[i+1]);
 	}
 
@@ -173,8 +181,10 @@ double Navigator::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords, 
 //
 // Source:
 // http://www.cplusplus.com/forum/general/44552/
-void Navigator::GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex){
-	if (nextIndex==coords.size()){
+void Navigator::GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex)
+{
+	if (nextIndex==coords.size())
+	{
 		totalPermutations++;
 		//PrintCoordinatePermutation(coords);
 		allCoordinatePermutations.push_back(coords);
@@ -182,29 +192,39 @@ void Navigator::GenerateAllCoordinatePermutations(std::vector<Coordinate>& coord
 		return;
 	}
 
-	for (unsigned int i = nextIndex; i < coords.size(); i++){
+	for (unsigned int i = nextIndex; i < coords.size(); i++)
+	{
 		SwapCoordinates(coords[i], coords[nextIndex]);
 		GenerateAllCoordinatePermutations(coords, nextIndex+1);
 		SwapCoordinates(coords[i], coords[nextIndex]);
 	}
 }
 
-void Navigator::SwapCoordinates(Coordinate& a, Coordinate& b){
+void Navigator::SwapCoordinates(Coordinate& a, Coordinate& b)
+{
 	Coordinate x = a;
 	a = b;
 	b = x;
 }
 
 // Not currently being used
-void Navigator::PrintCoordinatePermutation(std::vector<Coordinate>& vec){
+void Navigator::PrintCoordinatePermutation(std::vector<Coordinate>& vec)
+{
 	for (unsigned int i=0; i<vec.size(); i++)
 		std::cout << vec[i].lon << "," << vec[i].lat << "||";
 }
 
-double Navigator::DistanceBetweenCoordinates(Coordinate c1, Coordinate c2){ return pow( pow( c2.lat - c1.lat ,2.0) + pow( c2.lon - c1.lon ,2.0),0.5); }
-std::vector<Coordinate> Navigator::GetWaypoints(){ return activeNavPlan.coordinates; }
-std::vector<Movement> Navigator::GetMovements(){ return activeNavPlan.movements; }
-bool Navigator::IsPopulated(){ return activeNavPlan.coordinates.size(); }
-bool Navigator::IsConstructed(){ return isConstructed;}
-NavPlan Navigator::GetNavPlan(){ return activeNavPlan; }
-double Navigator::GetHeading(){ return vehicleHeading; }
+double Navigator::DistanceBetweenCoordinates(Coordinate c1, Coordinate c2)
+{ return pow( pow( c2.lat - c1.lat ,2.0) + pow( c2.lon - c1.lon ,2.0),0.5); }
+std::vector<Coordinate> Navigator::GetWaypoints()
+{ return activeNavPlan.coordinates; }
+std::vector<Movement> Navigator::GetMovements()
+{ return activeNavPlan.movements; }
+bool Navigator::IsPopulated()
+{ return activeNavPlan.coordinates.size(); }
+bool Navigator::IsConstructed()
+{ return isConstructed;}
+NavPlan Navigator::GetNavPlan()
+{ return activeNavPlan; }
+double Navigator::GetHeading()
+{ return vehicleHeading; }
