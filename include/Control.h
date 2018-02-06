@@ -2,43 +2,46 @@
 #include <preprocdef.h>
 #include <vector>
 #include <PlantModel/PlantModel.h>
-// #include <sensors/Sensors_generic.h>
-// #include <Navigation.h>
 #include <Guidance.h>
 
+/// Motor control and actuator control classes and members
 namespace Control{
 
-	// using namespace sensors;
-	// using namespace Navigation;
 	using namespace Guidance;
 
+	/*! 
+	 * Represents which type of vehicle the controller is operating.
+	 * \note This should not be confused with VehicleType defined in the Vehicle class. This
+	 * represents the control maneuvers, whereas the VehicleType represents the plant model being 
+	 * run. Obviously, these two modes should always be in sync. 
+	 */
 	enum VehicleMode{
-		Track,
-		Wheel
+		Track, 	//!< Vehicle moves along two tracks, one on each side of the vehicle.
+		Wheel 	//!< Vehicle contains four wheels and has both speed/steering control.
 	};
 
+	/*!
+	 * Motor/actuator control routines.
+	 * @todo There needs to be normalization constraints on setting speeds and steering.
+	 */
 	class Controller{
 	public:
 		Controller();
-		~Controller();
 
-		// These assume track mode
-		void SetMotorSpeeds(double speed);
-		void SetMotorLSpeed(double speed);
-		void SetMotorRSpeed(double speed);
-		double GetMotorLSpeed();
-		double GetMotorRSpeed();
-
-		// These assume wheel mode
-		void SetWheelSpeed(double speed);
-		void SetWheelSteering(double steering);
-		double GetWheelSpeed();
-		double GetWheelSteering();
-
-		// Main execution command
-		void Run(Guider& g);
-
-		VehicleMode currentVehicleMode;
+		void SetMotorSpeeds(double speed); 		///< Set the normalized speed (-1.0 to 1.0) of both motors in a track vehicle system.
+		void SetMotorLSpeed(double speed);		///< Set the normalized speed (-1.0 to 1.0) of the left motor in a track vehicle system.
+		void SetMotorRSpeed(double speed);		///< Set the normalized speed (-1.0 to 1.0) of the right motor in a track vehicle system.
+		double GetMotorLSpeed();				///< Get the normalized speed (-1.0 to 1.0) of the left motor in a track vehicle system.
+		double GetMotorRSpeed();				///< Get the normalized speed (-1.0 to 1.0) of the right motor in a track vehicle system.
+		
+		void SetWheelSpeed(double speed);		///< Set the normalized driving speed for a wheel vehicle system.
+		void SetWheelSteering(double steering); ///< Set the normalized (-1.0 to 1.0) steering direction for a wheel vehicle system.
+		double GetWheelSpeed();					///< Get the normalized driving speed (0.0 to 1.0) for a wheel vehicle system.
+		double GetWheelSteering();				///< Get the normalized steering direction (-1.0 to 1.0) for a wheel vehicle system.
+		
+		void Run(Guider& g);						///< Main execution function for the Controller.
+		void SetCurrentVehicleMode(VehicleMode vm);	///< Set the current vehicle mode.
+		VehicleMode GetCurrentVehicleMode();		///< Get the currently operating vehicle mode.
 
 		// Controls
 		void PayloadDrop();
@@ -51,6 +54,8 @@ namespace Control{
 		// For wheel system
 		double wheelSpeed;
 		double wheelSteering;
+
+		VehicleMode currentVehicleMode;
 
 	};
 }

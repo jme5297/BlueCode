@@ -8,8 +8,14 @@ Controller::Controller(){
 	currentVehicleMode = VehicleMode::Track;
 
 }
-Controller::~Controller(){
 
+void Controller::SetCurrentVehicleMode(VehicleMode vm)
+{
+	currentVehicleMode = vm;
+}
+VehicleMode Controller::GetCurrentVehicleMode()
+{	
+	return currentVehicleMode;
 }
 
 void Controller::Run(Guider& g){
@@ -29,6 +35,9 @@ void Controller::Run(Guider& g){
 	}
 	else{
 		switch(g.GetCurrentGuidanceManeuver().state){
+			case ManeuverState::Calibrate:
+
+				break;
 			case ManeuverState::Turn:
 				switch(currentVehicleMode){
 					case VehicleMode::Wheel:
@@ -56,6 +65,18 @@ void Controller::Run(Guider& g){
 						SetMotorSpeeds(1.0);
 						break;
 				}
+				break;
+			case ManeuverState::AvoidDiverge:
+
+				break;
+			case ManeuverState::AvoidConverge:
+
+				break;
+			case ManeuverState::PayloadDrop:
+
+				break;
+			case ManeuverState::Complete:
+
 				break;
 		}
 	}

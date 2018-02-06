@@ -12,13 +12,9 @@ Navigator::Navigator()
 	totalPermutations = 0;
 }
 
-Navigator::~Navigator()
-{
-
-}
-
-/*! Run
- * @param[in]	sh A reference to the Sensor Hub class.
+/**
+ * 
+ * @param[in]	sh 	- A reference to the Sensor Hub class.
  */
 void Navigator::Run(SensorHub& sh)
 {

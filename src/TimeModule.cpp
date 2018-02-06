@@ -22,17 +22,17 @@ void TimeModule::Run(){
 
 void TimeModule::InitProccessCounter(string str, double dt){
   #ifndef DEBUG
-  processes.push_back({str, dt, steady_clock::now(), 0.0});
+  processes.push_back(tuple<string, double, time_point<steady_clock>, double >{str, dt, steady_clock::now(), 0.0});
   #else
-  processes.push_back({str, dt, currentSimTime, 0.0});
+  processes.push_back(tuple<string, double, double, double >{str, dt, currentSimTime, 0.0});
   #endif
   return;
 }
 void TimeModule::AddMilestone(string str){
   #ifndef DEBUG
-  milestones.push_back({str, steady_clock::now()});
+  milestones.push_back(tuple<string, time_point<steady_clock> >{str, steady_clock::now()});
   #else
-  milestones.push_back({str, currentSimTime});
+  milestones.push_back(tuple<string, double >{str, currentSimTime});
   #endif
   return;
 }
@@ -80,20 +80,20 @@ double TimeModule::GetLastProccessDelta(string str){
   return std::get<3>(processes[ind]);
 }
 int TimeModule::FindMilestoneIndex(string str){
-  int i = 0;
+  unsigned int i = 0;
   for(i = 0; i < milestones.size(); i++){
      if(std::get<0>(milestones[i]) == str){
        break;
      }
   }
-  return i;
+  return (int)i;
 }
 int TimeModule::FindProccessIndex(string str){
-  int i = 0;
+  unsigned int i = 0;
   for(i = 0; i < processes.size(); i++){
      if(std::get<0>(processes[i]) == str){
        break;
      }
   }
-  return i;
+  return (int)i;
 }

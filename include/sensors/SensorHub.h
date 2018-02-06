@@ -4,6 +4,7 @@
 #include <sensors/Laser/Laser_generic.h>
 #include <sensors/Camera/Camera_generic.h>
 
+/// All sensor-related classes and members
 namespace sensors{
 
   class SensorHub{

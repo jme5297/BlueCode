@@ -1,3 +1,8 @@
+/**
+ * This is at the top of main.
+ * \author Jason Everett
+ */
+
 #include <PlantModel/PlantModel.h>
 #include <Navigation.h>
 #include <Guidance.h>
@@ -15,7 +20,7 @@ using namespace std::chrono;
 using namespace Times;
 
 // FUNCTION PROTOTYPES
-void InutNavPlan();
+void InutNavPlan(); 	///< Method for inputting nav-plan information
 bool ProgramSetup(SensorHub& mySensorHub,
 									Navigator& myNavigator,
 									Guider& myGuider,
@@ -30,7 +35,9 @@ bool TestSensorConnectivity();
 Navigator InutNavPlanCoordinates();
 void PrintNavPlanInfo(Navigator& n, SensorHub& sh);
 
-// MAIN LOGIC ENTRANCE
+/** Main logic entrance.
+ * This is where the main program enters.
+ */
 int main(){
 
 	// Create all of the structures that we'll need.
@@ -102,6 +109,9 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	}else{
 		myNavigator.PopulateMovements(mySensorHub);
 	}
+
+	// Set the vehicle mode
+	myController.SetCurrentVehicleMode(Control::VehicleMode::Track);
 
 	return true;
 }

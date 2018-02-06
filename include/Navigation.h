@@ -4,25 +4,26 @@
 #include <cmath>
 #include <sensors/SensorHub.h>
 
+/// All navigation-related classes and members
 namespace Navigation {
 
 	using namespace sensors;
 
-	/*! Struct for storing information about movement from one Coordinate to the next. */
+	/// Struct for storing information about movement from one Coordinate to the next.
 	struct Movement{
-		double heading; 	/*!< Heading of movement in degrees. */
-		double distance; 	/*!< Distance between Coordinates in meters. */
+		double heading; 	//!< Represents the heading from one coordinate to the next.
+		double distance; 	//!< Represents the distance from one coordinate to the next.
 	};
 
-	/*! Struct that contains all information for a complete path through several Coordinates. */
+	/// Struct that contains all information for a complete path through several Coordinates.
 	struct NavPlan{
-		std::vector<Coordinate> coordinates; 	/*!< List of desired/recommended Coordinates. */
-		std::vector<Movement> movements; 		/*!< List of recommended Movements between Coordinates. */
+		std::vector<Coordinate> coordinates; 	//!< List of desired/recommended Coordinates. 
+		std::vector<Movement> movements; 		//!< List of recommended Movements between Coordinates. 
 	};
 
 	/*!
-	 *  \brief Navigation routines and Path-Planning.
-	 * 	\details This is the main class that handles most of the navigation work for the vehicle. Path-planning
+	 *  Navigation routines and Path-Planning.
+	 * 	This is the main class that handles most of the navigation work for the vehicle. Path-planning
 	 *	routines handle most of the heavy lifting of making Coordinate connections. Vehicle state functions
 	 *	are populated every step and are passed to the Guider for decision-making.
 	 *  \warning Must populate and construct Nav Plan before normal execution.
@@ -30,7 +31,6 @@ namespace Navigation {
 	class Navigator{
 	public:
 		Navigator();
-		~Navigator();
 
 		// Utility functions
 		bool IsPopulated();			///< Returns if Nav Plan has been populated with coordinates.
@@ -69,12 +69,12 @@ namespace Navigation {
 		int totalPermutations;												///< Total amount of permutations
 
 		// For determining if Nav Plan has been properly been constructed
-		bool isConstructed;
+		bool isConstructed;				///< Has the activeNavPlan been constructed yet?
 
 		// Current Nav Plan connected to this Nav Planner class
-		NavPlan activeNavPlan;
-		double vehicleHeading;
-		Coordinate lastCoordinates;
+		NavPlan activeNavPlan;			///< Current/active NavPlan
+		double vehicleHeading;			///< Current vehicle heading
+		Coordinate lastCoordinates;		///< Last trusted GPS coordinates
 
 	};
 }

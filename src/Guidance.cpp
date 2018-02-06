@@ -50,7 +50,7 @@ void Guider::Run(Navigator& n){
 		RequestGuidanceManeuver(cm);
 		coordinateIndex++;
 		// If this is the last coordinate of the nav plan, then let's wrap it up here.
-		if(coordinateIndex == n.GetNavPlan().coordinates.size()){
+		if(coordinateIndex == (int)n.GetNavPlan().coordinates.size()){
 			isNavPlanComplete = true;
 		}
 	}

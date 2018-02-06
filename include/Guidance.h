@@ -1,15 +1,13 @@
 #pragma once
 #include <Navigation.h>
-// #include <Control.h>
 #include <chrono>
 #include <cmath>
 
+/// All guidance-related classes and members
 namespace Guidance{
 
-  // using namespace sensors;
   using namespace Navigation;
   using namespace std::chrono;
-  //using namespace Control;
 
   enum ManeuverState{
 		Calibrate,
