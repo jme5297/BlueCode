@@ -5,7 +5,7 @@ using namespace Guidance;
 using namespace Control;
 
 Controller::Controller(){
-	currentVehicleMode = VehicleMode::Track;
+	currentVehicleMode = VehicleMode::Wheel;
 
 }
 
@@ -18,6 +18,7 @@ VehicleMode Controller::GetCurrentVehicleMode()
 	return currentVehicleMode;
 }
 
+/// @todo Determine if all of these switches are necessary.
 void Controller::Run(Guider& g){
 
 	// If the buffer is empty, then don't run anything.
@@ -36,8 +37,15 @@ void Controller::Run(Guider& g){
 	else{
 		switch(g.GetCurrentGuidanceManeuver().state){
 			case ManeuverState::Calibrate:
-
-				break;
+				switch(currentVehicleMode){
+					case VehicleMode::Wheel:
+						SetWheelSpeed(g.GetCurrentGuidanceManeuver().speed);
+						SetWheelSteering(0.0);
+						break;
+					case VehicleMode::Track:
+						SetMotorSpeeds(1.0);
+						break;
+				}
 			case ManeuverState::Turn:
 				switch(currentVehicleMode){
 					case VehicleMode::Wheel:
@@ -90,19 +98,19 @@ void Controller::PayloadDrop(){
 }
 
 void Controller::SetWheelSpeed(double s){
-	wheelSpeed = s;
+	wheelSpeedN = s;
 
 	#ifdef SIM
-	PlantModel::GetVehicle()->wheelSpeed = s;
+	PlantModel::GetVehicle()->wheelSpeedN = s;
 	#else
 	// Actual speed control goes here
 	#endif
 }
 void Controller::SetWheelSteering(double s){
-	wheelSteering = s;
+	wheelSteeringN = s;
 
 	#ifdef SIM
-	PlantModel::GetVehicle()->wheelSteering = s;
+	PlantModel::GetVehicle()->wheelSteeringN = s;
 	#else
 	// Actual steering control goes here
 	#endif
@@ -148,5 +156,5 @@ void Controller::SetMotorRSpeed(double speed){
 }
 double Controller::GetMotorLSpeed(){ return motorLSpeed; }
 double Controller::GetMotorRSpeed(){ return motorRSpeed; }
-double Controller::GetWheelSpeed(){ return wheelSpeed; }
-double Controller::GetWheelSteering(){ return wheelSteering; }
+double Controller::GetWheelSpeed(){ return wheelSpeedN; }
+double Controller::GetWheelSteering(){ return wheelSteeringN; }

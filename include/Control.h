@@ -52,8 +52,8 @@ namespace Control{
 		double motorRSpeed;
 
 		// For wheel system
-		double wheelSpeed;
-		double wheelSteering;
+		double wheelSpeedN;
+		double wheelSteeringN;
 
 		VehicleMode currentVehicleMode;
 

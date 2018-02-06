@@ -1,5 +1,6 @@
 #pragma once
 #include <Navigation.h>
+#include <TimeModule.h>
 #include <chrono>
 #include <cmath>
 
@@ -8,6 +9,7 @@ namespace Guidance{
 
   using namespace Navigation;
   using namespace std::chrono;
+  using namespace Times;
 
   /*!
    * Encapsulates the type of guidance maneuver being performed.
@@ -53,6 +55,8 @@ namespace Guidance{
                           /**< This value will be used by both the Guider and the Controller to
                            * determine when the next guidance maneuver in the guidance maneuver
                            * buffer should be analyzed. */
+    double calibrationTime;   ///< Time to calibrate system in seconds.
+
 	};
 
   /// Main class for Guidance operations.

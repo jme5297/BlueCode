@@ -56,14 +56,35 @@ void Guider::Run(Navigator& n){
 
   /// @todo Determine if there is a better way to organize this sequence of events.
 
+  // If this is our "first pass", then we need to calibrate.
+  if (GuidanceManeuverBuffer.empty() || 
+      (
+        GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop && 
+        GuidanceManeuverBuffer[GuidanceManeuverIndex].done == true
+      )
+    ){
+    GuidanceManeuver gm;
+    gm.state = ManeuverState::Calibrate;
+    gm.speed = 1.0;
+    gm.turnDirection = 0;
+    gm.calibrationTime = 3.0;
+    gm.done = false;
+    RequestGuidanceManeuver(gm);
+    TimeModule::AddMilestone("Calibration_" + std::to_string(GuidanceManeuverIndex));
+    std::cout << "Calibrating...\n";
+  }
   // Determine if we're ready to drop a payload.
-	if(n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= PLDIST
+	else if(n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= PLDIST
     &&  !(
         GuidanceManeuverBuffer[GuidanceManeuverIndex].done == false &&
         GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop
         )
     ){
     std::cout << "Payload drop time!" << std::endl;
+
+    // The state that we were currently in is complete now.
+    GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
+
 		//Push back a control move to drop payload.
 		GuidanceManeuver gm;
 		gm.state = ManeuverState::PayloadDrop;
@@ -75,8 +96,13 @@ void Guider::Run(Navigator& n){
 			isNavPlanComplete = true;
 		}
 	}
-  // If there's no current maneuver, then we need to calibrate!
-  else if((GuidanceManeuverBuffer.empty() || GuidanceManeuverBuffer[GuidanceManeuverIndex].done)
+  // Determine if we need to execute either a turn or a maintain state.
+  else if(GuidanceManeuverBuffer[GuidanceManeuverIndex].done
+      && (
+          GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::Maintain || 
+          GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::Calibrate ||
+          GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::Turn
+        )
       && !isNavPlanComplete){
     GuidanceManeuver gm;
 
@@ -107,16 +133,21 @@ void Guider::Run(Navigator& n){
 	GuidanceManeuver man = GuidanceManeuverBuffer[GuidanceManeuverIndex];
 	switch(man.state){
 		case ManeuverState::Calibrate:
-
+      if(TimeModule::GetElapsedTime("Calibration_" + std::to_string(GuidanceManeuverIndex)) >= man.calibrationTime){
+        GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
+        std::cout << "Calibration complete.\n";
+      }
 			break;
     case ManeuverState::Turn:
       if(fabs(offAngle) < 5.0){
         GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
+        std::cout << "Turn complete.\n";
       }
       break;
 		case ManeuverState::Maintain:
       if(fabs(offAngle) >= 10.0){
           GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
+          std::cout << "We are deviating!.\n";
       }
 			break;
 		case ManeuverState::AvoidDiverge:

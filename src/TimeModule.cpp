@@ -3,6 +3,16 @@
 using namespace Times;
 using namespace std::chrono;
 
+#ifndef DEBUG
+std::vector< tuple<string, time_point<steady_clock> > > TimeModule::milestones;
+std::vector< tuple<string, double, time_point<steady_clock>, double > > TimeModule::processes;
+#else
+double TimeModule::currentSimTime;
+double TimeModule::simDelta;
+std::vector< tuple<string, double > > TimeModule::milestones;
+std::vector< tuple<string, double, double, double > > TimeModule::processes;
+#endif
+
 TimeModule::TimeModule(){
   #ifdef DEBUG
   currentSimTime = 0.0;

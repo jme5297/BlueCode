@@ -7,9 +7,7 @@ CC = g++
 INC = -I../include/
 
 # Use this if you plan on activating DEBUG flag
-# CFLAGS = -c -Wall -std=c++11 -g
-# Otherwise, use This
-CFLAGS = -c -Wall -std=c++11
+CFLAGS = -c -Wall -std=c++11 -g
 
 ODIR = obj
 SRC = ../src

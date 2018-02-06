@@ -1,3 +1,4 @@
+#pragma once
 #include <preprocdef.h>
 #include <chrono>
 #include <vector>
@@ -14,30 +15,30 @@ namespace Times{
   class TimeModule{
   public:
     TimeModule();
-    void InitProccessCounter(string str, double dt);
-    void AddMilestone(string str);
-    bool ProccessUpdate(string str);
-    double GetElapsedTime(string str);
-    double GetProccessDelta(string str);
-    double GetLastProccessDelta(string str);
+    static void InitProccessCounter(string str, double dt);
+    static void AddMilestone(string str);
+    static bool ProccessUpdate(string str);
+    static double GetElapsedTime(string str);
+    static double GetProccessDelta(string str);
+    static double GetLastProccessDelta(string str);
     #ifdef DEBUG
-    void SetTimeSimDelta(double d);
-    void Run();
+    static void SetTimeSimDelta(double d);
+    static void Run();
     #endif
     
   protected:
 
     #ifndef DEBUG
-    std::vector< tuple<string, time_point<steady_clock> > > milestones;
-    std::vector< tuple<string, double, time_point<steady_clock>, double > > processes;
+    static std::vector< tuple<string, time_point<steady_clock> > > milestones;
+    static std::vector< tuple<string, double, time_point<steady_clock>, double > > processes;
     #else
-    double currentSimTime;
-    double simDelta;
-    std::vector< tuple<string, double > > milestones;
-    std::vector< tuple<string, double, double, double > > processes;
+    static double currentSimTime;
+    static double simDelta;
+    static std::vector< tuple<string, double > > milestones;
+    static std::vector< tuple<string, double, double, double > > processes;
     #endif
-    int FindMilestoneIndex(string str);
-    int FindProccessIndex(string str);
+    static int FindMilestoneIndex(string str);
+    static int FindProccessIndex(string str);
 
   };
 }

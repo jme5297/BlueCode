@@ -28,8 +28,7 @@ bool ProgramSetup(SensorHub& mySensorHub,
 void MainOperations(SensorHub& mySensorHub,
 									Navigator& myNavigator,
 									Guider& myGuider,
-									Controller& myController,
-									TimeModule& tm);
+									Controller& myController);
 void CleanupOperations();
 bool TestSensorConnectivity();
 Navigator InutNavPlanCoordinates();
@@ -45,12 +44,11 @@ int main(){
 	Guider myGuider;
 	SensorHub mySensorHub;
 	Controller myController;
-	TimeModule tm;
 
 	#ifdef SIM
 	PlantModel::Initialize();
 	#ifdef DEBUG
-	tm.SetTimeSimDelta(0.0001);
+	TimeModule::SetTimeSimDelta(0.0001);
 	#endif
 	#endif
 
@@ -68,8 +66,8 @@ int main(){
 	}
 
 	// Begin main operations now.
-	tm.AddMilestone("BeginMainOpsTime");
-	MainOperations(mySensorHub, myNavigator, myGuider, myController, tm);
+	TimeModule::AddMilestone("BeginMainOpsTime");
+	MainOperations(mySensorHub, myNavigator, myGuider, myController);
 	CleanupOperations();
 
 	return 0;
@@ -111,25 +109,31 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	}
 
 	// Set the vehicle mode
-	myController.SetCurrentVehicleMode(Control::VehicleMode::Track);
+	myController.SetCurrentVehicleMode(Control::VehicleMode::Wheel);
+
+	#ifdef SIM 
+	PlantModel::GetVehicle()->vehicleType = VehicleType::Wheel;
+	#endif
 
 	return true;
 }
 
-void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuider, Controller& myController, TimeModule& tm){
+void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuider, Controller& myController){
 
 	std::cout << "Running...\n";
 
-	tm.InitProccessCounter("Nav", 0.05);
-	tm.InitProccessCounter("Guid", 0.05);
-	tm.InitProccessCounter("Ctrl", 0.05);
-	tm.InitProccessCounter("Write", 0.01);
-	tm.InitProccessCounter("Print", 1.0);
+	TimeModule::InitProccessCounter("Nav", 0.05);
+	TimeModule::InitProccessCounter("Guid", 0.05);
+	TimeModule::InitProccessCounter("Ctrl", 0.05);
+	TimeModule::InitProccessCounter("Write", 0.01);
+	TimeModule::InitProccessCounter("Print", 1.0);
 
 	#ifdef SIM
-	tm.InitProccessCounter("Plant", 0.01);
+	TimeModule::InitProccessCounter("Plant", 0.01);
 	// Generic testing
-	// PlantModel::GetVehicle()->heading = 5.0;
+	
+	/// @todo This needs to be accounted for by adding a calibration period.
+	PlantModel::GetVehicle()->heading = 360.0-45.0;
 	// myController.SetMotorLSpeed(1.0);
 	// myController.SetMotorRSpeed(1.0);
 	#endif
@@ -143,24 +147,24 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 		#ifdef SIM
 		#ifdef DEBUG
-		tm.Run();
+		TimeModule::Run();
 		#endif
-		if(tm.ProccessUpdate("Plant")){
-			PlantModel::Run(tm.GetLastProccessDelta("Plant"));
+		if(TimeModule::ProccessUpdate("Plant")){
+			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"));
 		}
 		#endif
 
 		// Run guidance and Navigation (and pass the controller)
-		if(tm.ProccessUpdate("Nav")){
+		if(TimeModule::ProccessUpdate("Nav")){
 			myNavigator.Run(mySensorHub);
 		}
 
-		if(tm.ProccessUpdate("Guid")){
+		if(TimeModule::ProccessUpdate("Guid")){
 			myGuider.Run(myNavigator);
 		}
 
 		// Run controls
-		if(tm.ProccessUpdate("Ctrl")){
+		if(TimeModule::ProccessUpdate("Ctrl")){
 			myController.Run(myGuider);
 		}
 
@@ -168,13 +172,13 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 		double lat = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lat;
 
 		// Print info to screen
-		if(tm.ProccessUpdate("Print")){
+		if(TimeModule::ProccessUpdate("Print")){
 			PlantModel::PrintStatus();
 		}
 
 		// Write plant model info to a file
-		if(tm.ProccessUpdate("Write")){
-			output << tm.GetElapsedTime("BeginMainOpsTime") << ","
+		if(TimeModule::ProccessUpdate("Write")){
+			output << TimeModule::GetElapsedTime("BeginMainOpsTime") << ","
 				<< lon << ","
 				<< lat << ","
 				<< PlantModel::GetVehicle()->heading << "\n";
@@ -182,7 +186,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 		// Stop sim after a certain amount of time
 		#ifdef SIM
-		double elapsed = tm.GetElapsedTime("BeginMainOpsTime");
+		double elapsed = TimeModule::GetElapsedTime("BeginMainOpsTime");
 		if(elapsed >= 3600.0){
 			running = false;
 		}

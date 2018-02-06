@@ -10,6 +10,7 @@ Navigator::Navigator()
 {
 	isConstructed = false;
 	totalPermutations = 0;
+	vehicleHeading = 0.0;
 }
 
 /**
@@ -28,11 +29,11 @@ void Navigator::Run(SensorHub& sh)
 
 	/** @todo Determine what a good work-around would be for GPS Coordinates
  	 * that either repeat, or are withing a certain threshold. Heading should
-   * not be sparatic and should be reliable. */
+   	 * not be sparatic and should be reliable. */
 	if((lastCoordinates.lat == curPos.lat)
 		&& (lastCoordinates.lon == curPos.lon))
 	{
-			std::cout << "GPS REPEAT" << std::endl;
+			// std::cout << "GPS REPEAT" << std::endl;
 		return;
 	}
 
