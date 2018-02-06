@@ -17,16 +17,17 @@ namespace Navigation {
 
 	/// Struct that contains all information for a complete path through several Coordinates.
 	struct NavPlan{
-		std::vector<Coordinate> coordinates; 	//!< List of desired/recommended Coordinates. 
-		std::vector<Movement> movements; 		//!< List of recommended Movements between Coordinates. 
+		std::vector<Coordinate> coordinates; 	//!< List of desired/recommended Coordinates.
+		std::vector<Movement> movements; 		//!< List of recommended Movements between Coordinates.
 	};
 
 	/*!
-	 *  Navigation routines and Path-Planning.
-	 * 	This is the main class that handles most of the navigation work for the vehicle. Path-planning
-	 *	routines handle most of the heavy lifting of making Coordinate connections. Vehicle state functions
-	 *	are populated every step and are passed to the Guider for decision-making.
-	 *  \warning Must populate and construct Nav Plan before normal execution.
+	 * Navigation routines and Path-Planning.
+	 * This is the main class that handles most of the navigation work for the vehicle. Path-planning
+	 * routines handle most of the heavy lifting of making Coordinate connections. Vehicle state functions
+	 * are populated every step and are passed to the Guider for decision-making.
+	 * \warning Must populate and construct Nav Plan before normal execution.
+	 * \todo Determine if nav plan construction routines should be moved to the Guider class.
 	 */
 	class Navigator{
 	public:

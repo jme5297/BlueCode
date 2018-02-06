@@ -5,21 +5,40 @@
 
 using namespace Navigation;
 using namespace Guidance;
-//using namespace Control;
 
+/**
+ * Sets a few protected members.
+ * @param[out] GuidanceManeuverIndex
+ * @param[out] isNavPlanComplete
+ * @param[out] coordinateIndex
+ */
 Guider::Guider(){
   GuidanceManeuverIndex = -1;
   isNavPlanComplete = false;
 	coordinateIndex = 0;
 }
 
-void Guider::RequestGuidanceManeuver(GuidanceManeuver cm){
+/**
+ * This will add a guidance maneuver to the end of the guidance maneuver buffer.
+ * @param[in]   gm        - A pre-constructed guidance maneuver
+ * @param[out]  gm.index  - Set the index of the guidance maneuver in the buffer.
+ */
+void Guider::RequestGuidanceManeuver(GuidanceManeuver gm){
   GuidanceManeuverIndex++;
-	cm.index = GuidanceManeuverIndex;
-	GuidanceManeuverBuffer.push_back(cm);
+	gm.index = GuidanceManeuverIndex;
+	GuidanceManeuverBuffer.push_back(gm);
 	return;
 }
 
+/**
+ * Controls the main operations of the Guider class. This can be separated into three different
+ * sections:
+ * - **Calculations**: Perform any guidance-specific calculations to be used later in the function.
+ * - **Analyze**: Determine based on navigation information if new guidance maneuvers should be added.
+ * - **Perform**: Perform actions based on the current guidance maneuver from the buffer.
+ * @param[in]   n     - Reference to the navigator.
+ * @param[out]  GuidanceManeuverBuffer
+ */
 void Guider::Run(Navigator& n){
 
   Movement m;
@@ -35,6 +54,8 @@ void Guider::Run(Navigator& n){
   double det = x1*y2 - y1*x2;      // determinant
   offAngle = atan2(det, dott) * 180.0 / PI;  // atan2(y, x) or atan2(sin, cos)
 
+  /// @todo Determine if there is a better way to organize this sequence of events.
+
   // Determine if we're ready to drop a payload.
 	if(n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= PLDIST
     &&  !(
@@ -44,10 +65,10 @@ void Guider::Run(Navigator& n){
     ){
     std::cout << "Payload drop time!" << std::endl;
 		//Push back a control move to drop payload.
-		GuidanceManeuver cm;
-		cm.state = ManeuverState::PayloadDrop;
-    cm.done = false;
-		RequestGuidanceManeuver(cm);
+		GuidanceManeuver gm;
+		gm.state = ManeuverState::PayloadDrop;
+    gm.done = false;
+		RequestGuidanceManeuver(gm);
 		coordinateIndex++;
 		// If this is the last coordinate of the nav plan, then let's wrap it up here.
 		if(coordinateIndex == (int)n.GetNavPlan().coordinates.size()){
@@ -119,7 +140,7 @@ void Guider::PayloadDrop(){
 	std::cout << "Performing payload drop... " << std::endl;
 	// Payload drop here
 	bool complete = false;
-  
+
   /** @todo Determine how to pass information between Controller and Guider
    * for coordinating payload drops. Control should have the capability to
    * set a flag for when a payload has been dropped appropriately. */
