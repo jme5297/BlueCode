@@ -8,6 +8,7 @@ bin/main
 Dox/
 
 .DS_Store
+capture_*.png
 
 # Any output files and post process files
 *.csv

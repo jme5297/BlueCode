@@ -6,13 +6,13 @@
 CC = g++
 INC = -I../include/
 
-ifeq ($(@shell pkg-config --modversion opencv),3.4.0)
+ifeq ($(shell pkg-config --modversion opencv),3.4.0)
 	ocvc = `pkg-config --cflags opencv`
 	ocvl = `pkg-config --libs opencv`
 	CFLAGS = -c -Wall -std=c++11 -g $(ocvc)
 else
-	ocvc = 
-	ocvl = 
+	ocvc =
+	ocvl =
 	CFLAGS = -c -Wall -std=c++11 -g
 endif
 
