@@ -26,5 +26,12 @@ bool Camera::Disable(){
 }
 bool Camera::TakeImage(){
 
+	#ifdef SIM
+	// No camera control for SIM mode
 	return true;
+	#else
+	// Actual code goes here to take Camera image
+	return true;
+	#endif
+
 }

@@ -57,9 +57,9 @@ void Guider::Run(Navigator& n){
   /// @todo Determine if there is a better way to organize this sequence of events.
 
   // If this is our "first pass", then we need to calibrate.
-  if (GuidanceManeuverBuffer.empty() || 
+  if (GuidanceManeuverBuffer.empty() ||
       (
-        GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop && 
+        GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop &&
         GuidanceManeuverBuffer[GuidanceManeuverIndex].done == true
       )
     ){
@@ -99,7 +99,7 @@ void Guider::Run(Navigator& n){
   // Determine if we need to execute either a turn or a maintain state.
   else if(GuidanceManeuverBuffer[GuidanceManeuverIndex].done
       && (
-          GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::Maintain || 
+          GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::Maintain ||
           GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::Calibrate ||
           GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::Turn
         )

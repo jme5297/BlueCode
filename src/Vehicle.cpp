@@ -6,14 +6,14 @@ using namespace Plant;
 Vehicle::Vehicle(){
 
   vehicleType = VehicleType::Wheel;
-  
+
   // Do more initialization here
   width = 0.2;
   length = 0.5;
   maxSpeedMPS = 1.0;
 
   // Initialization for wheel model
-  maxWheelSteeringAngleDeg = 30.0;
+  maxWheelSteeringAngleDeg = 15.0;
 
 }
 Vehicle::~Vehicle(){

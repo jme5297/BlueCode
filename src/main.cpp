@@ -66,7 +66,6 @@ int main(){
 	}
 
 	// Begin main operations now.
-	TimeModule::AddMilestone("BeginMainOpsTime");
 	MainOperations(mySensorHub, myNavigator, myGuider, myController);
 	CleanupOperations();
 
@@ -111,7 +110,7 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	// Set the vehicle mode
 	myController.SetCurrentVehicleMode(Control::VehicleMode::Wheel);
 
-	#ifdef SIM 
+	#ifdef SIM
 	PlantModel::GetVehicle()->vehicleType = VehicleType::Wheel;
 	#endif
 
@@ -122,16 +121,18 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 	std::cout << "Running...\n";
 
+	TimeModule::AddMilestone("BeginMainOpsTime");
+
 	TimeModule::InitProccessCounter("Nav", 0.05);
 	TimeModule::InitProccessCounter("Guid", 0.05);
 	TimeModule::InitProccessCounter("Ctrl", 0.05);
 	TimeModule::InitProccessCounter("Write", 0.01);
-	TimeModule::InitProccessCounter("Print", 1.0);
+	TimeModule::InitProccessCounter("Print", 2.0);
 
 	#ifdef SIM
 	TimeModule::InitProccessCounter("Plant", 0.01);
 	// Generic testing
-	
+
 	/// @todo This needs to be accounted for by adding a calibration period.
 	PlantModel::GetVehicle()->heading = 360.0-45.0;
 	// myController.SetMotorLSpeed(1.0);
