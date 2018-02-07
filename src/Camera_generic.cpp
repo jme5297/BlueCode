@@ -2,6 +2,10 @@
 
 using namespace sensors;
 
+#ifdef USE_CAMERA
+using namespace cv;
+#endif
+
 Camera::Camera(){
 
 }
@@ -24,14 +28,34 @@ bool Camera::Disable(){
 
 	return true;
 }
-bool Camera::TakeImage(){
+bool Camera::TakeImage(int i){
 
-	#ifdef SIM
-	// No camera control for SIM mode
+	#ifndef USE_CAMERA
+
+	// No camera control for non-camera runs
+	std::cout << "(Fake) Camera image taken!";
 	return true;
+
 	#else
+
 	// Actual code goes here to take Camera image
-	return true;
+	VideoCapture capture(0);
+  capture.set(CV_CAP_PROP_FRAME_WIDTH,1920);
+  capture.set(CV_CAP_PROP_FRAME_HEIGHT,1080);
+  if(!capture.isOpened()){
+    std:: cout << "Failed to connect to the camera.\n";
+		return false;
+  }
+  Mat frame, edges;
+  capture >> frame;
+  if(frame.empty()){
+		std::cout << "Failed to capture an image.\n";
+		return false;
+  }
+  imwrite("capture_" + std::to_string(i) + ".png", frame);
+	std::cout << "Camera image taken!\n";
+
 	#endif
 
+	return true;
 }

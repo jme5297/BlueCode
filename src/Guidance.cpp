@@ -63,6 +63,14 @@ void Guider::Run(Navigator& n){
         GuidanceManeuverBuffer[GuidanceManeuverIndex].done == true
       )
     ){
+      
+    // If this is the last coordinate of the nav plan, then let's wrap it up here.
+    if(coordinateIndex == (int)n.GetNavPlan().coordinates.size()){
+      isNavPlanComplete = true;
+      std::cout << "Guider's Nav Plan comlete! Returning now for clean-up ops.\n";
+      return;
+    }
+
     GuidanceManeuver gm;
     gm.state = ManeuverState::Calibrate;
     gm.speed = 1.0;
@@ -89,12 +97,9 @@ void Guider::Run(Navigator& n){
 		GuidanceManeuver gm;
 		gm.state = ManeuverState::PayloadDrop;
     gm.done = false;
+    gm.payloadDropComplete = false;
 		RequestGuidanceManeuver(gm);
 		coordinateIndex++;
-		// If this is the last coordinate of the nav plan, then let's wrap it up here.
-		if(coordinateIndex == (int)n.GetNavPlan().coordinates.size()){
-			isNavPlanComplete = true;
-		}
 	}
   // Determine if we need to execute either a turn or a maintain state.
   else if(GuidanceManeuverBuffer[GuidanceManeuverIndex].done
@@ -157,7 +162,10 @@ void Guider::Run(Navigator& n){
 
 			break;
 		case ManeuverState::PayloadDrop:
-			PayloadDrop();
+      if(man.payloadDropComplete){
+        GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
+        std::cout << "Payload drop complete!" << std::endl;
+      }
 			break;
 		case ManeuverState::Complete:
 
@@ -167,23 +175,7 @@ void Guider::Run(Navigator& n){
   return;
 }
 
-void Guider::PayloadDrop(){
-	std::cout << "Performing payload drop... " << std::endl;
-	// Payload drop here
-	bool complete = false;
-
-  /** @todo Determine how to pass information between Controller and Guider
-   * for coordinating payload drops. Control should have the capability to
-   * set a flag for when a payload has been dropped appropriately. */
-	complete = true;
-	if(complete){
-		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
-		std::cout << "Payload drop complete!" << std::endl;
-	}
-	return;
-}
-
 std::vector<GuidanceManeuver> Guider::GetGuidanceManeuverBuffer(){ return GuidanceManeuverBuffer; }
-GuidanceManeuver Guider::GetCurrentGuidanceManeuver(){ return GuidanceManeuverBuffer[GuidanceManeuverIndex]; }
+GuidanceManeuver& Guider::GetCurrentGuidanceManeuver(){ return GuidanceManeuverBuffer[GuidanceManeuverIndex]; }
 int Guider::GetGuidanceManeuverIndex(){ return GuidanceManeuverIndex; }
 bool Guider::IsNavPlanComplete() { return isNavPlanComplete; }

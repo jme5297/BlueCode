@@ -6,8 +6,17 @@
 CC = g++
 INC = -I../include/
 
-# Use this if you plan on activating DEBUG flag
-CFLAGS = -c -Wall -std=c++11 -g
+OCVMV = $(shell pkg-config --modversion opencv)
+
+ifeq ($(OCVMV),3.4.0)
+	ocvc = `pkg-config --cflags opencv`
+	ocvl = `pkg-config --libs opencv`
+	CFLAGS = -c -Wall -std=c++11 -g $(ocvc)
+else
+	ocvc = ""
+	ocvl = ""
+	CFLAGS = -c -Wall -std=c++11 -g
+endif
 
 ODIR = obj
 SRC = ../src
@@ -37,7 +46,7 @@ main: $(ODIR)/Vehicle.o \
 	$(ODIR)/Navigation.o \
 	$(ODIR)/Guidance.o \
 	$(ODIR)/Control.o \
-	$(ODIR)/main.o -o main
+	$(ODIR)/main.o -o main $(ocvl)
 
 $(ODIR)/Vehicle.o: $(SRC)/Vehicle.cpp
 	$(dir_guard)

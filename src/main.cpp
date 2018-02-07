@@ -166,7 +166,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 		// Run controls
 		if(TimeModule::ProccessUpdate("Ctrl")){
-			myController.Run(myGuider);
+			myController.Run(myGuider, mySensorHub);
 		}
 
 		double lon = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lon;

@@ -3,6 +3,7 @@
 using namespace Plant;
 using namespace Guidance;
 using namespace Control;
+using namespace sensors;
 
 Controller::Controller(){
 	currentVehicleMode = VehicleMode::Wheel;
@@ -14,12 +15,16 @@ void Controller::SetCurrentVehicleMode(VehicleMode vm)
 	currentVehicleMode = vm;
 }
 VehicleMode Controller::GetCurrentVehicleMode()
-{	
+{
 	return currentVehicleMode;
 }
 
 /// @todo Determine if all of these switches are necessary.
-void Controller::Run(Guider& g){
+void Controller::Run(Guider& g, SensorHub& sh){
+
+	if(!g.GetGuidanceManeuverBuffer().empty()){
+		currentGuidanceManeuver = g.GetCurrentGuidanceManeuver();
+	}
 
 	// If the buffer is empty, then don't run anything.
 	if(g.GetGuidanceManeuverBuffer().empty() || g.GetCurrentGuidanceManeuver().done){
@@ -81,7 +86,7 @@ void Controller::Run(Guider& g){
 
 				break;
 			case ManeuverState::PayloadDrop:
-
+				PayloadDrop(g, sh);
 				break;
 			case ManeuverState::Complete:
 
@@ -92,8 +97,18 @@ void Controller::Run(Guider& g){
 	return;
 }
 
-void Controller::PayloadDrop(){
-
+/**
+ * \note PayloadDrop also handles camera image operations.
+ */
+void Controller::PayloadDrop(Guider& g, SensorHub& sh){
+	// Take an image
+	bool imageTaken = sh.GetCamera().TakeImage(g.GetCurrentGuidanceManeuver().index);
+	if(imageTaken){
+		g.GetCurrentGuidanceManeuver().payloadDropComplete = true;
+		std::cout << "Controller received successful image signal!\n";
+	}else{
+		std::cout << "Controller says image taking has failed.\n";
+	}
 	return;
 }
 

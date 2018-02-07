@@ -56,6 +56,7 @@ namespace Guidance{
                            * determine when the next guidance maneuver in the guidance maneuver
                            * buffer should be analyzed. */
     double calibrationTime;   ///< Time to calibrate system in seconds.
+    bool payloadDropComplete; ///< Flag that represents if a payload drop has been completed.
 
 	};
 
@@ -67,13 +68,11 @@ namespace Guidance{
     int GetGuidanceManeuverIndex(); ///< Returns the guidance maneuver index from the buffer being analyzed.
 		void RequestGuidanceManeuver(GuidanceManeuver cm); ///< Request to add another guidance maneuver to the guidance maneuver buffer.
 		std::vector<GuidanceManeuver> GetGuidanceManeuverBuffer(); ///<Return the entire guidance maneuver buffer.
-		GuidanceManeuver GetCurrentGuidanceManeuver(); ///< Get the current guidance maneuver from the maneuver buffer.
+		GuidanceManeuver& GetCurrentGuidanceManeuver(); ///< Get the current guidance maneuver from the maneuver buffer.
 
     void Run(Navigator& n); ///< Main execution function for the Guider.
     bool IsNavPlanComplete(); ///< Returns if all nav plan objectives have been acheived.
 
-    void PayloadDrop(); ///< Execute a payload drop.
-                        /**< \todo Determine if it would be smarter to only include this in the Controller. */
   protected:
     int GuidanceManeuverIndex; ///< Index of the current guidance maneuver being analyzed.
 
