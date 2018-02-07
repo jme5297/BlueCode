@@ -67,7 +67,7 @@ void Guider::Run(Navigator& n){
     // If this is the last coordinate of the nav plan, then let's wrap it up here.
     if(coordinateIndex == (int)n.GetNavPlan().coordinates.size()){
       isNavPlanComplete = true;
-      std::cout << "Guider's Nav Plan comlete! Returning now for clean-up ops.\n";
+      std::cout << "Guider's Nav Plan comlete! Returning to main for clean-up ops.\n";
       return;
     }
 

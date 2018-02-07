@@ -6,8 +6,6 @@
 #ifdef USE_CAMERA
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
-#else
-#warning "No Opencv!"
 #endif
 
 namespace sensors{

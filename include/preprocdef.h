@@ -7,4 +7,4 @@
 // #define DEBUG
 
 // Real camera use? (NOTE: OpenCV 3.4.0 is required!)
-#define USE_CAMERA
+// #define USE_CAMERA

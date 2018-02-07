@@ -33,26 +33,26 @@ bool Camera::TakeImage(int i){
 	#ifndef USE_CAMERA
 
 	// No camera control for non-camera runs
-	std::cout << "(Fake) Camera image taken!";
+	std::cout << "(Fake) Camera image taken!\n";
 	return true;
 
 	#else
 
 	// Actual code goes here to take Camera image
 	VideoCapture capture(0);
-  capture.set(CV_CAP_PROP_FRAME_WIDTH,1920);
-  capture.set(CV_CAP_PROP_FRAME_HEIGHT,1080);
-  if(!capture.isOpened()){
-    std:: cout << "Failed to connect to the camera.\n";
+	capture.set(CV_CAP_PROP_FRAME_WIDTH,1920);
+	capture.set(CV_CAP_PROP_FRAME_HEIGHT,1080);
+	if(!capture.isOpened()){
+	std:: cout << "Failed to connect to the camera.\n";
 		return false;
-  }
-  Mat frame, edges;
-  capture >> frame;
-  if(frame.empty()){
+	}
+	Mat frame, edges;
+	capture >> frame;
+	if(frame.empty()){
 		std::cout << "Failed to capture an image.\n";
 		return false;
-  }
-  imwrite("capture_" + std::to_string(i) + ".png", frame);
+	}
+	imwrite("capture_" + std::to_string(i) + ".png", frame);
 	std::cout << "Camera image taken!\n";
 
 	#endif
