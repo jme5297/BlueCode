@@ -1,5 +1,4 @@
 #pragma once
-#include <preprocdef.h>
 #include <chrono>
 #include <vector>
 #include <string>
@@ -25,7 +24,7 @@ namespace Times{
     static void SetTimeSimDelta(double d);
     static void Run();
     #endif
-    
+
   protected:
 
     #ifndef DEBUG

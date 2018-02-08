@@ -52,7 +52,7 @@ bool Camera::TakeImage(int i){
 		std::cout << "Failed to capture an image.\n";
 		return false;
 	}
-	imwrite("../capture_" + std::to_string(i) + ".png", frame);
+	imwrite("capture_" + std::to_string(i) + ".png", frame);
 	std::cout << "Camera image taken!\n";
 
 	#endif

@@ -140,7 +140,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 	#endif
 
 	std::ofstream output;
-	output.open("../out.csv");
+	output.open("data.csv");
 
 	// Main logic loop - I EXPECT TO BE HERE FOR A WHILE
 	bool running = true;

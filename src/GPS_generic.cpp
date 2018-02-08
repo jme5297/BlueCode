@@ -1,4 +1,3 @@
-#include <preprocdef.h>
 #include <sensors/GPS/GPS_generic.h>
 
 using namespace sensors;
