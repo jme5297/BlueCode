@@ -4,6 +4,10 @@ project(BlueCode)
 # Compile against c++ 11
 set(CMAKE_CXX_STANDARD 11)
 
+set(SIM true CACHE BOOL "Compile with a plant model and a simulated vehicle")
+set(DEBUG false CACHE BOOL "Compile without std::chrono dependencies (simple counter for clock)")
+set(USE_CAMERA false CACHE BOOL "Use the default camera for actual photos. REQUIRES OPENCV.")
+
 # Compile the plant/vehicle model.
 if(${SIM})
   message(STATUS "Compiling #SIM mode.")

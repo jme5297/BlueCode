@@ -221,7 +221,7 @@ bool TestSensorConnectivity(){
 Navigator InutNavPlanCoordinates(){
 
 	// Create a new nav plan to populate
-	Navigator navPlan;
+	Navigator navigator;
 
 	// -----
 	// THE FOLLOWING CODE WORKS. For now, just testing with debug cases.
@@ -246,7 +246,7 @@ Navigator InutNavPlanCoordinates(){
 		std::cin >> c2;
 
 		// Add these two coordinates to the planned nav plan
-		navPlan.AddCoordinate(-1, c1, c2);
+		navigator.AddCoordinate(-1, c1, c2);
 
 		index++;
 
@@ -257,48 +257,18 @@ Navigator InutNavPlanCoordinates(){
 	// If an undo is requested, then get recursive!
 	if(response == -1)
 	{
-		navPlan = InutNavPlanCoordinates();
+		navigator = InutNavPlanCoordinates();
 	}
 
-	// Debugging case 1 - generic test
-	/*
-	navPlan.AddCoordinate(-1, 1.0, -21.0);
-	navPlan.AddCoordinate(-1, 11.0, 12.0);
-	navPlan.AddCoordinate(-1, 12.0, 2.0);
-	navPlan.AddCoordinate(-1, 10.0, 0.0);
-	navPlan.AddCoordinate(-1, -3.0, 3.0);
-	navPlan.AddCoordinate(-1, 9.0, 5.0);
-	*/
+	std::ofstream pts;
+	pts.open("pts.csv");
+	std::vector<Coordinate> coords = navigator.GetWaypoints();
+	for(int i = 0; i < (int)coords.size(); i++){
+		pts << coords[i].lon << "," << coords[i].lat << "\n";
+	}
+	pts.close();
 
-	// Debugging case 2 - stress test
-	/*
-	navPlan.AddCoordinate(-1, 1.0, 1.0);
-	navPlan.AddCoordinate(-1, -2.0, 10.0);
-	navPlan.AddCoordinate(-1, 2.0, 2.0);
-	navPlan.AddCoordinate(-1, 9.0, -1.0);
-	navPlan.AddCoordinate(-1, -6.0, 3.0);
-	navPlan.AddCoordinate(-1, 8.0, -8.0);
-	navPlan.AddCoordinate(-1, 4.0, 0.0);
-	navPlan.AddCoordinate(-1, -3.0, 7.0);
-	navPlan.AddCoordinate(-1, 5.0, 6.0);
-	navPlan.AddCoordinate(-1, 6.0, 1.0);
-	navPlan.AddCoordinate(-1, -2.0, 6.0);
-	//navPlan.AddCoordinate(-1, 10.0, 6.0);
-	*/
-
-	// Debugging case 3 - heading test and patterns
-	/*
-	navPlan.AddCoordinate(-1, 1.0, 1.0);
-	navPlan.AddCoordinate(-1, -2.0, 2.0);
-	navPlan.AddCoordinate(-1, -3.0, -3.0);
-	navPlan.AddCoordinate(-1, 4.0, -4.0);
-	navPlan.AddCoordinate(-1, 5.0, 5.0);
-	navPlan.AddCoordinate(-1, -6.0, 6.0);
-	navPlan.AddCoordinate(-1, -7.0, -7.0);
-	navPlan.AddCoordinate(-1, 8.0, -8.0);
-	*/
-
-	return navPlan;
+	return navigator;
 }
 
 void PrintNavPlanInfo(Navigator& n, SensorHub& sh){
@@ -311,7 +281,6 @@ void PrintNavPlanInfo(Navigator& n, SensorHub& sh){
 	std::cout << "Current location of (" + std::to_string(myLoc.lon) + "," + std::to_string(myLoc.lat) + ").\n";
 
 	for(int i = 0; i < (int)coords.size(); i++){
-		//std::cout << std::to_string(moves[i].distance) << "\n";
 		std::cout << "Proceed on heading " + std::to_string(moves[i].heading) + "deg for " + std::to_string(moves[i].distance) + "u until Waypoint #" + std::to_string(i) + " at (" + std::to_string(coords.at(i).lon) + "," + std::to_string(coords.at(i).lat) + ").\n";
 	}
 
