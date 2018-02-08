@@ -22,8 +22,19 @@ VehicleMode Controller::GetCurrentVehicleMode()
 /// @todo Determine if all of these switches are necessary.
 void Controller::Run(Guider& g, SensorHub& sh){
 
-	if(!g.GetGuidanceManeuverBuffer().empty()){
-		currentGuidanceManeuver = g.GetCurrentGuidanceManeuver();
+	// If the NAV plan is complete, then stop the vehicle and return.
+	if(g.IsNavPlanComplete()){
+		std::cout << "Nav Plan complete. Stopping vehicle.\n";
+		switch(currentVehicleMode){
+			case VehicleMode::Wheel:
+				SetWheelSpeed(0.0);
+				SetWheelSteering(0.0);
+				break;
+			case VehicleMode::Track:
+				SetMotorSpeeds(0.0);
+				break;
+		}
+		return;
 	}
 
 	// If the buffer is empty, then don't run anything.
