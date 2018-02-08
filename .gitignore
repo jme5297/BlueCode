@@ -2,8 +2,6 @@
 src/compiling_error.txt
 
 # Main build
-bin/main
-
 build/
 
 #Doxygen documentation
