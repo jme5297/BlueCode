@@ -1,6 +1,7 @@
 #define PI 3.14159265
 #include <PlantModel/PlantModel.h>
 #include <iostream>
+#include <string>
 
 using namespace sensors;
 using namespace Plant;

@@ -2,6 +2,7 @@
 
 #include <Navigation.h>
 #include <iostream>
+#include <string>
 
 using namespace sensors;
 using namespace Navigation;

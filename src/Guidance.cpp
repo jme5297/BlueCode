@@ -41,6 +41,13 @@ void Guider::RequestGuidanceManeuver(GuidanceManeuver gm){
  */
 void Guider::Run(Navigator& n){
 
+	// Fail safe to avoid vector dimension issues.
+	if (coordinateIndex == (int)n.GetNavPlan().coordinates.size()) {
+		isNavPlanComplete = true;
+		std::cout << "Guider's Nav Plan comlete! Returning to main for clean-up ops.\n";
+		return;
+	}
+
   Movement m;
   m = n.CalculateMovement(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]);
 
@@ -63,7 +70,7 @@ void Guider::Run(Navigator& n){
         GuidanceManeuverBuffer[GuidanceManeuverIndex].done == true
       )
     ){
-      
+
     // If this is the last coordinate of the nav plan, then let's wrap it up here.
     if(coordinateIndex == (int)n.GetNavPlan().coordinates.size()){
       isNavPlanComplete = true;
