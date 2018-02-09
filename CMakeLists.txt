@@ -56,5 +56,5 @@ include_directories(include)
 # Add all sources to the executable
 file(GLOB SOURCES "src/*.cpp")
 
-add_executable(BlueCode WIN32 MACOSX_BUNDLE ${SOURCES})
+add_executable(BlueCode MACOSX_BUNDLE ${SOURCES})
 target_link_libraries( BlueCode ${IRRLICHT_LIBRARY} ${OpenCV_LIBS} ${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )

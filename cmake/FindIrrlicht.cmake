@@ -40,7 +40,7 @@ else (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
       /usr/local/lib
       /opt/local/lib
       /sw/lib
-      ${PROJECT_SOURCE_DIR}/irrlicht/lib/Linux
+      ${PROJECT_SOURCE_DIR}/irrlicht/lib/Win64-visualStudio
   )
 
   if (IRRLICHT_LIBRARY)
