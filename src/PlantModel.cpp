@@ -29,18 +29,18 @@ void PlantModel::Initialize(){
   fp_run = true;
 
   device =
-    createDevice( video::EDT_OPENGL, dimension2d<u32>(640, 480), 16,
+    createDevice( video::EDT_SOFTWARE, dimension2d<u32>(640, 480), 16,
     false, false, false, 0);
 
-  // path p = device->getFileSystem()->getWorkingDirectory();
+   path p = device->getFileSystem()->getWorkingDirectory();
 
-#ifdef _WIN32
+#ifndef __APPLE__
   device->getFileSystem()->changeWorkingDirectoryTo("..");
 #endif
 
   if (!device)
     return;
-  device->setWindowCaption(L"Hello World! - Irrlicht Engine Demo");
+  device->setWindowCaption(L"Giving You Something Nice To Look At");
   driver = device->getVideoDriver();
   smgr = device->getSceneManager();
   guienv = device->getGUIEnvironment();
