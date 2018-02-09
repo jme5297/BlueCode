@@ -53,8 +53,6 @@ int main(int argc, char* argv[]){
 	#endif
 	#endif
 
-	std::cin.get();
-
 	// ProgramSetup handles constructing the nav plan, and ensuring
 	// that all sensors are connected. This will return true if setup has finished correctly.
 	bool setup = ProgramSetup(mySensorHub, myNavigator, myGuider, myController);
