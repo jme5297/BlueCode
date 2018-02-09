@@ -2,8 +2,7 @@
 src/compiling_error.txt
 
 # Main build
-bin/main
-bin/obj/
+bin/
 build/
 
 #Doxygen documentation

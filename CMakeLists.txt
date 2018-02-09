@@ -8,10 +8,27 @@ set(SIM true CACHE BOOL "Compile with a plant model and a simulated vehicle")
 set(DEBUG false CACHE BOOL "Compile without std::chrono dependencies (simple counter for clock)")
 set(USE_CAMERA false CACHE BOOL "Use the default camera for actual photos. REQUIRES OPENCV.")
 
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
 # Compile the plant/vehicle model.
 if(${SIM})
   message(STATUS "Compiling #SIM mode.")
+  FIND_PACKAGE(OpenGL)
+  FIND_PACKAGE(Irrlicht)
+
+  IF (APPLE)
+  	FIND_LIBRARY(CARBON_LIBRARY Carbon)
+  	FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+  	FIND_LIBRARY(IOKIT_LIBRARY IOKit)
+  	SET(OSX_LIBRARIES ${CARBON_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY})
+  ENDIF (APPLE)
+
+  if(UNIX AND NOT APPLE)
+    SET(LINUX_LIBRARIES X11 Xxf86vm )
+  endif()
+
   add_definitions(-D SIM)
+  INCLUDE_DIRECTORIES(${IRRLICHT_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
 endif()
 
 # Compile debug mode (no dependencies on std::chrono)
@@ -39,5 +56,5 @@ include_directories(include)
 # Add all sources to the executable
 file(GLOB SOURCES "src/*.cpp")
 
-add_executable(BlueCode ${SOURCES})
-target_link_libraries( BlueCode ${OpenCV_LIBS} )
+add_executable(BlueCode WIN32 MACOSX_BUNDLE ${SOURCES})
+target_link_libraries( BlueCode ${IRRLICHT_LIBRARY} ${OpenCV_LIBS} ${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )
