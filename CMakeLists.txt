@@ -27,6 +27,14 @@ if(${SIM})
     SET(LINUX_LIBRARIES X11 Xxf86vm )
   endif()
 
+  if (MSVC_IDE)
+      # hack to get around the "Debug" and "Release" directories cmake tries to add on Windows
+      set_target_properties (${NAME} PROPERTIES PREFIX "../")
+      SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIRECTORY}")
+      SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIRECTORY}")
+      FILE(COPY ${PROJECT_SOURCE_DIR}/irrlicht/bin/Win64-VisualStudio/Irrlicht.dll DESTINATION ${PROJECT_SOURCE_DIR}/build)
+  endif()
+
   add_definitions(-D SIM)
   INCLUDE_DIRECTORIES(${IRRLICHT_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
 endif()
@@ -56,5 +64,5 @@ include_directories(include)
 # Add all sources to the executable
 file(GLOB SOURCES "src/*.cpp")
 
-add_executable(BlueCode ${SOURCES})
+add_executable(BlueCode WIN32 ${SOURCES})
 target_link_libraries( BlueCode ${IRRLICHT_LIBRARY} ${OpenCV_LIBS} ${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )

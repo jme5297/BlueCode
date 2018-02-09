@@ -17,8 +17,9 @@
 #include <irrlicht.h>
 #include <OpenGL/OpenGL.h>
 #else
-#pragma comment(lib, "Irrlicht.lib")
-#pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
+#ifdef _MSC_VER
+# pragma comment(linker, "/SUBSYSTEM:CONSOLE")
+#endif
 #include "irrlicht.h"
 #endif
 
@@ -55,14 +56,21 @@ void PrintNavPlanInfo(Navigator& n, SensorHub& sh);
 /** Main logic entrance.
  * This is where the main program enters.
  */
-int main(){
+int main(int argc, char* argv[]){
 
 	IrrlichtDevice *device =
 		createDevice( video::EDT_OPENGL, dimension2d<u32>(640, 480), 16,
 		false, false, false, 0);
 
-	// device->getFileSystem()->changeWorkingDirectoryTo("/Users/jasonmeverett/BlueCode/build");
 	path p = device->getFileSystem()->getWorkingDirectory();
+
+#ifdef _WIN32
+	device->getFileSystem()->changeWorkingDirectoryTo("..");
+#elif __APPLE__
+	// Nothing, we're all good here.
+#else
+
+#endif
 
 	if (!device)
 		return 1;
@@ -111,6 +119,8 @@ int main(){
 	TimeModule::SetTimeSimDelta(0.0001);
 	#endif
 	#endif
+
+	std::cin.get();
 
 	// ProgramSetup handles constructing the nav plan, and ensuring
 	// that all sensors are connected. This will return true if setup has finished correctly.
