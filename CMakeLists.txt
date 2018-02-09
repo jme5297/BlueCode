@@ -29,7 +29,7 @@ if(${SIM})
 
   if (MSVC_IDE)
       # hack to get around the "Debug" and "Release" directories cmake tries to add on Windows
-      set_target_properties (${NAME} PROPERTIES PREFIX "../")
+      # set_target_properties (${NAME} PROPERTIES PREFIX "../")
       SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIRECTORY}")
       SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIRECTORY}")
       FILE(COPY ${PROJECT_SOURCE_DIR}/irrlicht/bin/Win64-VisualStudio/Irrlicht.dll DESTINATION ${PROJECT_SOURCE_DIR}/build)

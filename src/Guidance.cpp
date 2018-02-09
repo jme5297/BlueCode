@@ -1,4 +1,3 @@
-#define PI 3.14159265
 #define PLDIST 2.0
 
 #include <Guidance.h>
@@ -40,6 +39,8 @@ void Guider::RequestGuidanceManeuver(GuidanceManeuver gm){
  * @param[out]  GuidanceManeuverBuffer
  */
 void Guider::Run(Navigator& n){
+
+  double PI = 3.14159265;
 
 	// Fail safe to avoid vector dimension issues.
 	if (coordinateIndex == (int)n.GetNavPlan().coordinates.size()) {

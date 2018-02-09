@@ -3,6 +3,13 @@
 #include <iostream>
 #include <string>
 
+using namespace irr;
+using namespace core;
+using namespace scene;
+using namespace video;
+using namespace io;
+using namespace gui;
+
 using namespace sensors;
 using namespace Plant;
 
@@ -11,11 +18,55 @@ Vehicle PlantModel::veh;
 std::chrono::time_point<std::chrono::system_clock> PlantModel::initTime;
 std::chrono::time_point<std::chrono::system_clock> PlantModel::lastRunCall;
 bool PlantModel::fp_run;
+IrrlichtDevice* PlantModel::device;
+IVideoDriver* PlantModel::driver;
+ISceneManager* PlantModel::smgr;
+IGUIEnvironment* PlantModel::guienv;
 
 void PlantModel::Initialize(){
   std::cout << "PLANT INITIALIZED " << GetVehicle()->gps.coords.lon << "\n\n";
   initTime = std::chrono::system_clock::now();
   fp_run = true;
+
+  device =
+    createDevice( video::EDT_OPENGL, dimension2d<u32>(640, 480), 16,
+    false, false, false, 0);
+
+  // path p = device->getFileSystem()->getWorkingDirectory();
+
+#ifdef _WIN32
+  device->getFileSystem()->changeWorkingDirectoryTo("..");
+#endif
+
+  if (!device)
+    return;
+  device->setWindowCaption(L"Hello World! - Irrlicht Engine Demo");
+  driver = device->getVideoDriver();
+  smgr = device->getSceneManager();
+  guienv = device->getGUIEnvironment();
+  guienv->addStaticText(L"Hello World! This is the Irrlicht Software renderer!",
+    rect<s32>(10,10,260,22), true);
+
+  IAnimatedMesh* mesh = smgr->getMesh("irrlicht/media/sydney.md2");
+  if (!mesh)
+  {
+    device->drop();
+    return;
+  }
+  IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode( mesh );
+  if (node)
+  {
+    node->setMaterialFlag(EMF_LIGHTING, false);
+    node->setMD2Animation(scene::EMAT_STAND);
+    node->setMaterialTexture( 0, driver->getTexture("irrlicht/media/sydney.bmp") );
+  }
+
+  smgr->addCameraSceneNode(0, vector3df(0,30,-40), vector3df(0,5,0));
+  std::cout << "added cam.\n";
+}
+
+void PlantModel::Cleanup(){
+  device->drop();
 }
 
 // Really, really simple physics model.
@@ -24,9 +75,17 @@ void PlantModel::Run(double dt){
   double dx;
   double dy;
 
+  if(device->run())
+	{
+		driver->beginScene(true, true, SColor(255,100,101,140));
+		smgr->drawAll();
+		guienv->drawAll();
+		driver->endScene();
+	}
+
   switch(GetVehicle()->vehicleType){
     //-------------------------
-    //    TRACK MODE 
+    //    TRACK MODE
     //-------------------------
     case VehicleType::Track:{
       double speedL = GetVehicle()->motL.val * GetVehicle()->maxSpeedMPS;
@@ -36,7 +95,7 @@ void PlantModel::Run(double dt){
       // Update heading if the vehicle is turning.
       GetVehicle()->heading += dtheta * 180.0 / PI ;
       GetVehicle()->heading = fmod(GetVehicle()->heading, 360.0);
-      
+
       // Turning radius of the INSIDE track.
       double r;
       if(dtheta <= 1e-15){
@@ -51,7 +110,7 @@ void PlantModel::Run(double dt){
       break;
     }
     //-------------------------
-    //    WHEEL MODE 
+    //    WHEEL MODE
     //-------------------------
     case VehicleType::Wheel:
       // http://www.davdata.nl/math/turning_radius.html
