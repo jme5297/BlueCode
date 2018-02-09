@@ -23,12 +23,12 @@ else (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
     NAMES
       irrlicht.h
     PATHS
-      /usr/include
-      /usr/include/irrlicht
-      /usr/local/include
-      /usr/local/include/irrlicht
-      /opt/local/include
-      /sw/include
+      # /usr/include
+      # /usr/include/irrlicht
+      # /usr/local/include
+      # /usr/local/include/irrlicht
+      # /opt/local/include
+      # /sw/include
       ${PROJECT_SOURCE_DIR}/irrlicht/include
   )
 
@@ -36,11 +36,17 @@ else (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
     NAMES
         Irrlicht
     PATHS
-      /usr/lib
-      /usr/local/lib
-      /opt/local/lib
-      /sw/lib
-      ${PROJECT_SOURCE_DIR}/irrlicht/lib/Win64-visualStudio
+      # /usr/lib
+      # /usr/local/lib
+      # /opt/local/lib
+      # /sw/lib
+      if(WIN32)
+        ${PROJECT_SOURCE_DIR}/irrlicht/lib/Win64-visualStudio
+      elseif(APPLE)
+        ${PROJECT_SOURCE_DIR}/irrlicht/lib/MacOSX
+      elseif(UNIX AND NOT APPLE)
+        ${PROJECT_SOURCE_DIR}/irrlicht/lib/Linux
+      endif()
   )
 
   if (IRRLICHT_LIBRARY)

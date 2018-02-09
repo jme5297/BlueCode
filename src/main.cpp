@@ -11,8 +11,17 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <string>
 
+#if defined(__APPLE__) || defined(MACOSX)
 #include <irrlicht.h>
+#include <OpenGL/OpenGL.h>
+#else
+#pragma comment(lib, "Irrlicht.lib")
+#pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
+#include "irrlicht.h"
+#endif
+
 using namespace irr;
 using namespace core;
 using namespace scene;
@@ -49,8 +58,11 @@ void PrintNavPlanInfo(Navigator& n, SensorHub& sh);
 int main(){
 
 	IrrlichtDevice *device =
-		createDevice( video::EDT_SOFTWARE, dimension2d<u32>(640, 480), 16,
+		createDevice( video::EDT_OPENGL, dimension2d<u32>(640, 480), 16,
 		false, false, false, 0);
+
+	// device->getFileSystem()->changeWorkingDirectoryTo("/Users/jasonmeverett/BlueCode/build");
+	path p = device->getFileSystem()->getWorkingDirectory();
 
 	if (!device)
 		return 1;
@@ -60,7 +72,8 @@ int main(){
 	IGUIEnvironment* guienv = device->getGUIEnvironment();
 	guienv->addStaticText(L"Hello World! This is the Irrlicht Software renderer!",
 		rect<s32>(10,10,260,22), true);
-	IAnimatedMesh* mesh = smgr->getMesh("../irrlicht/media/sydney.md2");
+
+	IAnimatedMesh* mesh = smgr->getMesh("irrlicht/media/sydney.md2");
 	if (!mesh)
 	{
 		device->drop();
@@ -71,16 +84,17 @@ int main(){
 	{
 		node->setMaterialFlag(EMF_LIGHTING, false);
 		node->setMD2Animation(scene::EMAT_STAND);
-		node->setMaterialTexture( 0, driver->getTexture("../irrlicht/media/sydney.bmp") );
+		node->setMaterialTexture( 0, driver->getTexture("irrlicht/media/sydney.bmp") );
 	}
+
 	smgr->addCameraSceneNode(0, vector3df(0,30,-40), vector3df(0,5,0));
+	std::cout << "added cam.\n";
+
 	while(device->run())
 	{
 		driver->beginScene(true, true, SColor(255,100,101,140));
-
 		smgr->drawAll();
 		guienv->drawAll();
-
 		driver->endScene();
 	}
 	device->drop();
