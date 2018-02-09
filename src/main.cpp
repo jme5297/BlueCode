@@ -69,7 +69,7 @@ int main(int argc, char* argv[]){
 #elif __APPLE__
 	// Nothing, we're all good here.
 #else
-
+	device->getFileSystem()->changeWorkingDirectoryTo("..");
 #endif
 
 	if (!device)
@@ -119,9 +119,7 @@ int main(int argc, char* argv[]){
 	TimeModule::SetTimeSimDelta(0.0001);
 	#endif
 	#endif
-
-	std::cin.get();
-
+	
 	// ProgramSetup handles constructing the nav plan, and ensuring
 	// that all sensors are connected. This will return true if setup has finished correctly.
 	bool setup = ProgramSetup(mySensorHub, myNavigator, myGuider, myController);
