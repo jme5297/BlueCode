@@ -9,7 +9,7 @@ build/
 Dox/
 
 .DS_Store
-capture_*.png
+capture_*.bmp
 
 # Any output files and post process files
 *.csv

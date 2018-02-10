@@ -32,6 +32,8 @@ bool Camera::Disable(){
 
 	return true;
 }
+
+/// @todo There is currently an issue with taking more than one image.
 bool Camera::TakeImage(int i){
 
 	#ifndef USE_CAMERA
@@ -42,12 +44,11 @@ bool Camera::TakeImage(int i){
 
 	#else
 
-	// Actual code goes here to take Camera image
-	VideoCapture capture(0);
-	capture.set(CV_CAP_PROP_FRAME_WIDTH,1920);
-	capture.set(CV_CAP_PROP_FRAME_HEIGHT,1080);
+	/// @todo This throws errors on some platforms.
+	// capture.set(CV_CAP_PROP_FRAME_WIDTH,1920);
+	// capture.set(CV_CAP_PROP_FRAME_HEIGHT,1080);
 	if(!capture.isOpened()){
-	std:: cout << "Failed to connect to the camera.\n";
+		capture = VideoCapture(0);
 		return false;
 	}
 	Mat frame, edges;
@@ -57,16 +58,23 @@ bool Camera::TakeImage(int i){
 		return false;
 	}
 
-	std::string img_name = "out/capture_" + std::to_string(i) + ".png";
-	imwrite(img_name, frame);
+	std::string img_name = "out/capture_" + std::to_string(i) + ".bmp";
+	bool check = imwrite(img_name, frame);
 
 	#ifdef SIM
 	PlantModel::UpdateImage(img_name);
 	#endif
 
-	std::cout << "Camera image taken!\n";
+	if(check)
+	{
+		std::cout << "Camera image taken!\n";
+	}else
+	{
+		std::cout << "Failed to write image!\n";
+	}
 
 	#endif
 
+	capture.release();
 	return true;
 }

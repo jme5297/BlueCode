@@ -28,6 +28,8 @@ namespace sensors{
     bool Disable();
     bool TakeImage(int i);
 
+  protected:
+    VideoCapture capture;
 
   };
 
