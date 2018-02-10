@@ -16,7 +16,10 @@ if(${SIM})
   FIND_PACKAGE(OpenGL)
   FIND_PACKAGE(Irrlicht)
 
+  message(STATUS "${IRRLICHT_LIBRARIES}")
+
   IF (APPLE)
+    message(STATUS "Adding additional Apple libraries.")
   	FIND_LIBRARY(CARBON_LIBRARY Carbon)
   	FIND_LIBRARY(COCOA_LIBRARY Cocoa)
   	FIND_LIBRARY(IOKIT_LIBRARY IOKit)
@@ -24,6 +27,7 @@ if(${SIM})
   ENDIF (APPLE)
 
   if(UNIX AND NOT APPLE)
+    message(STATUS "Adding additional linux libraries.")
     SET(LINUX_LIBRARIES X11 Xxf86vm )
   endif()
 

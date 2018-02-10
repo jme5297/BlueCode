@@ -13,11 +13,10 @@
 #  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
-
-if (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
+# if (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
   # in cache already
-  set(IRRLICHT_FOUND TRUE)
-else (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
+#   set(IRRLICHT_FOUND TRUE)
+# else (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
 
   find_path(IRRLICHT_INCLUDE_DIR
     NAMES
@@ -32,6 +31,17 @@ else (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
       ${PROJECT_SOURCE_DIR}/irrlicht/include
   )
 
+  if(WIN32)
+    message(STATUS "Using Windows 64-bit Irrlicht.")
+    SET(IRRPATH ${PROJECT_SOURCE_DIR}/irrlicht/lib/Win32-visualStudio)
+  elseif(NOT APPLE)
+    message(STATUS "Using Linux Irrlicht.")
+    SET(IRRPATH ${PROJECT_SOURCE_DIR}/irrlicht/lib/Linux)
+  else()
+    message(STATUS "Using Apple Irrlicht.")
+    SET(IRRPATH ${PROJECT_SOURCE_DIR}/irrlicht/lib/MacOSX)
+  endif()
+
   find_library(IRRLICHT_LIBRARY
     NAMES
         Irrlicht
@@ -40,16 +50,7 @@ else (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
       # /usr/local/lib
       # /opt/local/lib
       # /sw/lib
-      if(WIN32)
-        message(STATUS "Using Windows 64-bit Irrlicht.")
-        ${PROJECT_SOURCE_DIR}/irrlicht/lib/Win32-visualStudio
-      elseif(NOT APPLE)
-        message(STATUS "Using Linux Irrlicht.")
-        ${PROJECT_SOURCE_DIR}/irrlicht/lib/Linux
-      elseif(APPLE)
-        message(STATUS "Using Apple Irrlicht.")
-        ${PROJECT_SOURCE_DIR}/irrlicht/lib/MacOSX
-      endif()
+      ${IRRPATH}
   )
 
   if (IRRLICHT_LIBRARY)
@@ -84,4 +85,4 @@ else (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
   # show the IRRLICHT_INCLUDE_DIRS and IRRLICHT_LIBRARIES variables only in the advanced view
   mark_as_advanced(IRRLICHT_INCLUDE_DIRS IRRLICHT_LIBRARIES)
 
-endif (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
+# endif (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
