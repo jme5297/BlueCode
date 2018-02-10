@@ -29,10 +29,15 @@ void PlantModel::Initialize(){
   initTime = std::chrono::system_clock::now();
   fp_run = true;
 
+  // Determine screen resolution.
+  IrrlichtDevice* nulldev = createDevice(video::EDT_NULL);
+  dimension2d<u32> deskres = nulldev->getVideoModeList()->getDesktopResolution();
+  nulldev->drop();
+
 #ifdef __APPLE__
-  device = createDevice( video::EDT_OPENGL, dimension2d<u32>(640, 480), 16, false, false, false, 0);
+  device = createDevice( video::EDT_OPENGL, dimension2d<u32>(deskres.Width / 2, deskres.Height / 2), 16, false, false, false, 0);
 #else
-  device = createDevice( video::EDT_SOFTWARE, dimension2d<u32>(640, 480), 16, false, false, false, 0);
+  device = createDevice( video::EDT_SOFTWARE, dimension2d<u32>(deskres.Width / 2, deskres.Height / 2), 16, false, false, false, 0);
 #endif
 
    path p = device->getFileSystem()->getWorkingDirectory();
@@ -85,9 +90,12 @@ void PlantModel::UpdateImage(std::string str)
 
 	recentImage = driver->getTexture(str.c_str());
 
+	dimension2du screenSize = driver->getScreenSize();
+	s32 offset = 10;
+
   IGUIImage * myImage;
   if(recentImage){
-    myImage = guienv->addImage(rect<s32>(10,10,400,400));
+    myImage = guienv->addImage(rect<s32>(offset, offset, offset + screenSize.Width / 4 , offset + screenSize.Height / 4));
     myImage->setImage(recentImage);
     myImage->setScaleImage(true);
     myImage->setVisible(true);
