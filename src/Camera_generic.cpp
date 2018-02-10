@@ -1,7 +1,10 @@
 #include <sensors/Camera/Camera_generic.h>
 
 using namespace sensors;
+
+#ifdef SIM
 using namespace Plant;
+#endif
 
 #ifdef USE_CAMERA
 using namespace cv;
@@ -56,7 +59,11 @@ bool Camera::TakeImage(int i){
 
 	std::string img_name = "out/capture_" + std::to_string(i) + ".png";
 	imwrite(img_name, frame);
+
+	#ifdef SIM
 	PlantModel::UpdateImage(img_name);
+	#endif
+
 	std::cout << "Camera image taken!\n";
 
 	#endif

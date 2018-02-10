@@ -75,6 +75,14 @@ include_directories(include)
 
 # Add all sources to the executable
 file(GLOB SOURCES "src/*.cpp")
+set(source_files ${SOURCES})
+if(NOT ${SIM})
+  message(STATUS "Compiling for use on BeagleBone...")
+  list(REMOVE_ITEM source_files "${PROJECT_SOURCE_DIR}/src/Vehicle.cpp")
+  list(REMOVE_ITEM source_files "${PROJECT_SOURCE_DIR}/src/PlantModel.cpp")
+endif()
 
-add_executable(BlueCode WIN32 ${SOURCES})
+message(STATUS "${source_files}")
+
+add_executable(BlueCode WIN32 ${source_files})
 target_link_libraries( BlueCode ${IRRLICHT_LIBRARY} ${OpenCV_LIBS} ${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )

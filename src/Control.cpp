@@ -1,6 +1,9 @@
 #include <Control.h>
 
+#ifdef SIM
 using namespace Plant;
+#endif
+
 using namespace Guidance;
 using namespace Control;
 using namespace sensors;

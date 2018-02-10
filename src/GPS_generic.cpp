@@ -1,7 +1,10 @@
 #include <sensors/GPS/GPS_generic.h>
 
 using namespace sensors;
+
+#ifdef SIM
 using namespace Plant;
+#endif
 
 GPS::GPS(){
 

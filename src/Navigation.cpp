@@ -1,5 +1,3 @@
-#define PI 3.14159265
-
 #include <Navigation.h>
 #include <iostream>
 #include <string>

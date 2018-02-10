@@ -3,7 +3,10 @@
  * \author Jason Everett
  */
 
+#ifdef SIM
 #include <PlantModel/PlantModel.h>
+#endif
+
 #include <Navigation.h>
 #include <Guidance.h>
 #include <Control.h>
@@ -16,7 +19,9 @@
 using namespace Navigation;
 using namespace Guidance;
 using namespace Control;
+#ifdef SIM
 using namespace Plant;
+#endif
 using namespace std::chrono;
 using namespace Times;
 
@@ -178,7 +183,8 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 		// Print info to screen
 		if(TimeModule::ProccessUpdate("Print")){
-			PlantModel::PrintStatus();
+			std::cout << "t: " << TimeModule::GetElapsedTime("BeginMainOpsTime") <<
+    		" --- lat: " << std::to_string(myNavigator.GetCoordinates().lat) << ", lon: " << myNavigator.GetCoordinates().lon << "\n";
 		}
 
 		// Write plant model info to a file
@@ -186,7 +192,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 			output << TimeModule::GetElapsedTime("BeginMainOpsTime") << ","
 				<< lon << ","
 				<< lat << ","
-				<< PlantModel::GetVehicle()->heading << "\n";
+				<< myNavigator.GetHeading() << "\n";
 		}
 
 		// Stop sim after a certain amount of time

@@ -1,7 +1,10 @@
 #include <sensors/Laser/Laser_generic.h>
 
 using namespace sensors;
+
+#ifdef SIM
 using namespace Plant;
+#endif
 
 Laser::Laser(){
 

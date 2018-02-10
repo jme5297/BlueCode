@@ -1,6 +1,10 @@
 #pragma once
 #include <vector>
+
+#ifdef SIM
 #include <PlantModel/PlantModel.h>
+#endif
+
 #include <Guidance.h>
 #include <sensors/SensorHub.h>
 

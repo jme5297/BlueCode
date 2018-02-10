@@ -2,7 +2,10 @@
 #include <iostream>
 #include <vector>
 #include <sensors/Sensors_generic.h>
+
+#ifdef SIM
 #include <PlantModel/PlantModel.h>
+#endif
 
 namespace sensors{
 
