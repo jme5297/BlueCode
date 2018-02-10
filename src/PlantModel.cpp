@@ -82,11 +82,16 @@ void PlantModel::Cleanup(){
 void PlantModel::UpdateImage(std::string str)
 {
 	ITexture* recentImage;
-#ifdef _WIN32
+
 	recentImage = driver->getTexture(str.c_str());
-#else
-	recentImage = driver->getTexture(("build/" + str).c_str());
-#endif
+
+  IGUIImage * myImage;
+  if(recentImage){
+    myImage = guienv->addImage(rect<s32>(10,10,400,400));
+    myImage->setImage(recentImage);
+    myImage->setScaleImage(true);
+    myImage->setVisible(true);
+  }
 }
 
 // Really, really simple physics model.
