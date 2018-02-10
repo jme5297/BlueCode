@@ -42,7 +42,7 @@ else (IRRLICHT_LIBRARIES AND IRRLICHT_INCLUDE_DIRS)
       # /sw/lib
       if(WIN32)
         message(STATUS "Using Windows 64-bit Irrlicht.")
-        ${PROJECT_SOURCE_DIR}/irrlicht/lib/Win64-visualStudio
+        ${PROJECT_SOURCE_DIR}/irrlicht/lib/Win32-visualStudio
       elseif(UNIX AND NOT APPLE)
         message(STATUS "Using Linux Irrlicht.")
         ${PROJECT_SOURCE_DIR}/irrlicht/lib/Linux

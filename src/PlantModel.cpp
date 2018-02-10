@@ -22,6 +22,7 @@ IrrlichtDevice* PlantModel::device;
 IVideoDriver* PlantModel::driver;
 ISceneManager* PlantModel::smgr;
 IGUIEnvironment* PlantModel::guienv;
+ITexture* PlantModel::recentImage;
 
 void PlantModel::Initialize(){
   std::cout << "PLANT INITIALIZED " << GetVehicle()->gps.coords.lon << "\n\n";
@@ -47,6 +48,7 @@ void PlantModel::Initialize(){
   guienv->addStaticText(L"Hello World! This is the Irrlicht Software renderer!",
     rect<s32>(10,10,260,22), true);
 
+
   IAnimatedMesh* mesh = smgr->getMesh("irrlicht/media/sydney.md2");
   if (!mesh)
   {
@@ -63,10 +65,22 @@ void PlantModel::Initialize(){
 
   smgr->addCameraSceneNode(0, vector3df(0,30,-40), vector3df(0,5,0));
   std::cout << "added cam.\n";
+
+  driver->getMaterial2D().AntiAliasing = video::EAAM_FULL_BASIC;
 }
 
 void PlantModel::Cleanup(){
   device->drop();
+}
+
+void PlantModel::UpdateImage(std::string str)
+{
+	ITexture* recentImage;
+#ifdef _WIN32
+	recentImage = driver->getTexture(str.c_str());
+#else
+	recentImage = driver->getTexture(("build/" + str).c_str());
+#endif
 }
 
 // Really, really simple physics model.
@@ -75,7 +89,7 @@ void PlantModel::Run(double dt){
   double dx;
   double dy;
 
-  if(device->run())
+	if(device->run())
 	{
 		driver->beginScene(true, true, SColor(255,100,101,140));
 		smgr->drawAll();

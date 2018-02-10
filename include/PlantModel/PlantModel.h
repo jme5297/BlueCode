@@ -40,6 +40,8 @@ namespace Plant{
     static std::chrono::duration<double> GetSimDuration();
     static void PrintStatus();
 
+	static void UpdateImage(std::string str);
+
   protected:
     static std::chrono::time_point<std::chrono::system_clock> initTime;
     static std::chrono::time_point<std::chrono::system_clock> lastRunCall;
@@ -52,6 +54,8 @@ namespace Plant{
     static IVideoDriver* driver;
   	static ISceneManager* smgr;
   	static IGUIEnvironment* guienv;
+
+	static ITexture* recentImage;
   };
 
 }

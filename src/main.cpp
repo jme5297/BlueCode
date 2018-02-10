@@ -68,6 +68,10 @@ int main(int argc, char* argv[]){
 
 	// Begin main operations now.
 	MainOperations(mySensorHub, myNavigator, myGuider, myController);
+
+	std::cin.get();
+	std::cout << "Press any key to finish...";
+	std::cin.get();
 	CleanupOperations();
 
 	return 0;
@@ -141,7 +145,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 	#endif
 
 	std::ofstream output;
-	output.open("data.csv");
+	output.open("out/data.csv");
 
 	// Main logic loop - I EXPECT TO BE HERE FOR A WHILE
 	bool running = true;
@@ -264,7 +268,7 @@ Navigator InutNavPlanCoordinates(){
 	}
 
 	std::ofstream pts;
-	pts.open("pts.csv");
+	pts.open("out/pts.csv");
 	std::vector<Coordinate> coords = navigator.GetWaypoints();
 	for(int i = 0; i < (int)coords.size(); i++){
 		pts << coords[i].lon << "," << coords[i].lat << "\n";
