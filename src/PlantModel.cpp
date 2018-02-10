@@ -29,9 +29,11 @@ void PlantModel::Initialize(){
   initTime = std::chrono::system_clock::now();
   fp_run = true;
 
-  device =
-    createDevice( video::EDT_SOFTWARE, dimension2d<u32>(640, 480), 16,
-    false, false, false, 0);
+#ifdef __APPLE__
+  device = createDevice( video::EDT_OPENGL, dimension2d<u32>(640, 480), 16, false, false, false, 0);
+#else
+  device = createDevice( video::EDT_SOFTWARE, dimension2d<u32>(640, 480), 16, false, false, false, 0);
+#endif
 
    path p = device->getFileSystem()->getWorkingDirectory();
 
