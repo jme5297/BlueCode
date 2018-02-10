@@ -46,13 +46,6 @@ int main(int argc, char* argv[]){
 	SensorHub mySensorHub;
 	Controller myController;
 
-	#ifdef SIM
-	PlantModel::Initialize();
-	#ifdef DEBUG
-	TimeModule::SetTimeSimDelta(0.0001);
-	#endif
-	#endif
-
 	// ProgramSetup handles constructing the nav plan, and ensuring
 	// that all sensors are connected. This will return true if setup has finished correctly.
 	bool setup = ProgramSetup(mySensorHub, myNavigator, myGuider, myController);
@@ -126,8 +119,14 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 	std::cout << "Running...\n";
 
-	TimeModule::AddMilestone("BeginMainOpsTime");
+#ifdef SIM
+	PlantModel::Initialize();
+#ifdef DEBUG
+	TimeModule::SetTimeSimDelta(0.0001);
+#endif
+#endif
 
+	TimeModule::AddMilestone("BeginMainOpsTime");
 	TimeModule::InitProccessCounter("Nav", 0.05);
 	TimeModule::InitProccessCounter("Guid", 0.05);
 	TimeModule::InitProccessCounter("Ctrl", 0.05);

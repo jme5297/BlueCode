@@ -37,10 +37,6 @@ void PlantModel::Initialize(){
 
    path p = device->getFileSystem()->getWorkingDirectory();
 
-#ifndef __APPLE__
-  device->getFileSystem()->changeWorkingDirectoryTo("..");
-#endif
-
   if (!device)
     return;
   device->setWindowCaption(L"Giving You Something Nice To Look At");
@@ -50,13 +46,23 @@ void PlantModel::Initialize(){
   guienv->addStaticText(L"Hello World! This is the Irrlicht Software renderer!",
     rect<s32>(10,10,260,22), true);
 
-
   IAnimatedMesh* mesh = smgr->getMesh("irrlicht/media/sydney.md2");
-  if (!mesh)
+  // If mesh doesn't exist, go a few directories backwards.
+  for(int i = 0; i < 3; i++)
   {
-    device->drop();
-    return;
+	  if (!mesh)
+	  {
+		  device->getFileSystem()->changeWorkingDirectoryTo("..");
+		  mesh = smgr->getMesh("irrlicht/media/sydney.md2");
+	  }
   }
+
+  // If mesh still doesn't exist, we have a problem.
+  if (!mesh) {
+	  device->drop();
+	  return;
+  }
+
   IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode( mesh );
   if (node)
   {
@@ -67,8 +73,6 @@ void PlantModel::Initialize(){
 
   smgr->addCameraSceneNode(0, vector3df(0,30,-40), vector3df(0,5,0));
   std::cout << "added cam.\n";
-
-  driver->getMaterial2D().AntiAliasing = video::EAAM_FULL_BASIC;
 }
 
 void PlantModel::Cleanup(){

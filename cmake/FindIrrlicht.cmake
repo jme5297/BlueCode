@@ -32,7 +32,7 @@
   )
 
   if(WIN32)
-    message(STATUS "Using Windows 64-bit Irrlicht.")
+    message(STATUS "Using Windows 32-bit Irrlicht.")
     SET(IRRPATH ${PROJECT_SOURCE_DIR}/irrlicht/lib/Win32-visualStudio)
   elseif(NOT APPLE)
     message(STATUS "Using Linux Irrlicht.")
