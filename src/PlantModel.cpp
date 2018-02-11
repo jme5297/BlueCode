@@ -23,6 +23,9 @@ IVideoDriver* PlantModel::driver;
 ISceneManager* PlantModel::smgr;
 IGUIEnvironment* PlantModel::guienv;
 ITexture* PlantModel::recentImage;
+IGUIStaticText* vehicleInfo;
+ISceneNode* vehicleNode;
+IMeshSceneNode* vehicleModel;
 
 void PlantModel::Initialize(){
   std::cout << "PLANT INITIALIZED " << GetVehicle()->gps.coords.lon << "\n\n";
@@ -37,7 +40,7 @@ void PlantModel::Initialize(){
 #ifdef __APPLE__
   device = createDevice( video::EDT_OPENGL, dimension2d<u32>(deskres.Width / 2, deskres.Height / 2), 16, false, false, false, 0);
 #else
-  device = createDevice( video::EDT_SOFTWARE, dimension2d<u32>(deskres.Width / 2, deskres.Height / 2), 16, false, false, false, 0);
+  device = createDevice( video::EDT_OPENGL, dimension2d<u32>(deskres.Width / 2, deskres.Height / 2), 16, false, false, false, 0);
 #endif
 
    path p = device->getFileSystem()->getWorkingDirectory();
@@ -48,17 +51,15 @@ void PlantModel::Initialize(){
   driver = device->getVideoDriver();
   smgr = device->getSceneManager();
   guienv = device->getGUIEnvironment();
-  guienv->addStaticText(L"Hello World! This is the Irrlicht Software renderer!",
-    rect<s32>(10,10,260,22), true);
 
-  IAnimatedMesh* mesh = smgr->getMesh("irrlicht/media/sydney.md2");
+  IAnimatedMesh* mesh = smgr->getMesh("irrlicht/media/car.obj");
   // If mesh doesn't exist, go a few directories backwards.
   for(int i = 0; i < 3; i++)
   {
 	  if (!mesh)
 	  {
 		  device->getFileSystem()->changeWorkingDirectoryTo("..");
-		  mesh = smgr->getMesh("irrlicht/media/sydney.md2");
+		  mesh = smgr->getMesh("irrlicht/media/car.obj");
 	  }
   }
 
@@ -68,16 +69,30 @@ void PlantModel::Initialize(){
 	  return;
   }
 
-  IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode( mesh );
-  if (node)
+  vehicleModel = smgr->addMeshSceneNode( mesh );
+  if (vehicleModel)
   {
-    node->setMaterialFlag(EMF_LIGHTING, false);
-    node->setMD2Animation(scene::EMAT_STAND);
-    node->setMaterialTexture( 0, driver->getTexture("irrlicht/media/sydney.bmp") );
+	  vehicleModel->setMaterialFlag(EMF_LIGHTING, false);
+	  // vehicleModel->setMD2Animation(scene::EMAT_STAND);
+	  // vehicleModel->setMaterialTexture( 0, driver->getTexture("irrlicht/media/sydney.bmp") );
+	  vehicleModel->setScale(vector3df(0.5, 0.5, 0.5));
   }
+  vehicleNode = smgr->addEmptySceneNode();
+  vehicleNode->addChild(vehicleModel);
 
-  smgr->addCameraSceneNode(0, vector3df(0,30,-40), vector3df(0,5,0));
-  std::cout << "added cam.\n";
+  smgr->addCameraSceneNode(0, vector3df(0,20,-10), vector3df(0,0,0));
+
+  dimension2du screenSize = driver->getScreenSize();
+  s32 offset = 10;
+
+  IGUISkin* skin = guienv->getSkin();
+  IGUIFont* font = guienv->getFont("irrlicht/media/fonthaettenschweiler.bmp");
+  skin->setFont(font);
+  skin->setFont(guienv->getBuiltInFont(), EGDF_TOOLTIP);
+
+  // Add vehicle information.
+  vehicleInfo = guienv->addStaticText(L"Vehicle Information:",
+	  rect<s32>((s32)(screenSize.Width * 0.75), (s32)(screenSize.Height * 0.75), screenSize.Width-10, screenSize.Height-10), true);
 }
 
 void PlantModel::Cleanup(){
@@ -110,9 +125,42 @@ void PlantModel::Run(double dt){
 
 	if(device->run())
 	{
+		double lat = GetVehicle()->gps.coords.lat;
+		double lon = GetVehicle()->gps.coords.lon;
+		double head = GetVehicle()->heading;
+		double spd = GetVehicle()->wheelSpeedN;
+		double str = GetVehicle()->wheelSteeringN;
+		std::wstring txt = L"VEHICLE INFO";
+		txt.append(L"\nLat: " + std::to_wstring(lat));
+		txt.append(L"\nLon: " + std::to_wstring(lon));
+		txt.append(L"\nHead: " + std::to_wstring(head));
+		txt.append(L"\nWheel Speed: " + std::to_wstring(spd));
+		txt.append(L"\nWheel Steering: " + std::to_wstring(str));
+		vehicleInfo->setText(txt.c_str());
+
+		vehicleNode->setPosition(vector3df(lon, 0, lat));
+		vehicleNode->setRotation(vector3df(0, head, 0));
+
+		SMaterial m;
+		m.Lighting = false;
+		driver->setMaterial(m);
+		driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
+
 		driver->beginScene(true, true, SColor(255,100,101,140));
 		smgr->drawAll();
 		guienv->drawAll();
+
+		driver->draw3DLine(
+			core::vector3df(-10.0f, 0.0f, 0.0f),
+			core::vector3df(10.0f, 0.0f, 0.0f),
+			SColor(255, 255, 255, 255)
+		);
+		driver->draw3DLine(
+			core::vector3df(0.0f, 0.0f, -10.0f),
+			core::vector3df(0.0f, 0.0f, 10.0f),
+			video::SColor(255, 255, 255, 255)
+		);
+
 		driver->endScene();
 	}
 

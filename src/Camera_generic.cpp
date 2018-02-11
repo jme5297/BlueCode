@@ -49,7 +49,6 @@ bool Camera::TakeImage(int i){
 	// capture.set(CV_CAP_PROP_FRAME_HEIGHT,1080);
 	if(!capture.isOpened()){
 		capture = VideoCapture(0);
-		return false;
 	}
 	Mat frame, edges;
 	capture >> frame;

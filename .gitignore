@@ -21,7 +21,7 @@ capture_*.bmp
 # Object files
 *.o
 *.ko
-*.obj
+# *.obj
 *.elf
 
 # Linker output
