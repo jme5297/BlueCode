@@ -3,7 +3,10 @@
  * \author Jason Everett
  */
 
+#ifdef SIM
 #include <PlantModel/PlantModel.h>
+#endif
+
 #include <Navigation.h>
 #include <Guidance.h>
 #include <Control.h>
@@ -11,16 +14,18 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <string>
 
 using namespace Navigation;
 using namespace Guidance;
 using namespace Control;
+#ifdef SIM
 using namespace Plant;
+#endif
 using namespace std::chrono;
 using namespace Times;
 
 // FUNCTION PROTOTYPES
-void InutNavPlan(); 	///< Method for inputting nav-plan information
 bool ProgramSetup(SensorHub& mySensorHub,
 									Navigator& myNavigator,
 									Guider& myGuider,
@@ -37,20 +42,13 @@ void PrintNavPlanInfo(Navigator& n, SensorHub& sh);
 /** Main logic entrance.
  * This is where the main program enters.
  */
-int main(){
+int main(int argc, char* argv[]){
 
 	// Create all of the structures that we'll need.
 	Navigator myNavigator;
 	Guider myGuider;
 	SensorHub mySensorHub;
 	Controller myController;
-
-	#ifdef SIM
-	PlantModel::Initialize();
-	#ifdef DEBUG
-	TimeModule::SetTimeSimDelta(0.0001);
-	#endif
-	#endif
 
 	// ProgramSetup handles constructing the nav plan, and ensuring
 	// that all sensors are connected. This will return true if setup has finished correctly.
@@ -67,6 +65,10 @@ int main(){
 
 	// Begin main operations now.
 	MainOperations(mySensorHub, myNavigator, myGuider, myController);
+
+	std::cin.get();
+	std::cout << "Press any key to finish...";
+	std::cin.get();
 	CleanupOperations();
 
 	return 0;
@@ -107,7 +109,8 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 		myNavigator.PopulateMovements(mySensorHub);
 	}
 
-	// Set the vehicle mode
+	// Other configuration parameters.
+	myGuider.SetPayloadDistance(2.0);
 	myController.SetCurrentVehicleMode(Control::VehicleMode::Wheel);
 
 	#ifdef SIM
@@ -121,8 +124,14 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 	std::cout << "Running...\n";
 
-	TimeModule::AddMilestone("BeginMainOpsTime");
+#ifdef SIM
+	PlantModel::Initialize(myNavigator.GetNavPlan().coordinates, myGuider.GetPayloadDistance());
+#ifdef DEBUG
+	TimeModule::SetTimeSimDelta(0.0001);
+#endif
+#endif
 
+	TimeModule::AddMilestone("BeginMainOpsTime");
 	TimeModule::InitProccessCounter("Nav", 0.05);
 	TimeModule::InitProccessCounter("Guid", 0.05);
 	TimeModule::InitProccessCounter("Ctrl", 0.05);
@@ -140,7 +149,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 	#endif
 
 	std::ofstream output;
-	output.open("data.csv");
+	output.open("out/data.csv");
 
 	// Main logic loop - I EXPECT TO BE HERE FOR A WHILE
 	bool running = true;
@@ -174,7 +183,8 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 		// Print info to screen
 		if(TimeModule::ProccessUpdate("Print")){
-			PlantModel::PrintStatus();
+			std::cout << "t: " << TimeModule::GetElapsedTime("BeginMainOpsTime") <<
+    		" --- lat: " << std::to_string(myNavigator.GetCoordinates().lat) << ", lon: " << myNavigator.GetCoordinates().lon << "\n";
 		}
 
 		// Write plant model info to a file
@@ -182,7 +192,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 			output << TimeModule::GetElapsedTime("BeginMainOpsTime") << ","
 				<< lon << ","
 				<< lat << ","
-				<< PlantModel::GetVehicle()->heading << "\n";
+				<< myNavigator.GetHeading() << "\n";
 		}
 
 		// Stop sim after a certain amount of time
@@ -207,7 +217,9 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 }
 
 void CleanupOperations(){
-
+	#ifdef SIM
+	PlantModel::Cleanup();
+	#endif
 	return;
 }
 
@@ -261,7 +273,7 @@ Navigator InutNavPlanCoordinates(){
 	}
 
 	std::ofstream pts;
-	pts.open("pts.csv");
+	pts.open("out/pts.csv");
 	std::vector<Coordinate> coords = navigator.GetWaypoints();
 	for(int i = 0; i < (int)coords.size(); i++){
 		pts << coords[i].lon << "," << coords[i].lat << "\n";

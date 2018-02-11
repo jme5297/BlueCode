@@ -1,5 +1,3 @@
-#define PI 3.14159265
-
 #include <Navigation.h>
 #include <iostream>
 #include <string>
@@ -15,11 +13,13 @@ Navigator::Navigator()
 }
 
 /**
- * 
+ *
  * @param[in]	sh 	- A reference to the Sensor Hub class.
  */
 void Navigator::Run(SensorHub& sh)
 {
+
+	double PI = 3.14159265;
 
 	// Get our current position
 	Coordinate curPos = sh.GetGPS().GetCurrentGPSCoordinates();
@@ -142,6 +142,7 @@ void Navigator::PopulateMovements(SensorHub& sh)
 // Calculate the heading and distance between two coordinates.
 Movement Navigator::CalculateMovement(Coordinate c1, Coordinate c2)
 {
+	double PI = 3.14159265;
 
 	double dx = c2.lon - c1.lon;
 	double dy = c2.lat - c1.lat;

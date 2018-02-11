@@ -8,10 +8,40 @@ set(SIM true CACHE BOOL "Compile with a plant model and a simulated vehicle")
 set(DEBUG false CACHE BOOL "Compile without std::chrono dependencies (simple counter for clock)")
 set(USE_CAMERA false CACHE BOOL "Use the default camera for actual photos. REQUIRES OPENCV.")
 
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
 # Compile the plant/vehicle model.
 if(${SIM})
   message(STATUS "Compiling #SIM mode.")
+  FIND_PACKAGE(OpenGL)
+  FIND_PACKAGE(Irrlicht)
+
+  message(STATUS "${IRRLICHT_LIBRARIES}")
+
+  IF (APPLE)
+    message(STATUS "Adding additional Apple libraries.")
+  	FIND_LIBRARY(CARBON_LIBRARY Carbon)
+  	FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+  	FIND_LIBRARY(IOKIT_LIBRARY IOKit)
+  	SET(OSX_LIBRARIES ${CARBON_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY})
+  ENDIF (APPLE)
+
+  if(UNIX AND NOT APPLE)
+    message(STATUS "Adding additional linux libraries.")
+    SET(LINUX_LIBRARIES X11 Xxf86vm )
+  endif()
+
+  if (MSVC_IDE)
+      # hack to get around the "Debug" and "Release" directories cmake tries to add on Windows
+      FILE(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/Debug)
+      FILE(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/Release)
+      message(STATUS "Running on windows. Copying over Irrlicht DLL...")
+      FILE(COPY ${PROJECT_SOURCE_DIR}/irrlicht/bin/Win32-VisualStudio/Irrlicht.dll DESTINATION ${PROJECT_BINARY_DIR}/Debug)
+      FILE(COPY ${PROJECT_SOURCE_DIR}/irrlicht/bin/Win32-VisualStudio/Irrlicht.dll DESTINATION ${PROJECT_BINARY_DIR}/Release)
+  endif()
+
   add_definitions(-D SIM)
+  INCLUDE_DIRECTORIES(${IRRLICHT_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
 endif()
 
 # Compile debug mode (no dependencies on std::chrono)
@@ -27,6 +57,13 @@ if(${USE_CAMERA})
   find_package( OpenCV )
   if(OpenCV_FOUND)
     add_definitions(-D USE_CAMERA)
+    if (MSVC_IDE)
+      message(STATUS "Running on windows. Copying over OpenCV DLL's...")
+      file(GLOB OCV_DEBUG "${OpenCV_DIR}/bin/Debug/*.dll" )
+      file(GLOB OCV_RELEASE "${OpenCV_DIR}/bin/Release/*.dll*" )
+      file(COPY ${OCV_DEBUG} DESTINATION ${PROJECT_BINARY_DIR}/Debug)
+      file(COPY ${OCV_RELEASE} DESTINATION ${PROJECT_BINARY_DIR}/Release)
+    endif()
   else()
     message(WARNING "OpenCV not found. Disabling camera usage.")
   endif(OpenCV_FOUND)
@@ -38,6 +75,14 @@ include_directories(include)
 
 # Add all sources to the executable
 file(GLOB SOURCES "src/*.cpp")
+set(source_files ${SOURCES})
+if(NOT ${SIM})
+  message(STATUS "Compiling for use on BeagleBone...")
+  list(REMOVE_ITEM source_files "${PROJECT_SOURCE_DIR}/src/Vehicle.cpp")
+  list(REMOVE_ITEM source_files "${PROJECT_SOURCE_DIR}/src/PlantModel.cpp")
+endif()
 
-add_executable(BlueCode ${SOURCES})
-target_link_libraries( BlueCode ${OpenCV_LIBS} )
+message(STATUS "${source_files}")
+
+add_executable(BlueCode WIN32 ${source_files})
+target_link_libraries( BlueCode ${IRRLICHT_LIBRARY} ${OpenCV_LIBS} ${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )

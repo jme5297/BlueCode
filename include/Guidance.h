@@ -73,6 +73,9 @@ namespace Guidance{
     void Run(Navigator& n); ///< Main execution function for the Guider.
     bool IsNavPlanComplete(); ///< Returns if all nav plan objectives have been acheived.
 
+	void SetPayloadDistance(double);
+	double GetPayloadDistance();
+
   protected:
     int GuidanceManeuverIndex; ///< Index of the current guidance maneuver being analyzed.
 
@@ -84,5 +87,7 @@ namespace Guidance{
 		std::vector<GuidanceManeuver> GuidanceManeuverBuffer;
     int coordinateIndex;  ///< The coordinate index of the NavPlan being targeted.
     bool isNavPlanComplete; ///< For determining if all of the nav plan objectives have been completed.
+
+	double payloadDistance; ///< Required distance to reach when dropping payloads at locations.
   };
 }

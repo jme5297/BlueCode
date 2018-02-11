@@ -2,15 +2,14 @@
 src/compiling_error.txt
 
 # Main build
-bin/main
-bin/obj/
+bin/
 build/
 
 #Doxygen documentation
 Dox/
 
 .DS_Store
-capture_*.png
+capture_*.bmp
 
 # Any output files and post process files
 *.csv
@@ -22,7 +21,7 @@ capture_*.png
 # Object files
 *.o
 *.ko
-*.obj
+# *.obj
 *.elf
 
 # Linker output
@@ -35,14 +34,14 @@ capture_*.png
 *.pch
 
 # Libraries
-*.lib
-*.a
+# *.lib
+# *.a
 *.la
 *.lo
 
 # Shared objects (inc. Windows DLLs)
-*.dll
-*.so
+# *.dll
+# *.so
 *.so.*
 *.dylib
 

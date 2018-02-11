@@ -1,6 +1,10 @@
 #pragma once
 #include <sensors/Sensors_generic.h>
+#include <iostream>
+
+#ifdef SIM
 #include <PlantModel/PlantModel.h>
+#endif
 
 #ifdef USE_CAMERA
 #include <opencv2/opencv.hpp>
@@ -24,6 +28,8 @@ namespace sensors{
     bool Disable();
     bool TakeImage(int i);
 
+  protected:
+    VideoCapture capture;
 
   };
 
