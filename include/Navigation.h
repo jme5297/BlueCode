@@ -59,6 +59,8 @@ namespace Navigation {
 		Coordinate GetCoordinates();	///< Return vehicle GPS coordinates.
 		bool IsNavPlanComplete();		///< Check if NavPlan is complete.
 
+		/// Return information about the laser sensors.
+		std::vector<bool> GetPathClearances(){ return isPathObstructed; }
 	protected:
 
 		// Utility functions for nav plan construction
@@ -72,6 +74,8 @@ namespace Navigation {
 		NavPlan activeNavPlan;			///< Current/active NavPlan
 		double vehicleHeading;			///< Current vehicle heading
 		Coordinate lastCoordinates;		///< Last trusted GPS coordinates
+
+		std::vector<bool> isPathObstructed; ///< Do the laser readings show an obstructed path?
 
 	};
 }

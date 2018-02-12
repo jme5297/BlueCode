@@ -6,8 +6,8 @@ using namespace sensors;
 using namespace Plant;
 #endif
 
-Laser::Laser(){
-
+Laser::Laser(int i){
+	ID = i;
 }
 Laser::~Laser(){
 
@@ -20,10 +20,10 @@ bool Laser::Reset(){
 
 	return true;
 }
-double Laser::ReadLaser(){
+bool Laser::ReadLaser(){
 
 	#ifdef SIM // sim mode
-	return PlantModel::GetVehicle()->las.val;
+	return PlantModel::GetVehicle()->lasers[ID].val;
 	#else
 	// ACTUAL laser information here
 

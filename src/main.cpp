@@ -2,6 +2,7 @@
 #include <PlantModel/PlantModel.h>
 #endif
 
+#include <Parser.h>
 #include <Navigation.h>
 #include <Guidance.h>
 #include <Control.h>
@@ -40,6 +41,8 @@ void PrintNavPlanInfo(Navigator& n, SensorHub& sh);
  * This is where the main program enters.
  */
 int main(int argc, char* argv[]){
+
+	Parser::ReadInputs("../Config.txt");
 
 	// Create all of the structures that we'll need.
 	Navigator myNavigator;
@@ -85,8 +88,7 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	}
 
 	// Construct our navigation plan once we know sensors are connected.
-	std::cout << "\n========|| Nav-Plan Input ||========\n";
-	myNavigator = InutNavPlanCoordinates();
+	myNavigator.AddCoordinates(Parser::GetInputCoordinates());
 
 	// Make sure that there was at-least one nav plan coordinate added.
 	if(!myNavigator.IsPopulated()){
@@ -95,10 +97,7 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	}
 
 	// Construct the nav plan based on the waypoints provided.
-	int response;
-	std::cout << "Optimize Nav-Plan? (1=y,0=n): ";
-	std::cin >> response;
-	if(response == 1){
+	if(Parser::OptimizeNavPlan()){
 		myNavigator.ConstructNavPlan(mySensorHub);
 	}
 

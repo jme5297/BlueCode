@@ -3,7 +3,7 @@
 using namespace sensors;
 
 SensorHub::SensorHub(){
-
+  lasers = {Laser(0), Laser(1), Laser(2)};
 }
 SensorHub::~SensorHub(){
 
@@ -11,10 +11,9 @@ SensorHub::~SensorHub(){
 bool SensorHub::InitAllSensors(){
 
   bool gpsi = gps0.Init();
-  bool lasi = las0.Init();
   bool cami = cam0.Init();
 
-  if(gpsi && lasi && cami){
+  if(gpsi && cami){
     return true;
   }
 
@@ -23,15 +22,14 @@ bool SensorHub::InitAllSensors(){
 bool SensorHub::ResetAllSensors(){
 
   bool gpsr = gps0.Reset();
-  bool lasr = las0.Reset();
   bool camr = cam0.Reset();
 
-  if(gpsr && lasr && camr){
+  if(gpsr && camr){
     return true;
   }
 
   return false;
 }
 GPS& SensorHub::GetGPS(){ return gps0; }
-Laser& SensorHub::GetLaser(){ return las0; }
+std::vector<Laser>& SensorHub::GetLasers(){ return lasers; }
 Camera& SensorHub::GetCamera(){ return cam0; }

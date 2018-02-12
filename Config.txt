@@ -1,0 +1,69 @@
+# Main configuration file.
+
+# ----------------------------------------------------------------------------
+#                                 Configuration for actual performance of BBB.
+# ----------------------------------------------------------------------------
+
+#      GNC
+# ---------------
+# Refresh rates for main routines (in seconds)
+# Note: OUT represents writing output to a .csv file.
+Refresh_NAV   = 0.01
+Refresh_GUID  = 0.01
+Refresh_CTRL  = 0.01
+Refresh_OUT   = 0.1
+
+#   NAVIGATION
+# ---------------
+
+# Coordinates to target
+# Format: [ lon, lat ]
+BEGIN_COORDINATES
+10    ,   1
+1     ,   -10
+-10   ,   -10
+5     ,   -7
+END_COORDINATES
+
+# Should the nav-plan be optimized?
+Optimize = 1
+
+#   GUIDANCE
+# -------------
+
+# What's the acceptable payload drop radius from target (in meters)?
+PayloadDropRadius = 2.0
+
+# What's the acceptable tolerance off-angle maximum to continue on heading?
+OffAngleDeviate = 10.0
+
+# What's the required off-angle maximum to stop a turn and maintain course again?
+OffAngleAccepted = 5.0
+
+# Amount of time (seconds) to travel straight after stopping to calibrate GPS?
+CalibrationTime = 3.0
+
+# Amount of time to travel parallel to an obstacle before converging back to target?
+ObstacleDivergenceTime = 3.0
+
+#   CONTROLS
+# -------------
+
+# Normalized maximum turning speed
+MaxTurnSpeed = 0.8
+
+# Maximum number of times to attempt to take an image before moving to next target.
+MaxCameraAttempts = 3
+
+# Amount of time to hold down Payload servo (seconds)?
+PayloadServoTime = 3.0
+
+# ----------------------------------------------------------------------------
+#                                              Configuration for the simulator
+# ----------------------------------------------------------------------------
+
+# Sim delta from one update to the next (seconds)?
+SimDelta = 0.00001
+
+# Maximum speed of the vehicle (meters/second)?
+MaxSpeedMPS = 1.0

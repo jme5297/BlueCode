@@ -23,9 +23,11 @@ void Navigator::Run(SensorHub& sh)
 	// Get our current position
 	Coordinate curPos = sh.GetGPS().GetCurrentGPSCoordinates();
 
-	// Calculate our heading
-	Coordinate c1 = lastCoordinates;
-	Coordinate c2 = curPos;
+	// Retrieve laser sensor information.
+	isPathObstructed.clear();
+	for(int i = 0; i < sh.GetLasers().size(); i++){
+		isPathObstructed.push_back(sh.GetLasers().at(i).ReadLaser());
+	}
 
 	/** @todo Determine what a good work-around would be for GPS Coordinates
  	 * that either repeat, or are withing a certain threshold. Heading should
@@ -33,17 +35,20 @@ void Navigator::Run(SensorHub& sh)
 	if((lastCoordinates.lat == curPos.lat)
 		&& (lastCoordinates.lon == curPos.lon))
 	{
-			// std::cout << "GPS REPEAT" << std::endl;
-		return;
+		// std::cout << "GPS REPEAT" << std::endl;
+		// return;
+	}else{
+		// Calculate our heading
+		Coordinate c1 = lastCoordinates;
+		Coordinate c2 = curPos;
+		double dx = c2.lon - c1.lon;
+		double dy = c2.lat - c1.lat;
+		double z = atan2(dy, dx) * 180.0 / PI;
+		double head = 90.0 - z;
+		head = (head < 0.0) ? 360.0 + head : head;
+		lastCoordinates = curPos;
+		vehicleHeading = head;
 	}
-
-	double dx = c2.lon - c1.lon;
-	double dy = c2.lat - c1.lat;
-	double z = atan2(dy, dx) * 180.0 / PI;
-	double head = 90.0 - z;
-	head = (head < 0.0) ? 360.0 + head : head;
-	lastCoordinates = curPos;
-	vehicleHeading = head;
 
 	return;
 }
@@ -211,7 +216,8 @@ void Navigator::PrintCoordinatePermutation(std::vector<Coordinate>& vec)
 	for (unsigned int i=0; i<vec.size(); i++)
 		std::cout << vec[i].lon << "," << vec[i].lat << "||";
 }
-
+void Navigator::AddCoordinates(std::vector<Coordinate> coords)
+{ activeNavPlan.coordinates = coords; }
 double Navigator::DistanceBetweenCoordinates(Coordinate c1, Coordinate c2)
 { return pow( pow( c2.lat - c1.lat ,2.0) + pow( c2.lon - c1.lon ,2.0),0.5); }
 std::vector<Coordinate> Navigator::GetWaypoints()

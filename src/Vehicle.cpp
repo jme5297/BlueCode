@@ -15,6 +15,8 @@ Vehicle::Vehicle(){
   // Initialization for wheel model
   maxWheelSteeringAngleDeg = 15.0;
 
+  lasers = {{0,0},{0,0},{0,0}};
+
 }
 Vehicle::~Vehicle(){
 

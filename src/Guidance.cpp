@@ -79,7 +79,7 @@ void Guider::Run(Navigator& n){
     gm.state = ManeuverState::Calibrate;
     gm.speed = 1.0;
     gm.turnDirection = 0;
-    gm.calibrationTime = 3.0;
+    gm.calibrationTime = 0.0;
     gm.done = false;
     RequestGuidanceManeuver(gm);
     TimeModule::AddMilestone("Calibration_" + std::to_string(GuidanceManeuverIndex));

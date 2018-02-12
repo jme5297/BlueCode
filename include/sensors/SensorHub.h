@@ -16,12 +16,12 @@ namespace sensors{
     bool ResetAllSensors();
 
     GPS& GetGPS();
-    Laser& GetLaser();
+    std::vector<Laser>& GetLasers();
     Camera& GetCamera();
 
   protected:
     GPS gps0;
-    Laser las0;
+    std::vector<Laser> lasers;
     Camera cam0;
 
   };

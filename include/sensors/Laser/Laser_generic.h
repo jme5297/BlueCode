@@ -10,11 +10,15 @@ namespace sensors{
   class Laser{
 
   public:
-    Laser();
+    Laser(int);
     ~Laser();
     bool Init();
     bool Reset();
-    double ReadLaser();
+    bool ReadLaser();  ///< Read value coming from a specific laser.
+
+
+  protected:
+    int ID;
 
   };
 }
