@@ -27,8 +27,6 @@ namespace Guidance{
 		AvoidDiverge,   ///< Diverge away from an obstacle.
 		AvoidConverge,  ///< Converge back to heading after avoiding an obstacle.
 		PayloadDrop,    ///< Cut all speed and drop payload.
-		Complete        ///< Maneuvering is complete.
-                    /**< \note This state may not be necessary. */
 	};
 
   /*! Represents a guidance maneuver. These guidance maneuvers are strung together
@@ -57,7 +55,8 @@ namespace Guidance{
                            * buffer should be analyzed. */
     double calibrationTime;   ///< Time to calibrate system in seconds.
     bool payloadDropComplete; ///< Flag that represents if a payload drop has been completed.
-
+    double payloadServoTime;
+    bool payloadImageTaken; 
 	};
 
   /// Main class for Guidance operations.

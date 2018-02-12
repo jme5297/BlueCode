@@ -1,8 +1,3 @@
-/**
- * This is at the top of main.
- * \author Jason Everett
- */
-
 #ifdef SIM
 #include <PlantModel/PlantModel.h>
 #endif
@@ -19,11 +14,12 @@
 using namespace Navigation;
 using namespace Guidance;
 using namespace Control;
+using namespace std::chrono;
+using namespace Times;
+
 #ifdef SIM
 using namespace Plant;
 #endif
-using namespace std::chrono;
-using namespace Times;
 
 // FUNCTION PROTOTYPES
 bool ProgramSetup(SensorHub& mySensorHub,
@@ -39,7 +35,8 @@ bool TestSensorConnectivity();
 Navigator InutNavPlanCoordinates();
 void PrintNavPlanInfo(Navigator& n, SensorHub& sh);
 
-/** Main logic entrance.
+/*!
+ * Main logic entrance.
  * This is where the main program enters.
  */
 int main(int argc, char* argv[]){
@@ -76,7 +73,7 @@ int main(int argc, char* argv[]){
 
 bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuider, Controller& myController)
 {
-	std::cout << "\nHello!\n\n" << std::endl;
+	std::cout << "\nHello!\n" << std::endl;
 
 	// Ensure all sensors are connected. If not, exit program.
 	std::cout << "Initializing sensor connections... \n";
@@ -88,7 +85,7 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	}
 
 	// Construct our navigation plan once we know sensors are connected.
-	std::cout << "\n===WAYPOINT InUT===\n";
+	std::cout << "\n========|| Nav-Plan Input ||========\n";
 	myNavigator = InutNavPlanCoordinates();
 
 	// Make sure that there was at-least one nav plan coordinate added.
@@ -98,16 +95,15 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	}
 
 	// Construct the nav plan based on the waypoints provided.
-	std::cout << "\n===NAV PLAN CONSTRUCTION===\n";
-	myNavigator.ConstructNavPlan(mySensorHub);
-
-	// Make sure the nav plan was properly constructed.
-	if(!myNavigator.IsConstructed()){
-		std::cout << "ERROR: Nav Plan not properly constructed. Exiting program.\n";
-		return false;
-	}else{
-		myNavigator.PopulateMovements(mySensorHub);
+	int response;
+	std::cout << "Optimize Nav-Plan? (1=y,0=n): ";
+	std::cin >> response;
+	if(response == 1){
+		myNavigator.ConstructNavPlan(mySensorHub);
 	}
+
+	// Come up with nominal Nav-Plan movement and distance info.
+	myNavigator.PopulateMovements(mySensorHub);
 
 	// Other configuration parameters.
 	myGuider.SetPayloadDistance(2.0);
@@ -127,7 +123,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 #ifdef SIM
 	PlantModel::Initialize(myNavigator.GetNavPlan().coordinates, myGuider.GetPayloadDistance());
 #ifdef DEBUG
-	TimeModule::SetTimeSimDelta(0.0001);
+	TimeModule::SetTimeSimDelta(0.00001);
 #endif
 #endif
 
@@ -136,7 +132,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 	TimeModule::InitProccessCounter("Guid", 0.05);
 	TimeModule::InitProccessCounter("Ctrl", 0.05);
 	TimeModule::InitProccessCounter("Write", 0.01);
-	TimeModule::InitProccessCounter("Print", 2.0);
+	// TimeModule::InitProccessCounter("Print", 2.0);
 
 	#ifdef SIM
 	TimeModule::InitProccessCounter("Plant", 0.01);
@@ -210,7 +206,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 		}
 	}
 
-	std::cout << "Main operations complete.\n";
+	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Main operations complete.\n";
 	output.close();
 
 	return;
@@ -234,13 +230,6 @@ Navigator InutNavPlanCoordinates(){
 
 	// Create a new nav plan to populate
 	Navigator navigator;
-
-	// -----
-	// THE FOLLOWING CODE WORKS. For now, just testing with debug cases.
-	// -----
-
-	// Currently, only works with 2-D coordinates. This would most likely be
-	// fine considering small angle approximations.
 
 	int response;
 	int index = 0;
@@ -272,6 +261,7 @@ Navigator InutNavPlanCoordinates(){
 		navigator = InutNavPlanCoordinates();
 	}
 
+	// Print out a list of coordinates that will be used to a CSV file.
 	std::ofstream pts;
 	pts.open("out/pts.csv");
 	std::vector<Coordinate> coords = navigator.GetWaypoints();
@@ -289,7 +279,7 @@ void PrintNavPlanInfo(Navigator& n, SensorHub& sh){
 	std::vector<Movement> moves = n.GetMovements();
 	Coordinate myLoc = sh.GetGPS().GetCurrentGPSCoordinates();
 
-	std::cout << "===CURRENT NAV PLAN===\n";
+	std::cout << "=======|| Current Nav-Plan ||=======\n";
 	std::cout << "Current location of (" + std::to_string(myLoc.lon) + "," + std::to_string(myLoc.lat) + ").\n";
 
 	for(int i = 0; i < (int)coords.size(); i++){

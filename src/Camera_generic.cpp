@@ -1,5 +1,7 @@
 #include <sensors/Camera/Camera_generic.h>
+#include <TimeModule.h>
 
+using namespace Times;
 using namespace sensors;
 
 #ifdef SIM
@@ -66,10 +68,10 @@ bool Camera::TakeImage(int i){
 
 	if(check)
 	{
-		std::cout << "Camera image taken!\n";
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Camera image taken!\n";
 	}else
 	{
-		std::cout << "Failed to write image!\n";
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Failed to write image!\n";
 	}
 
 	capture.release();

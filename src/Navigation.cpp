@@ -7,7 +7,6 @@ using namespace Navigation;
 
 Navigator::Navigator()
 {
-	isConstructed = false;
 	totalPermutations = 0;
 	vehicleHeading = 0.0;
 }
@@ -107,7 +106,6 @@ void Navigator::ConstructNavPlan(SensorHub& sh)
 	// Update the nav plan coordinate order
 	activeNavPlan.coordinates = allCoordinatePermutations[shortestDistanceIndex];
 
-	isConstructed = true;
 	return;
 }
 
@@ -222,8 +220,6 @@ std::vector<Movement> Navigator::GetMovements()
 { return activeNavPlan.movements; }
 bool Navigator::IsPopulated()
 { return activeNavPlan.coordinates.size(); }
-bool Navigator::IsConstructed()
-{ return isConstructed;}
 NavPlan Navigator::GetNavPlan()
 { return activeNavPlan; }
 double Navigator::GetHeading()

@@ -35,7 +35,6 @@ namespace Navigation {
 
 		// Utility functions
 		bool IsPopulated();			///< Returns if Nav Plan has been populated with coordinates.
-		bool IsConstructed();		///< Returns if Nav Plan has been constructed and movements have been calculated
 		void AddCoordinate(int index, double c1, double c2);	///< Add a coordinate to the Nav Plan's list of coordinates
 		void AddCoordinates(std::vector<Coordinate> coords);	//< Add a collection of coordinates to the list of coordinates
 		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords,
@@ -68,9 +67,6 @@ namespace Navigation {
 		void GenerateAllCoordinatePermutations(std::vector<Coordinate>& coords, unsigned int nextIndex); 	///< Generate all permutations from a list
 		std::vector< std::vector<Coordinate> > allCoordinatePermutations;	///< Vector for storing all permutation combinations
 		int totalPermutations;												///< Total amount of permutations
-
-		// For determining if Nav Plan has been properly been constructed
-		bool isConstructed;				///< Has the activeNavPlan been constructed yet?
 
 		// Current Nav Plan connected to this Nav Planner class
 		NavPlan activeNavPlan;			///< Current/active NavPlan

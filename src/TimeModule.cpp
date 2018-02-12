@@ -48,6 +48,9 @@ void TimeModule::AddMilestone(string str){
 }
 bool TimeModule::ProccessUpdate(string str){
   int ind = FindProccessIndex(str);
+  if(ind == -1)
+    return false;
+
   #ifndef DEBUG
   duration<double, std::ratio<1,1> > delta = steady_clock::now() - std::get<2>(processes[ind]);
   if(delta.count() >= std::get<1>(processes[ind])){
@@ -67,6 +70,9 @@ bool TimeModule::ProccessUpdate(string str){
 }
 double TimeModule::GetElapsedTime(string str){
   int ind = FindMilestoneIndex(str);
+  if(ind == -1)
+    return 0.0;
+
   #ifndef DEBUG
   duration<double, std::ratio<1,1> > delta = steady_clock::now() - std::get<1>(milestones[ind]);
   return delta.count();
@@ -77,6 +83,9 @@ double TimeModule::GetElapsedTime(string str){
 }
 double TimeModule::GetProccessDelta(string str){
   int ind = FindProccessIndex(str);
+  if(ind == -1)
+    return 0.0;
+
   #ifndef DEBUG
   duration<double, std::ratio<1,1> > delta = steady_clock::now() - std::get<2>(processes[ind]);
   return delta.count();
@@ -87,23 +96,36 @@ double TimeModule::GetProccessDelta(string str){
 }
 double TimeModule::GetLastProccessDelta(string str){
   int ind = FindProccessIndex(str);
+  if(ind == -1)
+    return 0.0;
+
   return std::get<3>(processes[ind]);
 }
 int TimeModule::FindMilestoneIndex(string str){
   unsigned int i = 0;
+  bool found = false;
   for(i = 0; i < milestones.size(); i++){
      if(std::get<0>(milestones[i]) == str){
+       found = true;
        break;
      }
   }
+  if(!found)
+    return -1;
+
   return (int)i;
 }
 int TimeModule::FindProccessIndex(string str){
   unsigned int i = 0;
+  bool found = false;
   for(i = 0; i < processes.size(); i++){
      if(std::get<0>(processes[i]) == str){
+       found = true;
        break;
      }
   }
+  if(!found)
+    return -1;
+
   return (int)i;
 }
