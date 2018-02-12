@@ -46,12 +46,13 @@ bool Camera::TakeImage(int i){
 
 	#else
 
+	VideoCapture capture = VideoCapture(0);
+	capture.open(0);
+
 	/// @todo This throws errors on some platforms.
-	capture.set(CV_CAP_PROP_FRAME_WIDTH,1920);
-	capture.set(CV_CAP_PROP_FRAME_HEIGHT,1080);
-	if(!capture.isOpened()){
-		capture = VideoCapture(0);
-	}
+	// capture.set(CV_CAP_PROP_FRAME_WIDTH,1920);
+	// capture.set(CV_CAP_PROP_FRAME_HEIGHT,1080);
+
 	Mat frame, edges;
 	capture >> frame;
 	if(frame.empty()){
@@ -75,6 +76,9 @@ bool Camera::TakeImage(int i){
 	}
 
 	capture.release();
+	VideoCapture* c = &capture;
+	c = NULL;
+
 	#endif
 	return true;
 }

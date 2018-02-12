@@ -30,7 +30,7 @@ namespace sensors{
 
   protected:
 	#ifdef USE_CAMERA
-    VideoCapture capture;
+    //VideoCapture capture;
 	#endif
   };
 
