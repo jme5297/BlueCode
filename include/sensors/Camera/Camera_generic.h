@@ -29,8 +29,9 @@ namespace sensors{
     bool TakeImage(int i);
 
   protected:
+	#ifdef USE_CAMERA
     VideoCapture capture;
-
+	#endif
   };
 
 }

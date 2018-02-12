@@ -72,8 +72,7 @@ bool Camera::TakeImage(int i){
 		std::cout << "Failed to write image!\n";
 	}
 
-	#endif
-
 	capture.release();
+	#endif
 	return true;
 }
