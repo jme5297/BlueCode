@@ -82,7 +82,5 @@ if(NOT ${SIM})
   list(REMOVE_ITEM source_files "${PROJECT_SOURCE_DIR}/src/PlantModel.cpp")
 endif()
 
-message(STATUS "${source_files}")
-
 add_executable(BlueCode WIN32 ${source_files})
 target_link_libraries( BlueCode ${IRRLICHT_LIBRARY} ${OpenCV_LIBS} ${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )
