@@ -39,9 +39,10 @@ void PlantModel::Initialize(std::vector<Coordinate> coords, double pldist){
 
 	// Determine screen resolution and create the main Irrlicht device.
 	IrrlichtDevice* nulldev = createDevice(video::EDT_NULL);
-	dimension2d<u32> deskres = nulldev->getVideoModeList()->getDesktopResolution();
+	// dimension2d<u32> deskres = nulldev->getVideoModeList()->getDesktopResolution();
 	nulldev->drop();
-	device = createDevice( video::EDT_OPENGL, dimension2d<u32>(deskres.Width / 2, deskres.Height / 2), 16, false, false, false, 0);
+	// device = createDevice( video::EDT_OPENGL, dimension2d<u32>(deskres.Width / 2, deskres.Height / 2), 16, false, false, false, 0);
+  device = createDevice( video::EDT_OPENGL, dimension2d<u32>(1280, 720), 16, false, false, false, 0);
 	if (!device) { return; }
 	device->setWindowCaption(L"BlueCode Simulator");
 
