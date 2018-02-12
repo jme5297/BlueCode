@@ -26,7 +26,6 @@ using namespace std::chrono;
 using namespace Times;
 
 // FUNCTION PROTOTYPES
-void InutNavPlan(); 	///< Method for inputting nav-plan information
 bool ProgramSetup(SensorHub& mySensorHub,
 									Navigator& myNavigator,
 									Guider& myGuider,
@@ -110,7 +109,8 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 		myNavigator.PopulateMovements(mySensorHub);
 	}
 
-	// Set the vehicle mode
+	// Other configuration parameters.
+	myGuider.SetPayloadDistance(2.0);
 	myController.SetCurrentVehicleMode(Control::VehicleMode::Wheel);
 
 	#ifdef SIM
@@ -125,7 +125,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 	std::cout << "Running...\n";
 
 #ifdef SIM
-	PlantModel::Initialize();
+	PlantModel::Initialize(myNavigator.GetNavPlan().coordinates, myGuider.GetPayloadDistance());
 #ifdef DEBUG
 	TimeModule::SetTimeSimDelta(0.0001);
 #endif

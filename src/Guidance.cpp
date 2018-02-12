@@ -1,5 +1,3 @@
-#define PLDIST 2.0
-
 #include <Guidance.h>
 
 using namespace Navigation;
@@ -90,7 +88,7 @@ void Guider::Run(Navigator& n){
     std::cout << "Calibrating...\n";
   }
   // Determine if we're ready to drop a payload.
-	else if(n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= PLDIST
+	else if(n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= payloadDistance
     &&  !(
         GuidanceManeuverBuffer[GuidanceManeuverIndex].done == false &&
         GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop
@@ -187,3 +185,5 @@ std::vector<GuidanceManeuver> Guider::GetGuidanceManeuverBuffer(){ return Guidan
 GuidanceManeuver& Guider::GetCurrentGuidanceManeuver(){ return GuidanceManeuverBuffer[GuidanceManeuverIndex]; }
 int Guider::GetGuidanceManeuverIndex(){ return GuidanceManeuverIndex; }
 bool Guider::IsNavPlanComplete() { return isNavPlanComplete; }
+void Guider::SetPayloadDistance(double d) { payloadDistance = d; }
+double Guider::GetPayloadDistance() { return payloadDistance; }

@@ -2,6 +2,7 @@
 #include <cmath>
 #include <chrono>
 #include <iostream>
+#include <vector>
 #include <PlantModel/Vehicle.h>
 
 #if defined(__APPLE__) || defined(MACOSX)
@@ -25,7 +26,7 @@ namespace Plant{
 
   class PlantModel{
   public:
-    static void Initialize();
+    static void Initialize(std::vector<sensors::Coordinate>, double);
     static void Cleanup();
 
     /**
@@ -47,15 +48,5 @@ namespace Plant{
     static std::chrono::time_point<std::chrono::system_clock> lastRunCall;
     static Vehicle veh;
 
-    // For determining if Run is being called on first pass
-    static bool fp_run;
-
-    static IrrlichtDevice* device;
-    static IVideoDriver* driver;
-  	static ISceneManager* smgr;
-  	static IGUIEnvironment* guienv;
-
-	static ITexture* recentImage;
   };
-
 }
