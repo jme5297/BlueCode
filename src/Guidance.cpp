@@ -79,7 +79,7 @@ void Guider::Run(Navigator& n){
     gm.state = ManeuverState::Calibrate;
     gm.speed = 1.0;
     gm.turnDirection = 0;
-    gm.calibrationTime = 0.0;
+    gm.calibrationTime = calibrationTime;
     gm.done = false;
     RequestGuidanceManeuver(gm);
     TimeModule::AddMilestone("Calibration_" + std::to_string(GuidanceManeuverIndex));
@@ -87,7 +87,7 @@ void Guider::Run(Navigator& n){
   }
   // If we're within payload dropping distance, and if we haven't yet queued a payload drop,
   // then request a new payload drop.
-	else if(n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= payloadDistance
+	else if(n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= payloadDropRadius
     &&  !(
         GuidanceManeuverBuffer[GuidanceManeuverIndex].done == false &&
         GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop
@@ -104,7 +104,7 @@ void Guider::Run(Navigator& n){
 		gm.state = ManeuverState::PayloadDrop;
     gm.done = false;
     gm.payloadDropComplete = false;
-    gm.payloadServoTime = 2.0;
+    gm.payloadServoTime = payloadServoTime;
     gm.payloadImageTaken = false;
 		RequestGuidanceManeuver(gm);
 
@@ -128,7 +128,7 @@ void Guider::Run(Navigator& n){
 
     // If headings are far apart, we need to turn.
     /// @todo These angle values should not be hard-coded.
-    if(fabs(offAngle) >= 10.0){
+    if(fabs(offAngle) >= offAngleDeviate){
       gm.state = ManeuverState::Turn;
       if(offAngle < 0.0){
         gm.turnDirection = 1;
@@ -168,7 +168,7 @@ void Guider::Run(Navigator& n){
     case ManeuverState::Turn:
       // If the total off-angle has subsided, then we can consider the turn to be complete.
       /// @todo This value should not be hard-coded.
-      if(fabs(offAngle) < 5.0){
+      if(fabs(offAngle) < offAngleAccepted){
         GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
         std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Turn complete.\n";
       }
@@ -177,7 +177,7 @@ void Guider::Run(Navigator& n){
 		case ManeuverState::Maintain:
       // If the off-angle grows too large, then our maintenance maneuver is over, and a turn maneuver will be added next pass.
       /// @todo This value should not be hard-coded.
-      if(fabs(offAngle) >= 10.0){
+      if(fabs(offAngle) >= offAngleDeviate){
           GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
           std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: We are deviating!\n";
       }
@@ -209,5 +209,3 @@ std::vector<GuidanceManeuver> Guider::GetGuidanceManeuverBuffer(){ return Guidan
 GuidanceManeuver& Guider::GetCurrentGuidanceManeuver(){ return GuidanceManeuverBuffer[GuidanceManeuverIndex]; }
 int Guider::GetGuidanceManeuverIndex(){ return GuidanceManeuverIndex; }
 bool Guider::IsNavPlanComplete() { return isNavPlanComplete; }
-void Guider::SetPayloadDistance(double d) { payloadDistance = d; }
-double Guider::GetPayloadDistance() { return payloadDistance; }

@@ -56,7 +56,7 @@ namespace Guidance{
     double calibrationTime;   ///< Time to calibrate system in seconds.
     bool payloadDropComplete; ///< Flag that represents if a payload drop has been completed.
     double payloadServoTime;
-    bool payloadImageTaken; 
+    bool payloadImageTaken;
 	};
 
   /// Main class for Guidance operations.
@@ -72,11 +72,23 @@ namespace Guidance{
     void Run(Navigator& n); ///< Main execution function for the Guider.
     bool IsNavPlanComplete(); ///< Returns if all nav plan objectives have been acheived.
 
-	void SetPayloadDistance(double);
-	double GetPayloadDistance();
+  	void SetPayloadDropRadius(double d){ payloadDropRadius = d; }
+  	void SetOffAngleDeviate(double d){ offAngleDeviate = d; }
+  	void SetOffAngleAccepted(double d){ offAngleAccepted = d; }
+  	void SetCalibrationTime(double d){ calibrationTime = d; }
+  	void SetObstacleDivergenceTime(double d){ obstacleDivergenceTime = d; }
+    void SetPayloadServoTime(double d){ payloadServoTime = d; }
+  	double GetPayloadDropRadius(){ return payloadDropRadius; }
 
   protected:
     int GuidanceManeuverIndex; ///< Index of the current guidance maneuver being analyzed.
+
+    double payloadDropRadius;
+    double offAngleDeviate;
+    double offAngleAccepted;
+    double calibrationTime;
+    double obstacleDivergenceTime;
+    double payloadServoTime;
 
     /*!
      * Buffer of all guidance maneuvers. This buffer contains all information about the maneuvers that
@@ -87,6 +99,5 @@ namespace Guidance{
     int coordinateIndex;  ///< The coordinate index of the NavPlan being targeted.
     bool isNavPlanComplete; ///< For determining if all of the nav plan objectives have been completed.
 
-	double payloadDistance; ///< Required distance to reach when dropping payloads at locations.
   };
 }

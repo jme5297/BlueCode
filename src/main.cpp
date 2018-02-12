@@ -42,8 +42,6 @@ void PrintNavPlanInfo(Navigator& n, SensorHub& sh);
  */
 int main(int argc, char* argv[]){
 
-	Parser::ReadInputs("../Config.txt");
-
 	// Create all of the structures that we'll need.
 	Navigator myNavigator;
 	Guider myGuider;
@@ -78,6 +76,9 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 {
 	std::cout << "\nHello!\n" << std::endl;
 
+	// Read main configuration file
+	Parser::ReadInputs("../Config.txt");
+
 	// Ensure all sensors are connected. If not, exit program.
 	std::cout << "Initializing sensor connections... \n";
 	if(!mySensorHub.InitAllSensors()){
@@ -97,7 +98,7 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	}
 
 	// Construct the nav plan based on the waypoints provided.
-	if(Parser::OptimizeNavPlan()){
+	if(Parser::GetOptimize()){
 		myNavigator.ConstructNavPlan(mySensorHub);
 	}
 
@@ -105,11 +106,18 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	myNavigator.PopulateMovements(mySensorHub);
 
 	// Other configuration parameters.
-	myGuider.SetPayloadDistance(2.0);
-	myController.SetCurrentVehicleMode(Control::VehicleMode::Wheel);
+	myGuider.SetPayloadDropRadius(Parser::GetPayloadDropRadius());
+	myGuider.SetOffAngleDeviate(Parser::GetOffAngleDeviate());
+	myGuider.SetOffAngleAccepted(Parser::GetOffAngleAccepted());
+	myGuider.SetCalibrationTime(Parser::GetCalibrationTime());
+	myGuider.SetObstacleDivergenceTime(Parser::GetObstacleDivergenceTime());
+	myGuider.SetPayloadServoTime(Parser::GetPayloadServoTime());
+	//myController.SetCurrentVehicleMode(Parser::GetControlMode());
+	//myController.SetMaxTurnSpeed(Parser::GetMaxTurnSpeed());
+	//myController.SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());
 
 	#ifdef SIM
-	PlantModel::GetVehicle()->vehicleType = VehicleType::Wheel;
+	PlantModel::GetVehicle()->vehicleType = Parser::GetVehicleTypeSim();
 	#endif
 
 	return true;
@@ -120,21 +128,20 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 	std::cout << "Running...\n";
 
 #ifdef SIM
-	PlantModel::Initialize(myNavigator.GetNavPlan().coordinates, myGuider.GetPayloadDistance());
+	PlantModel::Initialize(myNavigator.GetNavPlan().coordinates, myGuider.GetPayloadDropRadius());
 #ifdef DEBUG
-	TimeModule::SetTimeSimDelta(0.00001);
+	TimeModule::SetTimeSimDelta(Parser::GetTimeDelta());
 #endif
 #endif
 
 	TimeModule::AddMilestone("BeginMainOpsTime");
-	TimeModule::InitProccessCounter("Nav", 0.05);
-	TimeModule::InitProccessCounter("Guid", 0.05);
-	TimeModule::InitProccessCounter("Ctrl", 0.05);
-	TimeModule::InitProccessCounter("Write", 0.01);
-	// TimeModule::InitProccessCounter("Print", 2.0);
+	TimeModule::InitProccessCounter("Nav", Parser::GetRefresh_NAV());
+	TimeModule::InitProccessCounter("Guid", Parser::GetRefresh_GUID());
+	TimeModule::InitProccessCounter("Ctrl", Parser::GetRefresh_CTRL());
+	TimeModule::InitProccessCounter("Write", Parser::GetRefresh_OUT());
 
 	#ifdef SIM
-	TimeModule::InitProccessCounter("Plant", 0.01);
+	TimeModule::InitProccessCounter("Plant", Parser::GetSimDelta());
 	// Generic testing
 
 	/// @todo This needs to be accounted for by adding a calibration period.
