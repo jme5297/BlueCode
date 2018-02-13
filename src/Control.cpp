@@ -10,7 +10,7 @@ using namespace sensors;
 
 /// @todo This should not be hard-coded if a generalized model is desired.
 Controller::Controller(){
-	currentVehicleMode = VehicleMode::Wheel;
+	currentVehicleMode = Parser::GetControlMode();
 }
 
 /// @todo Determine if all of these switches are necessary.
@@ -65,7 +65,7 @@ void Controller::Run(Guider& g, SensorHub& sh){
 			switch(currentVehicleMode){
 				case VehicleMode::Wheel:
 					SetWheelSpeed(g.GetCurrentGuidanceManeuver().speed);
-					SetWheelSteering((double)g.GetCurrentGuidanceManeuver().turnDirection);
+					SetWheelSteering((double)g.GetCurrentGuidanceManeuver().turnDirection * maxTurnSteering);
 					break;
 				case VehicleMode::Track:
 					if(g.GetCurrentGuidanceManeuver().turnDirection == -1){
@@ -215,3 +215,5 @@ double Controller::GetMotorLSpeed(){ return motorLSpeed; }
 double Controller::GetMotorRSpeed(){ return motorRSpeed; }
 double Controller::GetWheelSpeed(){ return wheelSpeedN; }
 double Controller::GetWheelSteering(){ return wheelSteeringN; }
+void Controller::SetMaxTurnSteering(double d) { maxTurnSteering = d; }
+// void Controller::SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());

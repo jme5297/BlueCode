@@ -12,6 +12,7 @@ Refresh_NAV   = 0.01
 Refresh_GUID  = 0.01
 Refresh_CTRL  = 0.01
 Refresh_OUT   = 0.1
+Refresh_GPS   = 0.1
 
 #   NAVIGATION
 # ---------------
@@ -19,14 +20,14 @@ Refresh_OUT   = 0.1
 # Coordinates to target
 # Format: [ lon, lat ]
 BEGIN_COORDINATES
--5    ,   5
-10    ,   1
-1     ,   -10
--10   ,   -10
-5     ,   -7
+-77.872357, 40.793278
+-77.871957, 40.793324
+-77.872087, 40.793022
+-77.872616, 40.792841
+-77.872521, 40.793107
 END_COORDINATES
 
-# Should the nav-plan be optimized?
+# Should the Nav Plan be optimized?
 Optimize = 1
 
 #   GUIDANCE
@@ -53,8 +54,8 @@ PayloadServoTime = 3.0
 #   CONTROLS
 # -------------
 
-# Normalized maximum turning speed
-MaxTurnSpeed = 0.8
+# Normalized maximum turning steering value
+MaxTurnSteering = 0.1
 
 # Maximum number of times to attempt to take an image before moving to next target.
 MaxCameraAttempts = 3
@@ -67,18 +68,60 @@ ControlMode = Wheel
 # ----------------------------------------------------------------------------
 
 # Time delta in debug mode from one main loop to the next?
-TimeDelta = 0.000001
+TimeDelta = 0.0001
 
 # Sim delta from one Plant/simulation update to the next (seconds)?
 SimDelta = 0.01
 
 # Maximum speed of the vehicle (meters/second)?
-MaxSpeedMPS = 1.0
+MaxSpeedMPS = 2.0
 
 # What type of vehicle to test? Can be either Wheel or Track.
 VehicleTypeSim = Wheel
 
+# Vehicle Width parameters (meters)
+VehicleWidth = 0.324
+VehicleHeight = 0.241
+VehicleLength = 0.34
+
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 0
-InitialLongitude = 0
-InitialHeading = 0
+InitialLatitude = 40.793143
+InitialLongitude = -77.872284
+InitialHeading = 20
+
+# Add some obstacles to the scene
+# Format: lon(deg), lat(deg), length(m), width(m), height(m), z-rotation(deg)
+BEGIN_OBSTACLES
+-77.872148,	40.793305,	1,	1,	0.5,	45
+-77.872031, 40.793170,	1,	1,	0.5,	70
+-77.872361, 40.792912, 	1,	1,	0.5,	56
+END_OBSTACLES
+
+# Add lasers to the vehicle.
+# Format: local forward(m), local height(m), local right(m), direction(deg)
+BEGIN_LASERS
+0.1, 0.1, 0, 0
+END_LASERS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

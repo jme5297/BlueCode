@@ -99,5 +99,7 @@ namespace Guidance{
     int coordinateIndex;  ///< The coordinate index of the NavPlan being targeted.
     bool isNavPlanComplete; ///< For determining if all of the nav plan objectives have been completed.
 
+	double latToM = 111050.0;
+	double lonToM = 84397.0;
   };
 }

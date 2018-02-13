@@ -3,7 +3,7 @@
 using namespace sensors;
 
 SensorHub::SensorHub(){
-  lasers = {Laser(0), Laser(1), Laser(2)};
+  lasers = {Laser(0)};
 }
 SensorHub::~SensorHub(){
 

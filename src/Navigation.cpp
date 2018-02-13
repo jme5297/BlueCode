@@ -4,11 +4,14 @@
 
 using namespace sensors;
 using namespace Navigation;
+using namespace Times;
 
 Navigator::Navigator()
 {
 	totalPermutations = 0;
 	vehicleHeading = 0.0;
+
+	TimeModule::InitProccessCounter("GPS", Parser::GetRefresh_GPS());
 }
 
 /**
@@ -29,25 +32,29 @@ void Navigator::Run(SensorHub& sh)
 		isPathObstructed.push_back(sh.GetLasers().at(i).ReadLaser());
 	}
 
-	/** @todo Determine what a good work-around would be for GPS Coordinates
- 	 * that either repeat, or are withing a certain threshold. Heading should
-   	 * not be sparatic and should be reliable. */
-	if((lastCoordinates.lat == curPos.lat)
-		&& (lastCoordinates.lon == curPos.lon))
-	{
-		// std::cout << "GPS REPEAT" << std::endl;
-		// return;
-	}else{
-		// Calculate our heading
-		Coordinate c1 = lastCoordinates;
-		Coordinate c2 = curPos;
-		double dx = c2.lon - c1.lon;
-		double dy = c2.lat - c1.lat;
-		double z = atan2(dy, dx) * 180.0 / PI;
-		double head = 90.0 - z;
-		head = (head < 0.0) ? 360.0 + head : head;
-		lastCoordinates = curPos;
-		vehicleHeading = head;
+	if (TimeModule::ProccessUpdate("GPS")) {
+		/** @todo Determine what a good work-around would be for GPS Coordinates
+		* that either repeat, or are withing a certain threshold. Heading should
+		* not be sparatic and should be reliable. */
+		if ((lastCoordinates.lat == curPos.lat)
+			&& (lastCoordinates.lon == curPos.lon))
+		{
+			// std::cout << "GPS REPEAT" << std::endl;
+			// return;
+		}
+		else {
+			// Calculate our heading
+			/// @todo Heading should be taken from NMEA message
+			Coordinate c1 = lastCoordinates;
+			Coordinate c2 = curPos;
+			double dx = c2.lon - c1.lon;
+			double dy = c2.lat - c1.lat;
+			double z = atan2(dy, dx) * 180.0 / PI;
+			double head = 90.0 - z;
+			head = (head < 0.0) ? 360.0 + head : head;
+			lastCoordinates = curPos;
+			vehicleHeading = head;
+		}
 	}
 
 	return;
@@ -218,8 +225,15 @@ void Navigator::PrintCoordinatePermutation(std::vector<Coordinate>& vec)
 }
 void Navigator::AddCoordinates(std::vector<Coordinate> coords)
 { activeNavPlan.coordinates = coords; }
+
 double Navigator::DistanceBetweenCoordinates(Coordinate c1, Coordinate c2)
-{ return pow( pow( c2.lat - c1.lat ,2.0) + pow( c2.lon - c1.lon ,2.0),0.5); }
+{ 
+	return pow( 
+		pow( (c2.lat - c1.lat)*latToM ,2.0) + 
+		pow( (c2.lon - c1.lon)*lonToM ,2.0)
+		,0.5); 
+}
+
 std::vector<Coordinate> Navigator::GetWaypoints()
 { return activeNavPlan.coordinates; }
 std::vector<Movement> Navigator::GetMovements()

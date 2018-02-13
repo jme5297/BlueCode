@@ -3,10 +3,12 @@
 #include <algorithm>
 #include <cmath>
 #include <sensors/SensorHub.h>
+#include <TimeModule.h>
 
 /// All navigation-related classes and members
 namespace Navigation {
 
+	using namespace Times;
 	using namespace sensors;
 
 	/// Struct for storing information about movement from one Coordinate to the next.
@@ -77,5 +79,7 @@ namespace Navigation {
 
 		std::vector<bool> isPathObstructed; ///< Do the laser readings show an obstructed path?
 
+		double latToM = 111050.0;
+		double lonToM = 84397.0;
 	};
 }

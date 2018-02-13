@@ -30,6 +30,4 @@ bool Laser::ReadLaser(){
 
 	return 1.0;
 	#endif
-
-
 }

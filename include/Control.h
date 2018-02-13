@@ -6,24 +6,13 @@
 #endif
 
 #include <Guidance.h>
-#include <sensors/SensorHub.h>
+#include <Parser.h>
 
 /// Motor control and actuator control classes and members
 namespace Control{
 
 	using namespace Guidance;
 	using namespace sensors;
-
-	/*!
-	 * Represents which type of vehicle the controller is operating.
-	 * \note This should not be confused with VehicleType defined in the Vehicle class. This
-	 * represents the control maneuvers, whereas the VehicleType represents the plant model being
-	 * run. Obviously, these two modes should always be in sync.
-	 */
-	enum VehicleMode{
-		Track, 	//!< Vehicle moves along two tracks, one on each side of the vehicle.
-		Wheel 	//!< Vehicle contains four wheels and has both speed/steering control.
-	};
 
 	/*!
 	 * Motor/actuator control routines.
@@ -48,6 +37,8 @@ namespace Control{
 		void SetCurrentVehicleMode(VehicleMode vm);	///< Set the current vehicle mode.
 		VehicleMode GetCurrentVehicleMode();		///< Get the currently operating vehicle mode.
 
+		void Controller::SetMaxTurnSteering(double d);
+
 		// Controls
 		void PayloadDrop(Guider& g, SensorHub& sh);
 
@@ -62,6 +53,8 @@ namespace Control{
 
 		VehicleMode currentVehicleMode;
 		GuidanceManeuver currentGuidanceManeuver;
+
+		double maxTurnSteering;
 
 	};
 }

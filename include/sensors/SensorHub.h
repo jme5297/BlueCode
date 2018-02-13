@@ -5,24 +5,24 @@
 #include <sensors/Camera/Camera_generic.h>
 
 /// All sensor-related classes and members
-namespace sensors{
+namespace sensors {
 
-  class SensorHub{
-  public:
-    SensorHub();
-    ~SensorHub();
+	class SensorHub {
+	public:
+		SensorHub();
+		~SensorHub();
 
-    bool InitAllSensors();
-    bool ResetAllSensors();
+		bool InitAllSensors();
+		bool ResetAllSensors();
 
-    GPS& GetGPS();
-    std::vector<Laser>& GetLasers();
-    Camera& GetCamera();
+		GPS& GetGPS();
+		std::vector<Laser>& GetLasers();
+		Camera& GetCamera();
 
-  protected:
-    GPS gps0;
-    std::vector<Laser> lasers;
-    Camera cam0;
+	protected:
+		GPS gps0;
+		std::vector<Laser> lasers;
+		Camera cam0;
 
-  };
+	};
 }
