@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <vector>
+#include <TimeModule.h>
 #include <PlantModel/Vehicle.h>
 
 #if defined(__APPLE__) || defined(MACOSX)
@@ -24,6 +25,8 @@ namespace Plant {
 	using namespace video;
 	using namespace io;
 	using namespace gui;
+
+	using namespace sensors;
 
 	/*!
 	 * Main class for handling the plant model. Most of these members are static because
@@ -48,8 +51,8 @@ namespace Plant {
 		 * for both wheel vehicles and track vehicles. Ideally, track vehicles should be able to
 		 * pivot around the centroid. This capability should be built in.
 		 */
-		static void Run(double dt);         ///< Main execution function for the plant model.
-		static void UpdateEngine();         ///< Updates the Irrlicht 3d engine.
+		static void Run(double dt, Coordinate c);         ///< Main execution function for the plant model.
+		static void UpdateEngine(Coordinate);         ///< Updates the Irrlicht 3d engine.
 		static Coordinate GetGPSCoords();   ///< Get the vehicle's current GPS coordinates.
 		static Vehicle * GetVehicle();      ///< Returns a pointer to the main vehicle object in the simulation.
 		static double GetElapsedSeconds();  ///< Get elapsed seconds since the plant model was initialized.

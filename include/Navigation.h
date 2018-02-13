@@ -81,5 +81,7 @@ namespace Navigation {
 
 		double latToM = 111050.0;
 		double lonToM = 84397.0;
+
+		int GPSit = 0;
 	};
 }

@@ -16,6 +16,7 @@ double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
 double Parser::OffAngleAccepted;
 double Parser::TurnFactorDPS;
+double Parser::MaxSpeedMPS;
 double Parser::CalibrationTime;
 double Parser::MinimumMaintainTime;
 double Parser::ObstacleDivergenceAngle;
@@ -29,7 +30,7 @@ std::vector<pLas> Parser::Lasers;
 // Simulation
 double Parser::TimeDelta;
 double Parser::SimDelta;
-double Parser::MaxSpeedMPS;
+double Parser::GPSUncertainty;
 VehicleType Parser::VehicleTypeSim;
 double Parser::MaxWheelAngleDegrees;
 double Parser::VehicleWidth;
@@ -202,6 +203,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> SimDelta;
+			continue;
+		}
+		else if (s.find("GPSUncertainty") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> GPSUncertainty;
 			continue;
 		}
 		else if (s.find("MaxSpeedMPS") != std::string::npos) {

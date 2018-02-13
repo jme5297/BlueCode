@@ -21,7 +21,7 @@ Vehicle::~Vehicle() {
 }
 void Vehicle::InitializeGPS() {
 	gps.initialized = true;
-	gps.coords.lat = 0.0;
-	gps.coords.lon = 0.0;
+	gps.coords.lat = Parser::GetInitialLatitude();
+	gps.coords.lon = Parser::GetInitialLongitude();
 	return;
 }

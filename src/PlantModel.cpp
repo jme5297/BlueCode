@@ -1,6 +1,7 @@
 #define PI 3.14159265
 #include <PlantModel/PlantModel.h>
 
+using namespace Times;
 using namespace sensors;
 using namespace Plant;
 Vehicle PlantModel::veh;
@@ -39,6 +40,7 @@ vector2df m_DragStart;             // 2D Position on screen where the drag start
 vector3df m_DragStartRotation;     // Rotation when drag started
 IAnimatedMeshSceneNode* terrain;
 ITriangleSelector* selector;
+IMeshSceneNode * error;
 
 /*! Initializes the PlantModel class.
 * This function is also in charge of initializing all Irrlicht capabilities.
@@ -111,9 +113,10 @@ void PlantModel::Initialize(
 
 	// Update the font to be used.
 	IGUISkin* skin = guienv->getSkin();
-	IGUIFont* font = guienv->getFont("irrlicht/media/fonthaettenschweiler.bmp");
+	IGUIFont* font = guienv->getFont("irrlicht/media/Gui1.xml");
 	skin->setFont(font);
 	skin->setFont(guienv->getBuiltInFont(), EGDF_TOOLTIP);
+
 
 	// Add vehicle information.
 	vehicleInfo = guienv->addStaticText(L"Vehicle Information:",
@@ -129,6 +132,11 @@ void PlantModel::Initialize(
 	terrain->setTriangleSelector(selector);
 	selector->drop();
 	terrain->setID(0);
+
+	// Add very far terrain.
+	// IMeshSceneNode* farTerrain = smgr->addCubeSceneNode(1.0, 0, 0, vector3df(), vector3df(), vector3df(1000, 0.0, 1000));
+	// smgr->getMeshManipulator()->setVertexColors(farTerrain->getMesh(), SColor(255, 53, 96, 64));
+	// farTerrain->setMaterialFlag(EMF_LIGHTING, false);
 
 	// Add lights.
 	mainLight = smgr->addLightSceneNode(0, vector3df(0, 10, 0), SColorf(0.1, 0.1, 0.1));
@@ -168,6 +176,13 @@ void PlantModel::Initialize(
 		selector->drop();
 	}
 	
+	// Draw GPS circle error
+	error = smgr->addSphereSceneNode(Parser::GetGPSUncertainty()*0.5, 32);
+	error->getMaterial(0).Wireframe = true;
+	error->setMaterialFlag(EMF_LIGHTING, false);
+	smgr->getMeshManipulator()->setVertexColors(error->getMesh(), SColor(255, 0, 100, 0));
+	error->getMaterial(0).NormalizeNormals = true;
+	error->setScale(vector3df(1.0, 0.001, 1.0));
 }
 
 void PlantModel::Cleanup() {
@@ -199,7 +214,7 @@ void PlantModel::UpdateImage(std::string str)
 /**
  * This class handles the physics update of the plant model.
  */
-void PlantModel::Run(double dt) {
+void PlantModel::Run(double dt, Coordinate c) {
 
 	double dx;
 	double dy;
@@ -275,7 +290,7 @@ void PlantModel::Run(double dt) {
 	GetVehicle()->gps.coords.lat += dy / latToM;
 
 	// Update the Irrlicht engine.
-	UpdateEngine();
+	UpdateEngine(c);
 
 	return;
 }
@@ -284,7 +299,7 @@ void PlantModel::Run(double dt) {
  * Handles updating of the Irrlicht engine. Some information is also passed back
  * to the vehicle (ex: obstacle detection).
  */
-void PlantModel::UpdateEngine()
+void PlantModel::UpdateEngine(Coordinate coords)
 {
 	/// @todo Determine if this conditional is necessary.
 	if (device->run())
@@ -295,7 +310,9 @@ void PlantModel::UpdateEngine()
 		double head = GetVehicle()->heading;
 		double spd = GetVehicle()->wheelSpeedN;
 		double str = GetVehicle()->wheelSteeringN;
-		std::wstring txt = L"VEHICLE INFO";
+		std::wstring txt = L"";
+		txt.append(L"Sim Time: " + std::to_wstring(TimeModule::GetElapsedTime("BeginMainOpsTime")));
+		txt.append(L"\n--------------");
 		txt.append(L"\nLat: " + std::to_wstring(lat));
 		txt.append(L"\nLon: " + std::to_wstring(lon));
 		txt.append(L"\nHead: " + std::to_wstring(head));
@@ -340,6 +357,17 @@ void PlantModel::UpdateEngine()
 			vehicleModel->getPosition() + core::vector3df(sin(PI / 180.0 * head)*5.0, 0.0f, cos(PI / 180.0 * head)*5.0),
 			SColor(255, 0, 255, 255)
 		);
+
+		// GPS error
+		double dx = (veh.gps.coords.lon - coords.lon) * lonToM;
+		double dz = (veh.gps.coords.lat - coords.lat) * latToM;
+		driver->draw3DLine(
+			vehicleModel->getPosition(),
+			vehicleModel->getPosition() + vector3df(dx, 0, dz),
+			SColor(255, 50, 255, 0)
+		);
+		
+		error->setPosition(vehicleModel->getPosition() -vector3df(0, vehicleModel->getPosition().Y * 0.9, 0));
 
 		// Check lasers (and draw lines for lasers in 3d space)
 		for (int i = 0; i < veh.lasers.size(); i++) {

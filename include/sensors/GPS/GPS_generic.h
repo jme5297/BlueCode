@@ -1,10 +1,12 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include <sensors/Sensors_generic.h>
+#include <Parser.h>
 
 #ifdef SIM
 #include <PlantModel/PlantModel.h>
+#include <cstdlib>
+#include <ctime>
 #endif
 
 namespace sensors{
@@ -17,6 +19,15 @@ namespace sensors{
 		bool Init();
 		bool Reset();
 		Coordinate GetCurrentGPSCoordinates();
+#ifdef SIM
+		void SetGPSUncertainty(double d) { gpsUncertainty = d; }
+#endif
 
+	protected:
+#ifdef SIM
+		double gpsUncertainty;
+		double latToM = 111050.0;
+		double lonToM = 84397.0;
+#endif
 	};
 }

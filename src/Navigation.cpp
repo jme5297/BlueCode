@@ -2,6 +2,10 @@
 #include <iostream>
 #include <string>
 
+#ifdef SIM
+#include <random>
+#endif
+
 using namespace sensors;
 using namespace Navigation;
 using namespace Times;
@@ -20,11 +24,7 @@ Navigator::Navigator()
  */
 void Navigator::Run(SensorHub& sh)
 {
-
 	double PI = 3.14159265;
-
-	// Get our current position
-	curPos = sh.GetGPS().GetCurrentGPSCoordinates();
 
 	// Retrieve laser sensor information.
 	isPathObstructed.clear();
@@ -33,28 +33,21 @@ void Navigator::Run(SensorHub& sh)
 	}
 
 	if (TimeModule::ProccessUpdate("GPS")) {
-		/** @todo Determine what a good work-around would be for GPS Coordinates
-		* that either repeat, or are withing a certain threshold. Heading should
-		* not be sparatic and should be reliable. */
-		if ((lastCoordinates.lat == curPos.lat)
-			&& (lastCoordinates.lon == curPos.lon))
-		{
-			// std::cout << "GPS REPEAT" << std::endl;
-			// return;
-		}
-		else {
-			// Calculate our heading
-			/// @todo Heading should be taken from NMEA message
-			Coordinate c1 = lastCoordinates;
-			Coordinate c2 = curPos;
-			double dx = c2.lon - c1.lon;
-			double dy = c2.lat - c1.lat;
-			double z = atan2(dy, dx) * 180.0 / PI;
-			double head = 90.0 - z;
-			head = (head < 0.0) ? 360.0 + head : head;
-			lastCoordinates = curPos;
-			vehicleHeading = head;
-		}
+#ifdef SIM
+		curPos = PlantModel::GetVehicle()->gps.coords;
+		Coordinate c1 = lastCoordinates;
+		Coordinate c2 = curPos;
+		double dx = c2.lon - c1.lon;
+		double dy = c2.lat - c1.lat;
+		double z = atan2(dy, dx) * 180.0 / PI;
+		double head = 90.0 - z;
+		head = (head < 0.0) ? 360.0 + head : head;
+		vehicleHeading = head + (-0.5 + ((double)rand() / (RAND_MAX))) * 5.0;
+		lastCoordinates = curPos;
+#else
+		// Actual data goes here
+
+#endif
 	}
 
 	return;

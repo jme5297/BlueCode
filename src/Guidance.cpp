@@ -79,7 +79,7 @@ void Guider::Run(Navigator& n) {
 	}
 	// If we're within payload dropping distance, and if we haven't yet queued a payload drop,
 	// then request a new payload drop.
-	else if (n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= payloadDropRadius
+	else if (n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= (payloadDropRadius - Parser::GetGPSUncertainty())
 		&& !(
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done == false &&
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop
@@ -184,7 +184,6 @@ void Guider::Run(Navigator& n) {
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Maintaining course for " << std::to_string(gm.maintainTime) << " seconds.\n";
 		}
 	}
-
 	/* ----------- PERFORM --------------
 	 * This logic is in charge of making decisions about the current state of
 	 * the current guidance maneuver in the buffer.

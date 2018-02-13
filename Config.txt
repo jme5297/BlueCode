@@ -12,7 +12,7 @@ Refresh_NAV   = 0.01
 Refresh_GUID  = 0.01
 Refresh_CTRL  = 0.01
 Refresh_OUT   = 0.1
-Refresh_GPS   = 0.1
+Refresh_GPS   = 1.0
 
 #   NAVIGATION
 # ---------------
@@ -34,7 +34,7 @@ Optimize = 1
 # -------------
 
 # What's the acceptable payload drop radius from target (in meters)?
-PayloadDropRadius = 2.0
+PayloadDropRadius = 9.0
 
 # What's the acceptable tolerance off-angle maximum to continue on heading?
 OffAngleDeviate = 10.0
@@ -85,6 +85,9 @@ TimeDelta = 0.0005
 
 # Sim delta from one Plant/simulation update to the next (seconds)?
 SimDelta = 0.01
+
+# Uncertainty of the GPS (meters)?
+GPSUncertainty = 4.0
 
 # What type of vehicle to test? Can be either Wheel or Track.
 VehicleTypeSim = Wheel

@@ -113,12 +113,12 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	myGuider.SetMaxVehicleSpeed(Parser::GetMaxSpeedMPS());
 	myGuider.SetMinimumMaintainTime(Parser::GetMinimumMaintainTime());
 	myGuider.SetObstacleDivergenceAngle(Parser::GetObstacleDivergenceAngle());
-
 	myController.SetCurrentVehicleMode(Parser::GetControlMode());
 	myController.SetMaxTurnSteering(Parser::GetMaxTurnSteering());
 	// myController.SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());
 
 #ifdef SIM
+	mySensorHub.GetGPS().SetGPSUncertainty(Parser::GetGPSUncertainty());
 	PlantModel::GetVehicle()->vehicleType = Parser::GetVehicleTypeSim();
 #endif
 
@@ -164,7 +164,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 		TimeModule::Run();
 #endif
 		if (TimeModule::ProccessUpdate("Plant")) {
-			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"));
+			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"), mySensorHub.GetGPS().GetCurrentGPSCoordinates());
 		}
 #endif
 
