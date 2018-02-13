@@ -24,7 +24,7 @@ void Navigator::Run(SensorHub& sh)
 	double PI = 3.14159265;
 
 	// Get our current position
-	Coordinate curPos = sh.GetGPS().GetCurrentGPSCoordinates();
+	curPos = sh.GetGPS().GetCurrentGPSCoordinates();
 
 	// Retrieve laser sensor information.
 	isPathObstructed.clear();
@@ -61,7 +61,7 @@ void Navigator::Run(SensorHub& sh)
 }
 Coordinate Navigator::GetCoordinates()
 {
-	return lastCoordinates;
+	return curPos;
 }
 // Add a coordinate to the vector list of coordinates of the specific active Nav Plan.
 // NOTE: This must be done before constructing the Nav Plan.
@@ -92,10 +92,13 @@ void Navigator::AddCoordinate(int index, double c1, double c2)
 }
 
 // Reorganize Nav Plan for most optimal path.
-void Navigator::ConstructNavPlan(SensorHub& sh)
+void Navigator::ConstructNavPlan(int cInd)
 {
+
 	// This function populates the allCoordinatePermutations vector
-	GenerateAllCoordinatePermutations(activeNavPlan.coordinates, 0);
+	allCoordinatePermutations.clear();
+	std::vector<Coordinate> coordsToGo(activeNavPlan.coordinates.begin() + cInd, activeNavPlan.coordinates.end());
+	GenerateAllCoordinatePermutations(coordsToGo, 0);
 
 	std::cout << std::to_string(totalPermutations) + " possible permutations.\n";
 
@@ -104,7 +107,7 @@ void Navigator::ConstructNavPlan(SensorHub& sh)
 	double shortestDistance = 1.0e30;
 	for(unsigned int i = 0; i < allCoordinatePermutations.size(); i++)
 	{
-		double dist = CalculateTotalNavPlanDistance(allCoordinatePermutations[i], sh);
+		double dist = CalculateTotalNavPlanDistance(allCoordinatePermutations[i]);
 		if(dist < shortestDistance)
 	{
 			shortestDistance = dist;
@@ -115,8 +118,18 @@ void Navigator::ConstructNavPlan(SensorHub& sh)
 
 	std::cout << "Permutation " + std::to_string(shortestDistanceIndex) + " is the shortest!\n";
 
+	// Clear the current plan.
+	std::vector<Coordinate> tmpCoords = activeNavPlan.coordinates;
+	activeNavPlan.coordinates.clear();
+	for (int i = 0; i < cInd; i++)
+	{
+		activeNavPlan.coordinates.push_back(tmpCoords[i]);
+	}
 	// Update the nav plan coordinate order
-	activeNavPlan.coordinates = allCoordinatePermutations[shortestDistanceIndex];
+	for (int i = 0; i < allCoordinatePermutations[shortestDistanceIndex].size(); i++)
+	{
+		activeNavPlan.coordinates.push_back(allCoordinatePermutations[shortestDistanceIndex][i]);
+	}
 
 	return;
 }
@@ -131,8 +144,7 @@ void Navigator::PopulateMovements(SensorHub& sh)
 	std::vector<Coordinate> coords = activeNavPlan.coordinates;
 
 	// First movement is from the current location to the first nav plan coordinate.
-	Coordinate myLoc = sh.GetGPS().GetCurrentGPSCoordinates();
-	moves.push_back(CalculateMovement(myLoc, coords[0]));
+	moves.push_back(CalculateMovement(curPos, coords[0]));
 
 	// All other movements are from nav plan coordinates to other nav plan coordinates.
 	for(unsigned int i = 0; i < coords.size() - 1; i++)
@@ -167,14 +179,11 @@ Movement Navigator::CalculateMovement(Coordinate c1, Coordinate c2)
 }
 
 // Calculate the total distance from a specific set of coordinates.
-double Navigator::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords, SensorHub& sh)
+double Navigator::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords)
 {
 
-	// Remember, you're not starting at the first location!
-	Coordinate myLoc = sh.GetGPS().GetCurrentGPSCoordinates();
-
 	double totalDistance = 0.0;
-	totalDistance += DistanceBetweenCoordinates(myLoc, coords[0]);
+	totalDistance += DistanceBetweenCoordinates(curPos, coords[0]);
 
 	for(unsigned int i = 0; i < coords.size() - 1; i++)
 	{
@@ -182,7 +191,7 @@ double Navigator::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords, 
 	}
 
 	// If we have to return to the original location, then include this.
-	// totalDistance += DistanceBetweenCoordinates(myLoc, coords[coords.size() - 1]);
+	// totalDistance += DistanceBetweenCoordinates(curPos, coords[coords.size() - 1]);
 
 	return totalDistance;
 }

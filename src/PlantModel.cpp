@@ -27,11 +27,18 @@ IGUIEnvironment* guienv;
 ITexture* recentImage;
 IGUIStaticText* vehicleInfo;
 ISceneNode* vehicleNode;
-IMeshSceneNode* vehicleModel;
+IAnimatedMeshSceneNode* vehicleModel;
 ICameraSceneNode* mainCam;
 ILightSceneNode* mainLight;
 std::vector<IMeshSceneNode*> payloads;
 std::vector<IMeshSceneNode*> obstacles;
+vector3df m_Rot;                   // H/V Position of camera on sphere (only X/Y used)
+f32 m_Rad;                         // Radius of sphere
+bool m_Dragging;                   // Is currently dragging?
+vector2df m_DragStart;             // 2D Position on screen where the drag started
+vector3df m_DragStartRotation;     // Rotation when drag started
+IAnimatedMeshSceneNode* terrain;
+ITriangleSelector* selector;
 
 /*! Initializes the PlantModel class.
 * This function is also in charge of initializing all Irrlicht capabilities.
@@ -51,7 +58,7 @@ void PlantModel::Initialize(
 	initLon = Parser::GetInitialLongitude();
 
 	// Determine screen resolution and create the main Irrlicht device.
-	device = createDevice(video::EDT_OPENGL, dimension2d<u32>(1280, 720), 16, false, false, false, 0);
+	device = createDevice(video::EDT_OPENGL, dimension2d<u32>(1280, 720), 16, false, false, false, this);
 	if (!device) { return; }
 	device->setWindowCaption(L"BlueCode Simulator");
 	device->setResizable(true);
@@ -81,22 +88,24 @@ void PlantModel::Initialize(
 	}
 
 	// Create a scene node for the vehicle.
-	// vehicleModel = smgr->addMeshSceneNode(mesh);
-	vehicleModel = smgr->addCubeSceneNode(
-		1.0,
-		0,
-		-1,
-		vector3df(0, veh.height*0.5, 0),
-		vector3df(0, -(90.0 - veh.heading), 0),
-		vector3df(veh.length, veh.height, veh.width));
-
-	std::cout << vehicleModel->getRotation().Y << "\n";
+	vehicleModel = smgr->addAnimatedMeshSceneNode(mesh);
+	vehicleModel->setPosition(vector3df(0, veh.height*0.5, 0));
+	vehicleModel->setRotation(vector3df(0, -(90.0 - veh.heading), 0));
+	vehicleModel->setID(99);
+	selector = smgr->createTriangleSelector(vehicleModel->getMesh(), vehicleModel);
+	vehicleModel->setTriangleSelector(selector);
+	selector->drop();
 
 	// Add a camera to the scene.
-	mainCam = smgr->addCameraSceneNode(0, vector3df(0, 2, -4), vehicleModel->getPosition());
+	mainCam = smgr->addCameraSceneNode(0, vector3df(0, 30, 0), vehicleModel->getPosition());
 	mainCam->setTarget(vehicleModel->getPosition());
 	mainCam->bindTargetAndRotation(true);
+	m_Rad = 7;
+	m_Dragging = false;
+	m_Rot.Y = PI;
+	m_Rot.X = PI / 4.0;
 
+	// Get the screen size.
 	dimension2du screenSize = driver->getScreenSize();
 	s32 offset = 10;
 
@@ -112,15 +121,18 @@ void PlantModel::Initialize(
 	vehicleInfo->setBackgroundColor(SColor(100, 255, 255, 255));
 
 	// Add terrain.
-	IMeshSceneNode* terrain = smgr->addCubeSceneNode();
-	terrain->setPosition(vector3df(0, 0.0, 0));
-	terrain->setScale(vector3df(50.0, 0.001, 50.0));
-	terrain->setMaterialTexture(0, driver->getTexture("irrlicht/media/terrain-texture.jpg"));
+	terrain = smgr->addAnimatedMeshSceneNode(smgr->getMesh("irrlicht/media/field.obj"));
+	terrain->setRotation(vector3df(0, -226.0, 0));
+	terrain->setMaterialTexture(0, driver->getTexture("irrlicht/media/field.png"));
 	terrain->setMaterialFlag(EMF_LIGHTING, false);
+	selector = smgr->createTriangleSelector(terrain->getMesh(), terrain);
+	terrain->setTriangleSelector(selector);
+	selector->drop();
+	terrain->setID(0);
 
 	// Add lights.
 	mainLight = smgr->addLightSceneNode(0, vector3df(0, 10, 0), SColorf(0.1, 0.1, 0.1));
-	mainLight->setLightType(E_LIGHT_TYPE::ELT_POINT);
+	mainLight->setLightType(E_LIGHT_TYPE::ELT_DIRECTIONAL);
 	smgr->setAmbientLight(SColorf(0.2, 0.2, 0.2));
 
 	// Add skybox.
@@ -130,9 +142,11 @@ void PlantModel::Initialize(
 	for (int i = 0; i < coords.size(); i++) {
 		payloads.push_back(smgr->addSphereSceneNode(pldist));
 		payloads[i]->getMaterial(0).Wireframe = true;
+		payloads[i]->setMaterialFlag(EMF_LIGHTING, false);
+		smgr->getMeshManipulator()->setVertexColors(payloads[i]->getMesh(), SColor(255, 255, 255, 0));
+		payloads[i]->getMaterial(0).NormalizeNormals = true;
 		payloads[i]->setPosition(vector3df(LonToX(coords[i].lon), 0, LatToZ(coords[i].lat)));
 	}
-
 	
 	// Draw all of the obstacles.
 	for (int i = 0; i < obs.size(); i++) {
@@ -144,7 +158,14 @@ void PlantModel::Initialize(
 				vector3df(LonToX(obs[i].lon), 0.5*obs[i].height, LatToZ(obs[i].lat)),	// Position
 				vector3df(0, obs[i].yRotation, 0),	// Rotation
 				vector3df(obs[i].length, obs[i].height, obs[i].width)));	// Scale
-		smgr->getMeshManipulator()->setVertexColors(obstacles[i]->getMesh(), SColor(255, 255, 0, 255));
+		smgr->getMeshManipulator()->setVertexColors(obstacles[i]->getMesh(), SColor(255, 0, 100, 255));
+		obstacles[i]->setMaterialFlag(EMF_LIGHTING, false);
+		obstacles[i]->getMaterial(0).Wireframe = true;
+		obstacles[i]->getMaterial(0).NormalizeNormals = true;
+		obstacles[i]->setID(0);
+		selector = smgr->createTriangleSelector(obstacles[i]->getMesh(), obstacles[i]);
+		obstacles[i]->setTriangleSelector(selector);
+		selector->drop();
 	}
 	
 }
@@ -290,8 +311,8 @@ void PlantModel::UpdateEngine()
 		// Update vehicle position.
 		vehicleModel->setPosition(vector3df(LonToX(lon), veh.height*0.5, LatToZ(lat)));
 		vehicleModel->setRotation(vector3df(0, -(90.0 - head), 0));
+		mainCam->setPosition(vehicleModel->getPosition() + getPositionOnSphere(m_Rot.Y, m_Rot.X, m_Rad));
 		mainCam->setTarget(vehicleModel->getPosition());
-		mainCam->setPosition(vehicleModel->getPosition() + vector3df(0, 2, -4));
 
 		driver->beginScene(true, true, SColor(255, 100, 101, 140));
 		smgr->drawAll();
@@ -315,26 +336,126 @@ void PlantModel::UpdateEngine()
 
 		// Draw a line that displays the vehicle's current heading.
 		driver->draw3DLine(
-			vehicleModel->getPosition() - core::vector3df(sin(PI / 180.0 * head)*5.0, 0.0f, cos(PI / 180.0 * head)*5.0),
+			vehicleModel->getPosition(),
 			vehicleModel->getPosition() + core::vector3df(sin(PI / 180.0 * head)*5.0, 0.0f, cos(PI / 180.0 * head)*5.0),
 			SColor(255, 0, 255, 255)
 		);
 
+		// Check lasers (and draw lines for lasers in 3d space)
+		for (int i = 0; i < veh.lasers.size(); i++) {
+			vector3df laserPos = vehicleModel->getPosition() +
+				vector3df(sin(PI / 180.0 * head)*veh.lasers[i].relativeForward*0.5, veh.lasers[i].relativeUpward*0.5, cos(PI / 180.0 * head)*veh.lasers[i].relativeForward*0.5) +
+				vector3df(sin(PI / 180.0 * (head + 90))*veh.lasers[i].relativeRight*0.5, 0.0, cos(PI / 180.0 * (head + 90))*veh.lasers[i].relativeRight*0.5);
+			vector3df laserEnd = laserPos + vector3df(sin(PI / 180.0 * head) * veh.lasers[i].detectionDistance, 0.0, cos(PI / 180.0 * head) * veh.lasers[i].detectionDistance);
+			line3d<f32> ray;
+			ray.start = laserPos;
+			ray.end =  laserEnd;
+			vector3df intersection;
+			triangle3df hitTriangle;
+			ISceneCollisionManager* collMan = smgr->getSceneCollisionManager();
+			ISceneNode* selectedNode = collMan->getSceneNodeAndCollisionPointFromRay(ray, intersection, hitTriangle, 0);
+
+			if (selectedNode && selectedNode->getID() != vehicleModel->getID())
+			{
+				veh.lasers[i].val = true;
+				driver->draw3DLine(laserPos, laserEnd, SColor(255, 255, 255, 0));
+			}
+			else {
+				veh.lasers[i].val = false;
+				driver->draw3DLine(laserPos, laserEnd, SColor(255, 255, 0, 0));
+			}
+		}
+
 		// Draw main axes lines on the screen.
 		driver->draw3DLine(
-			core::vector3df(0.0f, 0.1f, 0.0f),
-			core::vector3df(10.0f, 0.1f, 0.0f),
+			core::vector3df(-1000.0f, 0.1f, 0.0f),
+			core::vector3df(1000.0f, 0.1f, 0.0f),
 			SColor(255, 255, 255, 255)
 		);
 		driver->draw3DLine(
-			core::vector3df(0.0f, 0.1f, 0.0f),
-			core::vector3df(0.0f, 0.1f, 10.0f),
+			core::vector3df(0.0f, 0.1f, -1000.0f),
+			core::vector3df(0.0f, 0.1f, 1000.0f),
 			video::SColor(255, 255, 255, 255)
 		);
 
 		// Push the scene to the render buffer.
 		driver->endScene();
 	}
+}
+
+vector3df PlantModel::getPositionOnSphere(f32 angleH, f32 angleV, f32 radius)
+{
+	// Get position on Z/Y Plane using conversion from polar
+	// to cartesian coordinates
+	f32 posZ = radius * cos(angleV);
+	f32 posY = radius * sin(angleV);
+
+	// Create a positional vector with X=0
+	vector3df camPos(0, posY, posZ);
+
+	// Create a transformation matrix to rotate the vector 'camPos'
+	// around the Y Axis
+	matrix4 yawMat;
+	yawMat.setRotationRadians(vector3df(0, angleH, 0));
+	yawMat.transformVect(camPos);
+
+	return camPos;
+}
+
+bool PlantModel::OnEvent(const SEvent &event)
+{
+	if (event.EventType == EET_KEY_INPUT_EVENT)
+	{
+		const SEvent::SKeyInput *ev = &event.KeyInput;
+		if (ev->Key == KEY_LEFT)
+			m_Rot.Y -= 0.1f;
+		else if (ev->Key == KEY_RIGHT)
+			m_Rot.Y += 0.1f;
+		else if (ev->Key == KEY_UP)
+			m_Rot.X += 0.1f;
+		else if (ev->Key == KEY_DOWN)
+			m_Rot.X -= 0.1f;
+
+		return true;
+	}
+	else if (event.EventType == EET_MOUSE_INPUT_EVENT)
+	{
+		const SEvent::SMouseInput *ev = &event.MouseInput;
+		if (ev->Event == EMIE_MOUSE_WHEEL)
+		{
+			if (ev->Wheel >= 0)
+				m_Rad = (m_Rad > 3.0) ? 0.75*m_Rad : m_Rad;
+			else
+				m_Rad = (m_Rad < 50.0) ? 1.5*m_Rad : m_Rad;
+		}
+		else
+		{
+			if (!m_Dragging && ev->isLeftPressed())
+			{
+				m_DragStart.X = ev->X;
+				m_DragStart.Y = ev->Y;
+				m_DragStartRotation.X = m_Rot.X;
+				m_DragStartRotation.Y = m_Rot.Y;
+				m_Dragging = true;
+			}
+			else if (m_Dragging && !ev->isLeftPressed())
+			{
+				m_Dragging = false;
+			}
+			else if (m_Dragging && ev->isLeftPressed())
+			{
+				// Calculate a rotational offset in the range of -PI to +PI
+				f32 dx = ((ev->X - m_DragStart.X) / driver->getScreenSize().Width) * PI;
+				f32 dy = ((ev->Y - m_DragStart.Y) / driver->getScreenSize().Height) * PI;
+
+				// Calculate the new total rotation
+				m_Rot.X = m_DragStartRotation.X + dy;
+				m_Rot.Y = m_DragStartRotation.Y + dx;
+			}
+		}
+	}
+
+	return false;
 }
 
 void PlantModel::PrintStatus() {

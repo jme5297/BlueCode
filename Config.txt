@@ -42,11 +42,24 @@ OffAngleDeviate = 10.0
 # What's the required off-angle maximum to stop a turn and maintain course again?
 OffAngleAccepted = 5.0
 
-# Amount of time (seconds) to travel straight after stopping to calibrate GPS?
-CalibrationTime = 3.0
+# How many degrees per second will the vehicle turn at full turn speed?
+TurnFactorDPS = 100.0
+
+# Maximum speed of the vehicle (meters/second)?
+# NOTE: This value is also used in the SIM mode.
+MaxSpeedMPS = 1.0
+
+# Minimum amount of time (seconds) to travel straight after stopping to calibrate GPS?
+CalibrationTime = 12.0
+
+# Minimum amount of time required to stay straight in a maintain mode?
+MinimumMaintainTime = 4.0
+
+# Angle to turn away from obstacle to diverge?
+ObstacleDivergenceAngle = 35.0
 
 # Amount of time to travel parallel to an obstacle before converging back to target?
-ObstacleDivergenceTime = 3.0
+ObstacleDivergenceTime = 7.0
 
 # Amount of time to hold down Payload servo (seconds)?
 PayloadServoTime = 3.0
@@ -55,7 +68,7 @@ PayloadServoTime = 3.0
 # -------------
 
 # Normalized maximum turning steering value
-MaxTurnSteering = 0.1
+MaxTurnSteering = 1.0
 
 # Maximum number of times to attempt to take an image before moving to next target.
 MaxCameraAttempts = 3
@@ -68,39 +81,40 @@ ControlMode = Wheel
 # ----------------------------------------------------------------------------
 
 # Time delta in debug mode from one main loop to the next?
-TimeDelta = 0.0001
+TimeDelta = 0.0005
 
 # Sim delta from one Plant/simulation update to the next (seconds)?
 SimDelta = 0.01
 
-# Maximum speed of the vehicle (meters/second)?
-MaxSpeedMPS = 2.0
-
 # What type of vehicle to test? Can be either Wheel or Track.
 VehicleTypeSim = Wheel
 
+# How many degrees can the wheel turn at full servo power in one direction?
+MaxWheelAngleDegrees = 45.0
+
 # Vehicle Width parameters (meters)
-VehicleWidth = 0.324
+VehicleWidth = 0.31
 VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.793143
-InitialLongitude = -77.872284
-InitialHeading = 20
+InitialLatitude = 40.793065
+InitialLongitude = -77.872306
+InitialHeading = 310
 
 # Add some obstacles to the scene
 # Format: lon(deg), lat(deg), length(m), width(m), height(m), z-rotation(deg)
 BEGIN_OBSTACLES
--77.872148,	40.793305,	1,	1,	0.5,	45
--77.872031, 40.793170,	1,	1,	0.5,	70
--77.872361, 40.792912, 	1,	1,	0.5,	56
+-77.872148,	40.793335,	7,	3,	0.5,	-20
+-77.871981, 40.793170,	6,	3,	0.5,	70
+-77.872361, 40.792852, 	5,	3,	0.5,	340
 END_OBSTACLES
 
 # Add lasers to the vehicle.
-# Format: local forward(m), local height(m), local right(m), direction(deg)
+# Format: local forward(m), local height(m), local right(m), local direction(deg), detection distance (m)
 BEGIN_LASERS
-0.1, 0.1, 0, 0
+0.3, 0.18, -0.36, 0, 0.8
+0.3, 0.18, 0.36, 0, 0.8
 END_LASERS
 
 

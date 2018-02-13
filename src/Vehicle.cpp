@@ -14,8 +14,7 @@ void Vehicle::Initialize() {
 	heading = Parser::GetInitialHeading();
 	maxSpeedMPS = Parser::GetMaxSpeedMPS();
 	lasers = Parser::GetPLasers();
-	// Initialization for wheel model
-	maxWheelSteeringAngleDeg = 15.0;
+	maxWheelSteeringAngleDeg = Parser::GetMaxWheelAngleDegrees();
 }
 Vehicle::~Vehicle() {
 

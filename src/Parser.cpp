@@ -15,7 +15,10 @@ bool Parser::Optimize;
 double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
 double Parser::OffAngleAccepted;
+double Parser::TurnFactorDPS;
 double Parser::CalibrationTime;
+double Parser::MinimumMaintainTime;
+double Parser::ObstacleDivergenceAngle;
 double Parser::ObstacleDivergenceTime;
 double Parser::PayloadServoTime;
 double Parser::MaxTurnSteering;
@@ -28,6 +31,7 @@ double Parser::TimeDelta;
 double Parser::SimDelta;
 double Parser::MaxSpeedMPS;
 VehicleType Parser::VehicleTypeSim;
+double Parser::MaxWheelAngleDegrees;
 double Parser::VehicleWidth;
 double Parser::VehicleHeight;
 double Parser::VehicleLength;
@@ -124,10 +128,28 @@ void Parser::ReadInputs(std::string file)
 			ss >> OffAngleAccepted;
 			continue;
 		}
+		else if (s.find("TurnFactorDPS") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> TurnFactorDPS;
+			continue;
+		}
 		else if (s.find("CalibrationTime") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> CalibrationTime;
+			continue;
+		}
+		else if (s.find("MinimumMaintainTime") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> MinimumMaintainTime;
+			continue;
+		}
+		else if (s.find("ObstacleDivergenceAngle") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> ObstacleDivergenceAngle;
 			continue;
 		}
 		else if (s.find("ObstacleDivergenceTime") != std::string::npos) {
@@ -199,6 +221,12 @@ void Parser::ReadInputs(std::string file)
 			else {
 				VehicleTypeSim = VehicleType::Track;
 			}
+			continue;
+		}
+		else if (s.find("MaxWheelAngleDegrees") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> MaxWheelAngleDegrees;
 			continue;
 		}
 		else if (s.find("VehicleWidth") != std::string::npos) {
@@ -276,6 +304,7 @@ void Parser::ReadInputs(std::string file)
 				double relUp;
 				double relRight;
 				double direction;
+				double detectionDistance;
 				ss >> relFwd;
 				ss.ignore();  // Ignore the comma
 				ss >> relUp;
@@ -283,7 +312,9 @@ void Parser::ReadInputs(std::string file)
 				ss >> relRight;
 				ss.ignore();  // Ignore the comma
 				ss >> direction;
-				Lasers.push_back({ relFwd, relUp, relRight, direction, true, false });
+				ss.ignore();
+				ss >> detectionDistance;
+				Lasers.push_back({ relFwd, relUp, relRight, direction, detectionDistance, true, false });
 				getline(configFile, s);
 				s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
 			}

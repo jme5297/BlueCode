@@ -39,13 +39,12 @@ namespace Navigation {
 		bool IsPopulated();			///< Returns if Nav Plan has been populated with coordinates.
 		void AddCoordinate(int index, double c1, double c2);	///< Add a coordinate to the Nav Plan's list of coordinates
 		void AddCoordinates(std::vector<Coordinate> coords);	//< Add a collection of coordinates to the list of coordinates
-		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords,
-															SensorHub& sh);		///< Calculate entire distance of a certain Nav Plan
+		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords);		///< Calculate entire distance of a certain Nav Plan
 		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);		///< Calculate distane between two coordinates
 		Movement CalculateMovement(Coordinate c1, Coordinate c2);				///< Calculate heading & direction between two coordinates
 
 		// Nav Plan construction functions
-		void ConstructNavPlan(SensorHub& sh);		///< Determine the most optimal path between Nav Plan coordinates
+		void ConstructNavPlan(int);		///< Determine the most optimal path between Nav Plan coordinates
 		void PopulateMovements(SensorHub& sh);		///< Populate the required headings and distances between optimal path
 
 		// Nav Plan Accessor functions
@@ -62,7 +61,7 @@ namespace Navigation {
 		bool IsNavPlanComplete();		///< Check if NavPlan is complete.
 
 		/// Return information about the laser sensors.
-		std::vector<bool> GetPathClearances(){ return isPathObstructed; }
+		std::vector<bool> GetPathObstructions(){ return isPathObstructed; }
 	protected:
 
 		// Utility functions for nav plan construction
@@ -76,6 +75,7 @@ namespace Navigation {
 		NavPlan activeNavPlan;			///< Current/active NavPlan
 		double vehicleHeading;			///< Current vehicle heading
 		Coordinate lastCoordinates;		///< Last trusted GPS coordinates
+		Coordinate curPos;
 
 		std::vector<bool> isPathObstructed; ///< Do the laser readings show an obstructed path?
 

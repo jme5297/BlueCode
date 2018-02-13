@@ -20,6 +20,7 @@ using namespace Times;
 
 #ifdef SIM
 using namespace Plant;
+PlantModel pm;
 #endif
 
 // FUNCTION PROTOTYPES
@@ -98,11 +99,6 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 		return false;
 	}
 
-	// Construct the nav plan based on the waypoints provided.
-	if (Parser::GetOptimize()) {
-		myNavigator.ConstructNavPlan(mySensorHub);
-	}
-
 	// Come up with nominal Nav-Plan movement and distance info.
 	myNavigator.PopulateMovements(mySensorHub);
 
@@ -113,6 +109,11 @@ bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuid
 	myGuider.SetCalibrationTime(Parser::GetCalibrationTime());
 	myGuider.SetObstacleDivergenceTime(Parser::GetObstacleDivergenceTime());
 	myGuider.SetPayloadServoTime(Parser::GetPayloadServoTime());
+	myGuider.SetTurnFactorDPS(Parser::GetTurnFactorDPS());
+	myGuider.SetMaxVehicleSpeed(Parser::GetMaxSpeedMPS());
+	myGuider.SetMinimumMaintainTime(Parser::GetMinimumMaintainTime());
+	myGuider.SetObstacleDivergenceAngle(Parser::GetObstacleDivergenceAngle());
+
 	myController.SetCurrentVehicleMode(Parser::GetControlMode());
 	myController.SetMaxTurnSteering(Parser::GetMaxTurnSteering());
 	// myController.SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());
@@ -129,7 +130,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 	std::cout << "Running...\n";
 
 #ifdef SIM
-	PlantModel::Initialize(
+	pm.Initialize(
 		myNavigator.GetNavPlan().coordinates, 
 		Parser::GetObstacles(), 
 		myGuider.GetPayloadDropRadius());

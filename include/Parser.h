@@ -31,6 +31,7 @@ namespace Plant {
 		double relativeUpward;
 		double relativeRight;
 		double direction;
+		double detectionDistance;
 		bool initialized;
 		bool val;
 	};
@@ -62,16 +63,21 @@ public:
 	static double GetPayloadDropRadius() { return PayloadDropRadius; }
 	static double GetOffAngleDeviate() { return OffAngleDeviate; }
 	static double GetOffAngleAccepted() { return OffAngleAccepted; }
+	static double GetTurnFactorDPS() { return TurnFactorDPS; }
 	static double GetCalibrationTime() { return CalibrationTime; }
+	static double GetMinimumMaintainTime() { return MinimumMaintainTime; }
+	static double GetObstacleDivergenceAngle() { return ObstacleDivergenceAngle; }
 	static double GetObstacleDivergenceTime() { return ObstacleDivergenceTime; }
 	static double GetMaxTurnSteering() { return MaxTurnSteering; }
 	static int GetMaxCameraAttempts() { return MaxCameraAttempts; }
 	static double GetPayloadServoTime() { return PayloadServoTime; }
 	static VehicleMode GetControlMode() { return ControlMode; }
+
 	static double GetTimeDelta() { return TimeDelta; }
 	static double GetSimDelta() { return SimDelta; }
 	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
 	static VehicleType GetVehicleTypeSim() { return VehicleTypeSim; }
+	static double GetMaxWheelAngleDegrees() { return MaxWheelAngleDegrees; }
 	static double GetVehicleWidth() { return VehicleWidth; }
 	static double GetVehicleHeight() { return VehicleHeight; }
 	static double GetVehicleLength() { return VehicleLength; }
@@ -93,16 +99,21 @@ protected:
 	static double PayloadDropRadius;
 	static double OffAngleDeviate;
 	static double OffAngleAccepted;
+	static double TurnFactorDPS;
 	static double CalibrationTime;
+	static double MinimumMaintainTime;
+	static double ObstacleDivergenceAngle;
 	static double ObstacleDivergenceTime;
 	static double MaxTurnSteering;
 	static int MaxCameraAttempts;
 	static double PayloadServoTime;
 	static VehicleMode ControlMode;
+
 	static double TimeDelta;
 	static double SimDelta;
 	static double MaxSpeedMPS;
 	static VehicleType VehicleTypeSim;
+	static double MaxWheelAngleDegrees;
 	static double VehicleWidth;
 	static double VehicleHeight;
 	static double VehicleLength;

@@ -31,11 +31,11 @@ namespace Plant {
 	 * the Irrlicht engine. Note: The plant model is only compiled into the code if the SIM flag
 	 * is defined in the CMake generation.
 	 */
-	class PlantModel {
+	class PlantModel : public IEventReceiver{
 	public:
 
 		/// Used to initialize the plant model and the Irrlicht engine.
-		static void Initialize(
+		void Initialize(
 			std::vector<sensors::Coordinate> coords, 
 			std::vector<Obstacle> obs,
 			double pldist);
@@ -63,6 +63,9 @@ namespace Plant {
 		static double LonToX(double d);
 		static double XToLon(double d);
 		static double ZToLat(double d);
+
+		static vector3df getPositionOnSphere(f32 angleH, f32 angleV, f32 radius);
+		virtual bool OnEvent(const SEvent &event);
 
 	protected:
 		/// Stores the time of intitialization of the plant model.
