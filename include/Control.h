@@ -37,7 +37,7 @@ namespace Control{
 		void SetCurrentVehicleMode(VehicleMode vm);	///< Set the current vehicle mode.
 		VehicleMode GetCurrentVehicleMode();		///< Get the currently operating vehicle mode.
 
-		void Controller::SetMaxTurnSteering(double d);
+		void SetMaxTurnSteering(double d);
 
 		// Controls
 		void PayloadDrop(Guider& g, SensorHub& sh);
