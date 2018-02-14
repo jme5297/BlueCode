@@ -1,6 +1,4 @@
 #include <Navigation.h>
-#include <iostream>
-#include <string>
 
 #ifdef SIM
 #include <random>
@@ -10,26 +8,32 @@ using namespace sensors;
 using namespace Navigation;
 using namespace Times;
 
-Navigator::Navigator()
+void Navigator::Initialize(SensorHub* sh)
 {
 	totalPermutations = 0;
 	vehicleHeading = 0.0;
+	curPos = sh->GetGPS()->GetCurrentGPSCoordinates();
+	lastCoordinates = curPos;
 
 	TimeModule::InitProccessCounter("GPS", Parser::GetRefresh_GPS());
 }
-
 /**
  *
  * @param[in]	sh 	- A reference to the Sensor Hub class.
  */
-void Navigator::Run(SensorHub& sh)
+void Navigator::Run(SensorHub* sh)
 {
 	double PI = 3.14159265;
 
-	// Retrieve laser sensor information.
+	// Retrieve laser sensor information->
 	isPathObstructed.clear();
-	for(int i = 0; i < sh.GetLasers().size(); i++){
-		isPathObstructed.push_back(sh.GetLasers().at(i).ReadLaser());
+	for(int i = 0; i < sh->GetLasers().size(); i++){
+		if (sh->GetLasers().at(i).ReadLaser()) {
+			isPathObstructed.push_back(1);
+		}
+		else {
+			isPathObstructed.push_back(0);
+		}
 	}
 
 	if (TimeModule::ProccessUpdate("GPS")) {
@@ -56,8 +60,8 @@ Coordinate Navigator::GetCoordinates()
 {
 	return curPos;
 }
-// Add a coordinate to the vector list of coordinates of the specific active Nav Plan.
-// NOTE: This must be done before constructing the Nav Plan.
+// Add a coordinate to the vector list of coordinates of the specific active Nav Plan->
+// NOTE: This must be done before constructing the Nav Plan->
 void Navigator::AddCoordinate(int index, double c1, double c2)
 {
 	// Create a coordinate from the two incoming values.
@@ -69,7 +73,7 @@ void Navigator::AddCoordinate(int index, double c1, double c2)
 	std::vector<Coordinate> myCoords = activeNavPlan.coordinates;
 
 	// If index is -1, then add to the end of the list. Otherwise, insert
-	// the waypoint at a specific location.
+	// the waypoint at a specific location->
 	if(index == -1)
 	{
 		myCoords.push_back(coord);
@@ -90,7 +94,11 @@ void Navigator::ConstructNavPlan(int cInd)
 
 	// This function populates the allCoordinatePermutations vector
 	allCoordinatePermutations.clear();
-	std::vector<Coordinate> coordsToGo(activeNavPlan.coordinates.begin() + cInd, activeNavPlan.coordinates.end());
+	std::vector<Coordinate> coordsToGo;
+	for (int i = cInd; i < activeNavPlan.coordinates.size(); i++) {
+		coordsToGo.push_back(activeNavPlan.coordinates[i]);
+	}
+	
 	GenerateAllCoordinatePermutations(coordsToGo, 0);
 
 	std::cout << std::to_string(totalPermutations) + " possible permutations.\n";
@@ -102,7 +110,7 @@ void Navigator::ConstructNavPlan(int cInd)
 	{
 		double dist = CalculateTotalNavPlanDistance(allCoordinatePermutations[i]);
 		if(dist < shortestDistance)
-	{
+		{
 			shortestDistance = dist;
 			shortestDistanceIndex = i;
 			std::cout << "Permutation " + std::to_string(i) + " is the shortest so far at " + std::to_string(shortestDistance) + ".\n";
@@ -111,7 +119,7 @@ void Navigator::ConstructNavPlan(int cInd)
 
 	std::cout << "Permutation " + std::to_string(shortestDistanceIndex) + " is the shortest!\n";
 
-	// Clear the current plan.
+	// Clear the current plan->
 	std::vector<Coordinate> tmpCoords = activeNavPlan.coordinates;
 	activeNavPlan.coordinates.clear();
 	for (int i = 0; i < cInd; i++)
@@ -129,7 +137,7 @@ void Navigator::ConstructNavPlan(int cInd)
 
 // Populate the movement array, which stores heading and distance information to all waypoints.
 // NOTE: ConstructNavPlan() is not required to be run, but is highly recommended.
-void Navigator::PopulateMovements(SensorHub& sh)
+void Navigator::PopulateMovements(SensorHub* sh)
 {
 
 	// Create a generic movement vector, and store the active Nav Plan coordinates.
@@ -148,7 +156,7 @@ void Navigator::PopulateMovements(SensorHub& sh)
 	// If we have to return to the original location, then include this.
 	// moves.push_back(CalculateMovement(coords[coords.size() - 1], myLoc));
 
-	// Update the total movement vector to the Active Nav Plan.
+	// Update the total movement vector to the Active Nav Plan->
 	activeNavPlan.movements = moves;
 
 	return;

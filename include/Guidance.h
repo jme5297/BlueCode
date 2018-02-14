@@ -1,14 +1,12 @@
 #pragma once
+#include <cmath>
 #include <Navigation.h>
 #include <TimeModule.h>
-#include <chrono>
-#include <cmath>
 
 /// All guidance-related classes and members
 namespace Guidance {
 
 	using namespace Navigation;
-	using namespace std::chrono;
 	using namespace Times;
 
 	/*!
@@ -71,7 +69,7 @@ namespace Guidance {
 		std::vector<GuidanceManeuver> GetGuidanceManeuverBuffer(); ///<Return the entire guidance maneuver buffer.
 		GuidanceManeuver& GetCurrentGuidanceManeuver(); ///< Get the current guidance maneuver from the maneuver buffer.
 
-		void Run(Navigator& n); ///< Main execution function for the Guider.
+		void Run(Navigator* n); ///< Main execution function for the Guider.
 		bool IsNavPlanComplete(); ///< Returns if all nav plan objectives have been acheived.
 
 		void SetPayloadDropRadius(double d) { payloadDropRadius = d; }

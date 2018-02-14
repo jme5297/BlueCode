@@ -30,18 +30,18 @@ void Guider::RequestGuidanceManeuver(GuidanceManeuver gm) {
 /**
  * Controls the main operations of the Guider class. This can be separated into three different
  * sections:
- * - **Calculations**: Perform any guidance-specific calculations to be used later in the function.
+ * - **Calculations**: Perform any guidance-specific calculations to be used later in the function->
  * - **Analyze**: Determine based on navigation information if new guidance maneuvers should be added.
  * - **Perform**: Perform actions based on the current guidance maneuver from the buffer.
  * @param[in]   n     - Reference to the navigator.
  * @param[out]  GuidanceManeuverBuffer
  */
-void Guider::Run(Navigator& n) {
+void Guider::Run(Navigator* n) {
 
 	double PI = 3.14159265;
 
 	// If coordinateIndex passes through all coordinates, it's assumed that all targets have been acheived.
-	if (coordinateIndex == (int)n.GetNavPlan().coordinates.size()) {
+	if (coordinateIndex == (int)n->GetNavPlan().coordinates.size()) {
 		isNavPlanComplete = true;
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Guider's Nav Plan comlete! Returning to main for clean-up ops.\n";
 		return;
@@ -79,7 +79,7 @@ void Guider::Run(Navigator& n) {
 	}
 	// If we're within payload dropping distance, and if we haven't yet queued a payload drop,
 	// then request a new payload drop.
-	else if (n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]) <= (payloadDropRadius - Parser::GetGPSUncertainty())
+	else if (n->DistanceBetweenCoordinates(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]) <= (payloadDropRadius - Parser::GetGPSUncertainty())
 		&& !(
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done == false &&
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop
@@ -104,14 +104,14 @@ void Guider::Run(Navigator& n) {
 		TimeModule::AddMilestone("PayloadDrop_" + std::to_string(GuidanceManeuverIndex));
 	}
 	// If there's obstructions that we didn't previously know about, then take care of this immediately.
-	else if ((n.GetPathObstructions().at(0) || n.GetPathObstructions().at(1)) && !GetCurrentGuidanceManeuver().hasBeganDiverging) {
+	else if ((n->GetPathObstructions().at(0) || n->GetPathObstructions().at(1)) && !GetCurrentGuidanceManeuver().hasBeganDiverging) {
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 		GuidanceManeuverIndex++;
 		GuidanceManeuver gm;
 
-		// First, request a turn.
+		// First, request a turn->
 		gm.state = ManeuverState::AvoidDiverge;
-		if (n.GetPathObstructions().at(0)) {
+		if (n->GetPathObstructions().at(0)) {
 			gm.turnDirection = -1;
 		}
 		else {
@@ -133,11 +133,11 @@ void Guider::Run(Navigator& n) {
 	// course maintain, or a turn, then see if we need to either turn or maintain course.
 	else if (GuidanceManeuverBuffer[GuidanceManeuverIndex].done && !isNavPlanComplete) {
 
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: -------------- Grabbing current GPS information.\n";
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: -------------- Grabbing current GPS information->\n";
 		Movement m;
-		m = n.CalculateMovement(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]);
-		double x1 = sin(n.GetHeading() * PI / 180.0);
-		double y1 = cos(n.GetHeading() * PI / 180.0);
+		m = n->CalculateMovement(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]);
+		double x1 = sin(n->GetHeading() * PI / 180.0);
+		double y1 = cos(n->GetHeading() * PI / 180.0);
 		double x2 = sin(m.heading * PI / 180.0);
 		double y2 = cos(m.heading * PI / 180.0);
 		double offAngle;
@@ -145,7 +145,7 @@ void Guider::Run(Navigator& n) {
 		double det = x1 * y2 - y1 * x2;      // determinant
 		offAngle = atan2(det, dott) * 180.0 / PI;  // atan2(y, x) or atan2(sin, cos)
 
-		// If headings are far apart, we need to turn. CANNOT TURN DIRECTLY AFTER ANOTHER TURN.
+		// If headings are far apart, we need to turn-> CANNOT TURN DIRECTLY AFTER ANOTHER TURn->
 		if (fabs(offAngle) >= offAngleDeviate && GetCurrentGuidanceManeuver().state != ManeuverState::Turn) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			GuidanceManeuverIndex++;
@@ -171,7 +171,7 @@ void Guider::Run(Navigator& n) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			GuidanceManeuverIndex++;
 			GuidanceManeuver gm;
-			double dist = n.DistanceBetweenCoordinates(n.GetCoordinates(), n.GetNavPlan().coordinates[coordinateIndex]);
+			double dist = n->DistanceBetweenCoordinates(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]);
 			gm.state = ManeuverState::Maintain;
 			gm.turnDirection = 0;
 			gm.speed = 1.0;
@@ -184,8 +184,6 @@ void Guider::Run(Navigator& n) {
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Maintaining course for " << std::to_string(gm.maintainTime) << " seconds.\n";
 		}
 	}
-
-
 
 	/* ----------- PERFORM --------------
 	 * This logic is in charge of making decisions about the current state of
@@ -201,7 +199,7 @@ void Guider::Run(Navigator& n) {
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Calibration complete.\n";
 
 			if(Parser::GetOptimize()){
-				n.ConstructNavPlan(coordinateIndex);
+				n->ConstructNavPlan(coordinateIndex);
 			}
 
 		}
@@ -251,7 +249,7 @@ void Guider::Run(Navigator& n) {
 		// If the payload-drop complete flag has been triggered, then this guidance maneuver has been completed.
 		if (man->payloadDropComplete && man->payloadImageTaken) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
-			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Payload dropped, image taken." << std::endl;
+			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Payload dropped, image taken->" << std::endl;
 			coordinateIndex++;
 		}
 		break;

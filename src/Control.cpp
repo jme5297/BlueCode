@@ -14,10 +14,10 @@ Controller::Controller() {
 }
 
 /// @todo Determine if all of these switches are necessary.
-void Controller::Run(Guider& g, SensorHub& sh) {
+void Controller::Run(Guider* g, SensorHub* sh) {
 
-	// If the NAV plan is complete, then stop the vehicle and return.
-	if (g.IsNavPlanComplete()) {
+	// If the NAV plan is complete, then stop the vehicle and return->
+	if (g->IsNavPlanComplete()) {
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Nav Plan complete. Stopping vehicle.\n";
 		switch (currentVehicleMode) {
 		case VehicleMode::Wheel:
@@ -32,7 +32,7 @@ void Controller::Run(Guider& g, SensorHub& sh) {
 	}
 
 	// If the buffer is empty, then don't run anything.
-	if (g.GetGuidanceManeuverBuffer().empty() || g.GetCurrentGuidanceManeuver().done) {
+	if (g->GetGuidanceManeuverBuffer().empty() || g->GetCurrentGuidanceManeuver().done) {
 		switch (currentVehicleMode) {
 		case VehicleMode::Wheel:
 			SetWheelSpeed(0.0);
@@ -46,7 +46,7 @@ void Controller::Run(Guider& g, SensorHub& sh) {
 	}
 
 	// If the current maneuver is a paylod drop, run payload drop functions.
-	if (g.GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop) {
+	if (g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop) {
 		switch (currentVehicleMode) {
 		case VehicleMode::Wheel:
 			SetWheelSpeed(0.0);
@@ -63,12 +63,12 @@ void Controller::Run(Guider& g, SensorHub& sh) {
 	// Lastly, perform normal operations if none of the above were triggered.
 	switch (currentVehicleMode) {
 	case VehicleMode::Wheel:
-		SetWheelSpeed(g.GetCurrentGuidanceManeuver().speed);
-		SetWheelSteering((double)g.GetCurrentGuidanceManeuver().turnDirection * maxTurnSteering);
+		SetWheelSpeed(g->GetCurrentGuidanceManeuver().speed);
+		SetWheelSteering((double)g->GetCurrentGuidanceManeuver().turnDirection * maxTurnSteering);
 		break;
 	case VehicleMode::Track:
 		// Note, this functionality is not built yet.
-		SetMotorSpeeds(g.GetCurrentGuidanceManeuver().speed);
+		SetMotorSpeeds(g->GetCurrentGuidanceManeuver().speed);
 		break;
 	}
 	return;
@@ -79,11 +79,11 @@ void Controller::Run(Guider& g, SensorHub& sh) {
 /**
  * \note PayloadDrop also handles camera image operations.
  */
-void Controller::PayloadDrop(Guider& g, SensorHub& sh) {
+void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 
-	if (!g.GetCurrentGuidanceManeuver().payloadDropComplete) {
-		if (TimeModule::GetElapsedTime("PayloadDrop_" + std::to_string(g.GetGuidanceManeuverIndex())) >= g.GetPayloadServoTime()) {
-			g.GetCurrentGuidanceManeuver().payloadDropComplete = true;
+	if (!g->GetCurrentGuidanceManeuver().payloadDropComplete) {
+		if (TimeModule::GetElapsedTime("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex())) >= g->GetPayloadServoTime()) {
+			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Payload deployed!\n";
 			// payloadServo = 0.0
 		}
@@ -96,9 +96,9 @@ void Controller::PayloadDrop(Guider& g, SensorHub& sh) {
 	}
 
 	// Attempt to take an image after the payload has been dropped.
-	bool imageTaken = sh.GetCamera().TakeImage(g.GetCurrentGuidanceManeuver().index);
+	bool imageTaken = sh->GetCamera()->TakeImage(g->GetCurrentGuidanceManeuver().index);
 	if (imageTaken) {
-		g.GetCurrentGuidanceManeuver().payloadImageTaken = true;
+		g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Controller received successful image signal!\n";
 	}
 	else {

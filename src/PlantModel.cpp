@@ -52,7 +52,7 @@ void PlantModel::Initialize(
 
 	veh.Initialize();
 
-	// Store the system time of the plant model initialization.
+	// Store the system time of the plant model initialization->
 	initTime = std::chrono::system_clock::now();
 
 	// Store the request initial latitude and longitutde
@@ -65,7 +65,7 @@ void PlantModel::Initialize(
 	device->setWindowCaption(L"BlueCode Simulator");
 	device->setResizable(true);
 
-	// This is meant for debugging to see what directory Irrlicht starts in.
+	// This is meant for debugging to see what directory Irrlicht starts in->
 	path p = device->getFileSystem()->getWorkingDirectory();
 
 	// Store references to the video driver, scene manager, and the GUI.
@@ -118,12 +118,12 @@ void PlantModel::Initialize(
 	skin->setFont(guienv->getBuiltInFont(), EGDF_TOOLTIP);
 
 
-	// Add vehicle information.
+	// Add vehicle information->
 	vehicleInfo = guienv->addStaticText(L"Vehicle Information:",
 		rect<s32>((s32)(screenSize.Width * 0.75), (s32)(screenSize.Height * 0.75), screenSize.Width - 10, screenSize.Height - 10), true);
 	vehicleInfo->setBackgroundColor(SColor(100, 255, 255, 255));
 
-	// Add terrain.
+	// Add terrain->
 	terrain = smgr->addAnimatedMeshSceneNode(smgr->getMesh("irrlicht/media/field.obj"));
 	terrain->setRotation(vector3df(0, -226.0, 0));
 	terrain->setMaterialTexture(0, driver->getTexture("irrlicht/media/field.png"));
@@ -133,7 +133,7 @@ void PlantModel::Initialize(
 	selector->drop();
 	terrain->setID(0);
 
-	// Add very far terrain.
+	// Add very far terrain->
 	// IMeshSceneNode* farTerrain = smgr->addCubeSceneNode(1.0, 0, 0, vector3df(), vector3df(), vector3df(1000, 0.0, 1000));
 	// smgr->getMeshManipulator()->setVertexColors(farTerrain->getMesh(), SColor(255, 53, 96, 64));
 	// farTerrain->setMaterialFlag(EMF_LIGHTING, false);
@@ -200,7 +200,7 @@ void PlantModel::UpdateImage(std::string str)
 	ITexture* recentImage;
 	recentImage = driver->getTexture(str.c_str());
 
-	// If texture creation successful, add to the screen.
+	// If texture creation successful, add to the screen->
 	if (recentImage) {
 		dimension2du screenSize = driver->getScreenSize();
 		s32 offset = 10;
@@ -285,7 +285,7 @@ void PlantModel::Run(double dt, Coordinate c) {
 		break;
 	}
 
-	// Update the vehicle position.
+	// Update the vehicle position->
 	GetVehicle()->gps.coords.lon += dx / lonToM;
 	GetVehicle()->gps.coords.lat += dy / latToM;
 
@@ -304,7 +304,7 @@ void PlantModel::UpdateEngine(Coordinate coords)
 	/// @todo Determine if this conditional is necessary.
 	if (device->run())
 	{
-		// Display the vehicle information on the screen.
+		// Display the vehicle information on the screen->
 		double lat = GetVehicle()->gps.coords.lat;
 		double lon = GetVehicle()->gps.coords.lon;
 		double head = GetVehicle()->heading;
@@ -325,7 +325,7 @@ void PlantModel::UpdateEngine(Coordinate coords)
 		vehicleInfo->setMaxSize(dimension2du((u32)(screenSize.Width*0.25 - 10), (u32)(screenSize.Height*0.25 - 10)));
 		vehicleInfo->setMinSize(dimension2du((u32)(screenSize.Width*0.25 - 10), (u32)(screenSize.Height*0.25 - 10)));
 
-		// Update vehicle position.
+		// Update vehicle position->
 		vehicleModel->setPosition(vector3df(LonToX(lon), veh.height*0.5, LatToZ(lat)));
 		vehicleModel->setRotation(vector3df(0, -(90.0 - head), 0));
 		mainCam->setPosition(vehicleModel->getPosition() + getPositionOnSphere(m_Rot.Y, m_Rot.X, m_Rad));
@@ -335,7 +335,7 @@ void PlantModel::UpdateEngine(Coordinate coords)
 		smgr->drawAll();
 		guienv->drawAll();
 
-		// Draw lines at vehicle position.
+		// Draw lines at vehicle position->
 		SMaterial m;
 		m.Lighting = false;
 		driver->setMaterial(m);
@@ -394,7 +394,7 @@ void PlantModel::UpdateEngine(Coordinate coords)
 			}
 		}
 
-		// Draw main axes lines on the screen.
+		// Draw main axes lines on the screen->
 		driver->draw3DLine(
 			core::vector3df(-1000.0f, 0.1f, 0.0f),
 			core::vector3df(1000.0f, 0.1f, 0.0f),

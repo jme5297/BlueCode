@@ -1,5 +1,4 @@
 #include <sensors/Camera/Camera_generic.h>
-#include <TimeModule.h>
 
 using namespace Times;
 using namespace sensors;
@@ -12,25 +11,11 @@ using namespace Plant;
 using namespace cv;
 #endif
 
-Camera::Camera(){
-
-}
-Camera::~Camera(){
-
-}
 bool Camera::Init(){
 
 	return true;
 }
 bool Camera::Reset(){
-
-	return true;
-}
-bool Camera::Enable(){
-
-	return true;
-}
-bool Camera::Disable(){
 
 	return true;
 }
@@ -40,19 +25,21 @@ bool Camera::TakeImage(int i){
 
 	#ifndef USE_CAMERA
 
-	// No camera control for non-camera runs
+	// Print out a message that the camera (fake) has successfully taken an image.
 	std::cout << "(Fake) Camera image taken!\n";
 	return true;
 
 	#else
 
+	// Open up the default video capture device.
 	VideoCapture capture = VideoCapture(0);
 	capture.open(0);
 
-	/// @todo This throws errors on some platforms.
+	/// @todo This throws errors on some platforms. Ensure this works on game-day.
 	capture.set(CV_CAP_PROP_FRAME_WIDTH,1920);
 	capture.set(CV_CAP_PROP_FRAME_HEIGHT,1080);
 
+	// Save a single frame of the capture device.
 	Mat frame, edges;
 	capture >> frame;
 	if(frame.empty()){
@@ -60,25 +47,26 @@ bool Camera::TakeImage(int i){
 		return false;
 	}
 
+	// Save the image to the device and report on either its success or failure.
 	std::string img_name = "out/capture_" + std::to_string(i) + ".bmp";
 	bool check = imwrite(img_name, frame);
+	if (check){
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Camera image taken!\n";
+	}else{
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Failed to write image!\n";
+	}
 
+	// If simulation mode is enabled, then update the displayed image on the screen->
 	#ifdef SIM
 	PlantModel::UpdateImage(img_name);
 	#endif
 
-	if(check)
-	{
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Camera image taken!\n";
-	}else
-	{
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Failed to write image!\n";
-	}
-
+	// Release the video capture.
 	capture.release();
 	VideoCapture* c = &capture;
 	c = NULL;
 
-	#endif
+	#endif // USE_CAMERA
+
 	return true;
 }

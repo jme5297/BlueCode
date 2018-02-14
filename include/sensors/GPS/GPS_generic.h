@@ -1,12 +1,12 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 #include <Parser.h>
 
 #ifdef SIM
 #include <PlantModel/PlantModel.h>
-#include <cstdlib>
-#include <ctime>
 #endif
 
 namespace sensors{

@@ -7,9 +7,7 @@ using namespace Plant;
 #endif
 
 GPS::GPS(){
-#ifdef SIM
-	srand(time(0));
-#endif
+
 }
 GPS::~GPS(){
 

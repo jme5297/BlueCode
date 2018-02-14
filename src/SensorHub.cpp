@@ -2,34 +2,47 @@
 
 using namespace sensors;
 
-SensorHub::SensorHub(){
-  lasers = {Laser(0), Laser(1)};
+SensorHub::SensorHub() {
+
+	// Initialize all of the class objects.
+	cam0 = Camera();
+	gps0 = GPS();
+
+	// Initialize two lasers.
+	lasers = { 
+		Laser(0), // Laser ID #0 represents the left laser.
+		Laser(1)  // Laser ID #1 represents the right laser.
+	};
 }
-SensorHub::~SensorHub(){
 
+bool SensorHub::InitAllSensors() {
+
+	// Run initialization routines for all Sensor objects.
+	bool gpsi = gps0.Init();
+	bool cami = cam0.Init();
+	bool las0i = lasers[0].Init();
+	bool las1i = lasers[1].Init();
+
+	// If all sensors initialized properly, return true.
+	if (gpsi && cami && las0i && las1i) {
+		return true;
+	}
+
+	return false;
 }
-bool SensorHub::InitAllSensors(){
 
-  bool gpsi = gps0.Init();
-  bool cami = cam0.Init();
+bool SensorHub::ResetAllSensors() {
 
-  if(gpsi && cami){
-    return true;
-  }
+	// Run reset routines for all sensors.
+	bool gpsr = gps0.Reset();
+	bool camr = cam0.Reset();
+	bool las0r = lasers[0].Reset();
+	bool las1r = lasers[1].Reset();
 
-  return false;
+	// If sensors reset properly, return true.
+	if (gpsr && camr && las0r && las1r) {
+		return true;
+	}
+
+	return false;
 }
-bool SensorHub::ResetAllSensors(){
-
-  bool gpsr = gps0.Reset();
-  bool camr = cam0.Reset();
-
-  if(gpsr && camr){
-    return true;
-  }
-
-  return false;
-}
-GPS& SensorHub::GetGPS(){ return gps0; }
-std::vector<Laser>& SensorHub::GetLasers(){ return lasers; }
-Camera& SensorHub::GetCamera(){ return cam0; }

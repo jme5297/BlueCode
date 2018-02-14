@@ -5,7 +5,6 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <sensors/Sensors_generic.h>
 
 namespace Control {
 	/*!
@@ -17,6 +16,30 @@ namespace Control {
 	enum VehicleMode {
 		Track, 	//!< Vehicle moves along two tracks, one on each side of the vehicle.
 		Wheel 	//!< Vehicle contains four wheels and has both speed/steering control.
+	};
+}
+
+namespace sensors {
+	struct Coordinate {
+	public:
+		double lon;
+		double lat;
+	};
+}
+
+namespace Navigation {
+
+	using namespace sensors;
+
+	/// Struct for storing information about movement from one Coordinate to the next.
+	struct Movement {
+		double heading; 	//!< Represents the heading from one coordinate to the next.
+		double distance; 	//!< Represents the distance from one coordinate to the next.
+	};
+	/// Struct that contains all information for a complete path through several Coordinates.
+	struct NavPlan {
+		std::vector<Coordinate> coordinates; 	//!< List of desired/recommended Coordinates.
+		std::vector<Movement> movements; 		//!< List of recommended Movements between Coordinates.
 	};
 }
 

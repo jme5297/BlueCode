@@ -1,12 +1,12 @@
 #pragma once
 #include <vector>
+#include <Parser.h>
+#include <Guidance.h>
 
 #ifdef SIM
 #include <PlantModel/PlantModel.h>
 #endif
 
-#include <Guidance.h>
-#include <Parser.h>
 
 /// Motor control and actuator control classes and members
 namespace Control{
@@ -33,14 +33,16 @@ namespace Control{
 		double GetWheelSpeed();					///< Get the normalized driving speed (0.0 to 1.0) for a wheel vehicle system.
 		double GetWheelSteering();				///< Get the normalized steering direction (-1.0 to 1.0) for a wheel vehicle system.
 
-		void Run(Guider& g, SensorHub& sh);						///< Main execution function for the Controller.
+		void Run(Guider* g, SensorHub* sh);						///< Main execution function for the Controller.
 		void SetCurrentVehicleMode(VehicleMode vm);	///< Set the current vehicle mode.
+		void SetMaxCameraAttempts(int i) { maxCameraAttempts = i; }
+
 		VehicleMode GetCurrentVehicleMode();		///< Get the currently operating vehicle mode.
 
 		void SetMaxTurnSteering(double d);
 
 		// Controls
-		void PayloadDrop(Guider& g, SensorHub& sh);
+		void PayloadDrop(Guider* g, SensorHub* sh);
 
 	protected:
 		// For track system
@@ -55,6 +57,8 @@ namespace Control{
 		GuidanceManeuver currentGuidanceManeuver;
 
 		double maxTurnSteering;
+
+		int maxCameraAttempts;
 
 	};
 }

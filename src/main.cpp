@@ -1,16 +1,22 @@
-#ifdef SIM
-#include <PlantModel/PlantModel.h>
-#endif
+// C++ Includes
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <string>
+#include <cstdlib>
+#include <ctime>
 
+// BlueCode Includes
 #include <Parser.h>
 #include <Navigation.h>
 #include <Guidance.h>
 #include <Control.h>
 #include <TimeModule.h>
-#include <iostream>
-#include <fstream>
-#include <chrono>
-#include <string>
+
+// Optional simulation include
+#ifdef SIM
+#include <PlantModel/PlantModel.h>
+#endif
 
 using namespace Navigation;
 using namespace Guidance;
@@ -20,40 +26,83 @@ using namespace Times;
 
 #ifdef SIM
 using namespace Plant;
+
+// Required because PlantModel is an event handler for Irrlicht.
 PlantModel pm;
 #endif
 
-// FUNCTION PROTOTYPES
-bool ProgramSetup(SensorHub& mySensorHub,
-	Navigator& myNavigator,
-	Guider& myGuider,
-	Controller& myController);
-void MainOperations(SensorHub& mySensorHub,
-	Navigator& myNavigator,
-	Guider& myGuider,
-	Controller& myController);
-void CleanupOperations();
-bool TestSensorConnectivity();
-Navigator InutNavPlanCoordinates();
-void PrintNavPlanInfo(Navigator& n, SensorHub& sh);
+//-----------------------------------------------------------
+//                                        Function Prototypes
+//-----------------------------------------------------------
 
 /*!
- * Main logic entrance.
- * This is where the main program enters.
+ * This class provides setup procedures, reading in information
+ * from data files, and initialization of al sensors.
+ * @param[in] mySensorHub	- Reference to the main sensor hub
+ * @param[in] myNavigator	- Reference to the main navigation class
+ * @param[in] myGuider		- Reference to the main guidance class
+ * @param[in] myController	- Reference to the main controls class.
  */
+bool ProgramSetup(SensorHub* mySensorHub,
+	Navigator* myNavigator,
+	Guider* myGuider,
+	Controller* myController);
+/*!
+ * Main operations loop of the program. This loops is ran every time-step.
+ * subroutines are only called at specific frequencies. This class runs continuously
+ * until specific flags are triggered from the Guidance class.
+ * @param[in] mySensorHub	- Reference to the main sensor hub
+ * @param[in] myNavigator	- Reference to the main navigation class
+ * @param[in] myGuider		- Reference to the main guidance class
+ * @param[in] myController	- Reference to the main controls class.
+ */
+void MainOperations(SensorHub* mySensorHub,
+	Navigator* myNavigator,
+	Guider* myGuider,
+	Controller* myController);
+/*!
+ * Stores any operations required to run after the completion of the program. This could
+ * pertain to ensuring the vehicle is not moving, and that the simulation window is
+ * properly torn down->
+ */
+void CleanupOperations();
+/*!
+ * Tests sensor connectivity of all sensors. This sensor connectivity function is ran
+ * during program setup and is used to ensure all sensors are properly reading information
+ * from the respective serial ports.
+ */
+bool TestSensorConnectivity();
+/*!
+ * [Deprecated] Old method to provide nav-plan coordinates to the program setup routines. This
+ * has been replaced with Config.txt for handling lat/lon target inputs. However, it's left in the
+ * code just in-case manual functionality is required to be added again later.
+ */
+Navigator InutNavPlanCoordinates();
+/*!
+ * Prints Nav Pan information after the nav plan has been constructed. This is to allow the user
+ * to see currently constructed/active plan in the event that changes must be made.
+ */
+void PrintNavPlanInfo(Navigator* n, SensorHub* sh);
+
+//-----------------------------------------------------------
+//                                           Program Entrance
+//-----------------------------------------------------------
 int main(int argc, char* argv[]) {
 
-	// Read main configuration file
+#ifdef SIM
+	srand(time(0));
+#endif
+
+	// Create all of the main structures to be passed to the respective subroutines.
+	Navigator NAV; Navigator* myNavigator = &NAV;
+	Guider GUID; Guider* myGuider = &GUID;
+	SensorHub SH; SensorHub* mySensorHub = &SH;
+	Controller CTRL; Controller* myController = &CTRL;
+
+	// Read all of the inputs in the configuration file.
 	Parser::ReadInputs("../Config.txt");
 
-	// Create all of the structures that we'll need.
-	Navigator myNavigator;
-	Guider myGuider;
-	SensorHub mySensorHub;
-	Controller myController;
-
-	// ProgramSetup handles constructing the nav plan, and ensuring
-	// that all sensors are connected. This will return true if setup has finished correctly.
+	// Initialize all sensors, test connectivity, and construct a Nav Plan->
 	bool setup = ProgramSetup(mySensorHub, myNavigator, myGuider, myController);
 
 	// If failure in setup at any given time, then program cannot continue.
@@ -61,167 +110,171 @@ int main(int argc, char* argv[]) {
 		std::cout << "Error setting up program. Exiting program.\n";
 		return 0;
 	}
-	else {
-		std::cout << "Nav Plan constructed successfully!\n\n";
-		PrintNavPlanInfo(myNavigator, mySensorHub);
-	}
 
-	// Begin main operations now.
+	// Begin main operations.
 	MainOperations(mySensorHub, myNavigator, myGuider, myController);
 
+	// Allow user to provide input before closing out of the Irrlicht window.
+#ifdef SIM
 	std::cout << "Press return to finish...";
 	std::cin.get();
+#endif
+
+	// Perform any necessary clean-up operations.
 	CleanupOperations();
 
 	return 0;
 }
 
-bool ProgramSetup(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuider, Controller& myController)
-{
-	std::cout << "\nHello!\n" << std::endl;
+//-----------------------------------------------------------
+//                                       Function Definitions
+//-----------------------------------------------------------
 
-	// Ensure all sensors are connected. If not, exit program.
+bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuider, Controller* myController)
+{
+	// Set all other configuration parameters that were defined in Config.txt.
+	myGuider->SetPayloadDropRadius(Parser::GetPayloadDropRadius());
+	myGuider->SetOffAngleDeviate(Parser::GetOffAngleDeviate());
+	myGuider->SetOffAngleAccepted(Parser::GetOffAngleAccepted());
+	myGuider->SetCalibrationTime(Parser::GetCalibrationTime());
+	myGuider->SetObstacleDivergenceTime(Parser::GetObstacleDivergenceTime());
+	myGuider->SetPayloadServoTime(Parser::GetPayloadServoTime());
+	myGuider->SetTurnFactorDPS(Parser::GetTurnFactorDPS());
+	myGuider->SetMaxVehicleSpeed(Parser::GetMaxSpeedMPS());
+	myGuider->SetMinimumMaintainTime(Parser::GetMinimumMaintainTime());
+	myGuider->SetObstacleDivergenceAngle(Parser::GetObstacleDivergenceAngle());
+	myController->SetCurrentVehicleMode(Parser::GetControlMode());
+	myController->SetMaxTurnSteering(Parser::GetMaxTurnSteering());
+	myController->SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());
+
+	// Set additional parameters if running the simulation->
+#ifdef SIM
+	mySensorHub->GetGPS()->SetGPSUncertainty(Parser::GetGPSUncertainty());
+	PlantModel::GetVehicle()->vehicleType = Parser::GetVehicleTypeSim();
+	PlantModel::GetVehicle()->heading = Parser::GetInitialHeading();
+	PlantModel::GetVehicle()->gps.coords.lat = Parser::GetInitialLatitude();
+	PlantModel::GetVehicle()->gps.coords.lon = Parser::GetInitialLongitude();
+#endif
+
+	// Ensure all sensors are connected.
 	std::cout << "Initializing sensor connections... \n";
-	if (!mySensorHub.InitAllSensors()) {
+	bool initialized = mySensorHub->InitAllSensors();
+	if (!initialized) {
 		std::cout << "ERROR: Not all sensors have initialized. Exiting program.\n";
 		return false;
 	}
-	else {
-		std::cout << "Connection with sensors established!\n";
-	}
 
-	// Construct our navigation plan once we know sensors are connected.
-	myNavigator.AddCoordinates(Parser::GetInputCoordinates());
-
-	// Make sure that there was at-least one nav plan coordinate added.
-	if (!myNavigator.IsPopulated()) {
+	// Add the waypoints provided from the configuration file, Config.txt, and
+	// make sure that there was at-least one nav plan coordinate added.
+	myNavigator->Initialize(mySensorHub);
+	myNavigator->AddCoordinates(Parser::GetInputCoordinates());
+	if (!myNavigator->IsPopulated()) {
 		std::cout << "ERROR: Nav Plan not properly populated. Exiting program.\n";
 		return false;
 	}
 
+	// If user has specified, optimize the initial nav-plan->
+	if (Parser::GetOptimize()) {
+		myNavigator->ConstructNavPlan(0);
+	}
+
 	// Come up with nominal Nav-Plan movement and distance info.
-	myNavigator.PopulateMovements(mySensorHub);
-
-	// Other configuration parameters.
-	myGuider.SetPayloadDropRadius(Parser::GetPayloadDropRadius());
-	myGuider.SetOffAngleDeviate(Parser::GetOffAngleDeviate());
-	myGuider.SetOffAngleAccepted(Parser::GetOffAngleAccepted());
-	myGuider.SetCalibrationTime(Parser::GetCalibrationTime());
-	myGuider.SetObstacleDivergenceTime(Parser::GetObstacleDivergenceTime());
-	myGuider.SetPayloadServoTime(Parser::GetPayloadServoTime());
-	myGuider.SetTurnFactorDPS(Parser::GetTurnFactorDPS());
-	myGuider.SetMaxVehicleSpeed(Parser::GetMaxSpeedMPS());
-	myGuider.SetMinimumMaintainTime(Parser::GetMinimumMaintainTime());
-	myGuider.SetObstacleDivergenceAngle(Parser::GetObstacleDivergenceAngle());
-	myController.SetCurrentVehicleMode(Parser::GetControlMode());
-	myController.SetMaxTurnSteering(Parser::GetMaxTurnSteering());
-	// myController.SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());
-
-#ifdef SIM
-	mySensorHub.GetGPS().SetGPSUncertainty(Parser::GetGPSUncertainty());
-	PlantModel::GetVehicle()->vehicleType = Parser::GetVehicleTypeSim();
-#endif
+	myNavigator->PopulateMovements(mySensorHub);
 
 	return true;
 }
 
-void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGuider, Controller& myController) {
+void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuider, Controller* myController) {
 
-	std::cout << "Running...\n";
-
+	// Initialize the plant model (and Irrlicht window).
 #ifdef SIM
 	pm.Initialize(
-		myNavigator.GetNavPlan().coordinates,
+		myNavigator->GetNavPlan().coordinates,
 		Parser::GetObstacles(),
-		myGuider.GetPayloadDropRadius());
-#ifdef DEBUG
+		myGuider->GetPayloadDropRadius());
+	// If DEBUG mode is active, ensure the TimeModule is not running on std::chrono.
+#ifdef DEBUG	
 	TimeModule::SetTimeSimDelta(Parser::GetTimeDelta());
 #endif
 #endif
 
+	// Set initial process frequencies and log the starting time of the program.
 	TimeModule::AddMilestone("BeginMainOpsTime");
 	TimeModule::InitProccessCounter("Nav", Parser::GetRefresh_NAV());
 	TimeModule::InitProccessCounter("Guid", Parser::GetRefresh_GUID());
 	TimeModule::InitProccessCounter("Ctrl", Parser::GetRefresh_CTRL());
 	TimeModule::InitProccessCounter("Write", Parser::GetRefresh_OUT());
 
+	// If in simulation mode, set the plant model process frequency.
 #ifdef SIM
 	TimeModule::InitProccessCounter("Plant", Parser::GetSimDelta());
-	PlantModel::GetVehicle()->heading = Parser::GetInitialHeading();
-	PlantModel::GetVehicle()->gps.coords.lat = Parser::GetInitialLatitude();
-	PlantModel::GetVehicle()->gps.coords.lon = Parser::GetInitialLongitude();
 #endif
 
+	// Open a file to save the output information the vehicle.
 	std::ofstream output;
 	output.open("out/data.csv");
 
-	// Main logic loop - I EXPECT TO BE HERE FOR A WHILE
+	//-----------------------------------------
+	//                     Main Logic loop
+	//-----------------------------------------
 	bool running = true;
 	while (running) {
 
+		// Run the plant model, and update the simulation time (if running DEBUG mode).
 #ifdef SIM
 #ifdef DEBUG
 		TimeModule::Run();
 #endif
 		if (TimeModule::ProccessUpdate("Plant")) {
 			// Passing GPS coordinates so the simulation can plot true vs. actual.
-			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"), mySensorHub.GetGPS().GetCurrentGPSCoordinates());
+			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"), mySensorHub->GetGPS()->GetCurrentGPSCoordinates());
 		}
 #endif
 
-		// Run guidance and Navigation (and pass the controller)
+		// Run Navigator.
 		if (TimeModule::ProccessUpdate("Nav")) {
-			myNavigator.Run(mySensorHub);
+			myNavigator->Run(mySensorHub);
 		}
 
+		// Run Guider.
 		if (TimeModule::ProccessUpdate("Guid")) {
-			myGuider.Run(myNavigator);
+			myGuider->Run(myNavigator);
 		}
 
-		// Run controls
+		// Run Controller.
 		if (TimeModule::ProccessUpdate("Ctrl")) {
-			myController.Run(myGuider, mySensorHub);
+			myController->Run(myGuider, mySensorHub);
 		}
 
-		double lon = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lon;
-		double lat = mySensorHub.GetGPS().GetCurrentGPSCoordinates().lat;
-
-		// Print info to screen
+		// If the "Print" process is intialized, then display basic information->
+		double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
+		double lat = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lat;
 		if (TimeModule::ProccessUpdate("Print")) {
 			std::cout << "t: " << TimeModule::GetElapsedTime("BeginMainOpsTime") <<
-				" --- lat: " << std::to_string(myNavigator.GetCoordinates().lat) << ", lon: " << myNavigator.GetCoordinates().lon << "\n";
+				" --- lat: " << std::to_string(myNavigator->GetCoordinates().lat) << ", lon: " << myNavigator->GetCoordinates().lon << "\n";
 		}
 
-		// Write plant model info to a file
+		// Write program information to the output data file.
 		if (TimeModule::ProccessUpdate("Write")) {
 			output << TimeModule::GetElapsedTime("BeginMainOpsTime") << ","
 				<< lon << ","
 				<< lat << ","
-				<< myNavigator.GetHeading() << "\n";
+				<< myNavigator->GetHeading() << "\n";
 		}
 
-		// Stop sim after a certain amount of time
-#ifdef SIM
-		double elapsed = TimeModule::GetElapsedTime("BeginMainOpsTime");
-		if (elapsed >= 3600.0) {
-			running = false;
-		}
-#endif
-
-		// Determine if we're all done here.
-		if (myGuider.IsNavPlanComplete()) {
-			//std::cout << "COMPLETE!\n";
+		// If the Guider determines the nav plan to be complete, then stop the main operations loop.
+		if (myGuider->IsNavPlanComplete()) {
 			running = false;
 		}
 	}
 
 	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Main operations complete.\n";
 	output.close();
-
 	return;
 }
 
 void CleanupOperations() {
+	// If the simulation is running, then drop the Irrlicht device.
 #ifdef SIM
 	PlantModel::Cleanup();
 #endif
@@ -282,11 +335,11 @@ Navigator InutNavPlanCoordinates() {
 	return navigator;
 }
 
-void PrintNavPlanInfo(Navigator& n, SensorHub& sh) {
+void PrintNavPlanInfo(Navigator* n, SensorHub* sh) {
 
-	std::vector<Coordinate> coords = n.GetWaypoints();
-	std::vector<Movement> moves = n.GetMovements();
-	Coordinate myLoc = sh.GetGPS().GetCurrentGPSCoordinates();
+	std::vector<Coordinate> coords = n->GetWaypoints();
+	std::vector<Movement> moves = n->GetMovements();
+	Coordinate myLoc = sh->GetGPS()->GetCurrentGPSCoordinates();
 
 	std::cout << "=======|| Current Nav-Plan ||=======\n";
 	std::cout << "Current location of (" + std::to_string(myLoc.lon) + "," + std::to_string(myLoc.lat) + ").\n";

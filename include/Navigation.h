@@ -2,6 +2,8 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
+#include <string>
 #include <sensors/SensorHub.h>
 #include <TimeModule.h>
 
@@ -10,18 +12,6 @@ namespace Navigation {
 
 	using namespace Times;
 	using namespace sensors;
-
-	/// Struct for storing information about movement from one Coordinate to the next.
-	struct Movement{
-		double heading; 	//!< Represents the heading from one coordinate to the next.
-		double distance; 	//!< Represents the distance from one coordinate to the next.
-	};
-
-	/// Struct that contains all information for a complete path through several Coordinates.
-	struct NavPlan{
-		std::vector<Coordinate> coordinates; 	//!< List of desired/recommended Coordinates.
-		std::vector<Movement> movements; 		//!< List of recommended Movements between Coordinates.
-	};
 
 	/*!
 	 * Navigation routines and Path-Planning.
@@ -33,19 +23,21 @@ namespace Navigation {
 	 */
 	class Navigator{
 	public:
-		Navigator();
+
+		/// Initialize all protected parameters in Navigation.
+		void Initialize(SensorHub* sh);
 
 		// Utility functions
-		bool IsPopulated();			///< Returns if Nav Plan has been populated with coordinates.
+		bool IsPopulated();										///< Returns if Nav Plan has been populated with coordinates.
 		void AddCoordinate(int index, double c1, double c2);	///< Add a coordinate to the Nav Plan's list of coordinates
-		void AddCoordinates(std::vector<Coordinate> coords);	//< Add a collection of coordinates to the list of coordinates
-		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords);		///< Calculate entire distance of a certain Nav Plan
+		void AddCoordinates(std::vector<Coordinate> coords);	///< Replace the current Nav Plan coordinates with a new vector of coordinates.
+		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords);	///< Calculate entire distance of a certain Nav Plan
 		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);		///< Calculate distane between two coordinates
 		Movement CalculateMovement(Coordinate c1, Coordinate c2);				///< Calculate heading & direction between two coordinates
 
 		// Nav Plan construction functions
-		void ConstructNavPlan(int);		///< Determine the most optimal path between Nav Plan coordinates
-		void PopulateMovements(SensorHub& sh);		///< Populate the required headings and distances between optimal path
+		void ConstructNavPlan(int);					///< Determine the most optimal path between Nav Plan coordinates
+		void PopulateMovements(SensorHub* sh);		///< Populate the required headings and distances between optimal path
 
 		// Nav Plan Accessor functions
 		NavPlan GetNavPlan();						///< Return the active Nav Plan
@@ -53,15 +45,13 @@ namespace Navigation {
 		std::vector<Movement> GetMovements();		///< Return the movements of the current Nav Plan
 
 		// Main execution loop
-		void Run(SensorHub& sh); 		///< Main execution loop for the Navigator.
+		void Run(SensorHub* sh); 		///< Main execution loop for the Navigator.
 
 		// Vehicle State functions.
 		double GetHeading(); 			///< Return vehicle heading.
 		Coordinate GetCoordinates();	///< Return vehicle GPS coordinates.
 		bool IsNavPlanComplete();		///< Check if NavPlan is complete.
-
-		/// Return information about the laser sensors.
-		std::vector<bool> GetPathObstructions(){ return isPathObstructed; }
+		std::vector<int> GetPathObstructions(){ return isPathObstructed; } ///< Return information about the laser sensor readings.
 	protected:
 
 		// Utility functions for nav plan construction
@@ -72,16 +62,13 @@ namespace Navigation {
 		int totalPermutations;												///< Total amount of permutations
 
 		// Current Nav Plan connected to this Nav Planner class
-		NavPlan activeNavPlan;			///< Current/active NavPlan
-		double vehicleHeading;			///< Current vehicle heading
-		Coordinate lastCoordinates;		///< Last trusted GPS coordinates
+		NavPlan activeNavPlan;				///< Current/active NavPlan
+		double vehicleHeading;				///< Current vehicle heading
+		Coordinate lastCoordinates;			///< Last trusted GPS coordinates
 		Coordinate curPos;
 
-		std::vector<bool> isPathObstructed; ///< Do the laser readings show an obstructed path?
-
+		std::vector<int> isPathObstructed;	///< Do the laser readings show an obstructed path?
 		double latToM = 111050.0;
 		double lonToM = 84397.0;
-
-		int GPSit = 0;
 	};
 }

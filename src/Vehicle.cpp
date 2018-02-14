@@ -1,5 +1,4 @@
 #include <PlantModel/Vehicle.h>
-#include <iostream>
 
 using namespace Plant;
 

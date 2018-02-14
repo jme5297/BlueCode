@@ -23,7 +23,8 @@ bool Laser::Reset(){
 bool Laser::ReadLaser(){
 
 	#ifdef SIM // sim mode
-	return PlantModel::GetVehicle()->lasers[ID].val;
+	Vehicle* v = PlantModel::GetVehicle();
+	return v->lasers[ID].val;
 	#else
 	// ACTUAL laser information here
 
