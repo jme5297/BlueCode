@@ -42,7 +42,7 @@ void Navigator::Run(SensorHub& sh)
 		double z = atan2(dy, dx) * 180.0 / PI;
 		double head = 90.0 - z;
 		head = (head < 0.0) ? 360.0 + head : head;
-		vehicleHeading = head + (-0.5 + ((double)rand() / (RAND_MAX))) * 5.0;
+		vehicleHeading = head + (-0.5 + ((double)rand() / (RAND_MAX))) * Parser::GetGPSHeadingUncertainty();
 		lastCoordinates = curPos;
 #else
 		// Actual data goes here
@@ -229,11 +229,11 @@ void Navigator::AddCoordinates(std::vector<Coordinate> coords)
 { activeNavPlan.coordinates = coords; }
 
 double Navigator::DistanceBetweenCoordinates(Coordinate c1, Coordinate c2)
-{ 
-	return pow( 
-		pow( (c2.lat - c1.lat)*latToM ,2.0) + 
+{
+	return pow(
+		pow( (c2.lat - c1.lat)*latToM ,2.0) +
 		pow( (c2.lon - c1.lon)*lonToM ,2.0)
-		,0.5); 
+		,0.5);
 }
 
 std::vector<Coordinate> Navigator::GetWaypoints()

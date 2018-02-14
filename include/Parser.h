@@ -76,6 +76,7 @@ public:
 	static double GetTimeDelta() { return TimeDelta; }
 	static double GetSimDelta() { return SimDelta; }
 	static double GetGPSUncertainty() { return GPSUncertainty; }
+	static double GetGPSHeadingUncertainty() { return GPSHeadingUncertainty; }
 	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
 	static VehicleType GetVehicleTypeSim() { return VehicleTypeSim; }
 	static double GetMaxWheelAngleDegrees() { return MaxWheelAngleDegrees; }
@@ -113,6 +114,7 @@ protected:
 	static double TimeDelta;
 	static double SimDelta;
 	static double GPSUncertainty;
+	static double GPSHeadingUncertainty;
 	static double MaxSpeedMPS;
 	static VehicleType VehicleTypeSim;
 	static double MaxWheelAngleDegrees;

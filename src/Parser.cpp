@@ -31,6 +31,7 @@ std::vector<pLas> Parser::Lasers;
 double Parser::TimeDelta;
 double Parser::SimDelta;
 double Parser::GPSUncertainty;
+double Parser::GPSHeadingUncertainty;
 VehicleType Parser::VehicleTypeSim;
 double Parser::MaxWheelAngleDegrees;
 double Parser::VehicleWidth;
@@ -209,6 +210,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> GPSUncertainty;
+			continue;
+		}
+		else if (s.find("GPSHeadingUncertainty") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> GPSHeadingUncertainty;
 			continue;
 		}
 		else if (s.find("MaxSpeedMPS") != std::string::npos) {

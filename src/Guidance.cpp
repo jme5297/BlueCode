@@ -184,6 +184,9 @@ void Guider::Run(Navigator& n) {
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Maintaining course for " << std::to_string(gm.maintainTime) << " seconds.\n";
 		}
 	}
+
+
+
 	/* ----------- PERFORM --------------
 	 * This logic is in charge of making decisions about the current state of
 	 * the current guidance maneuver in the buffer.
@@ -196,7 +199,11 @@ void Guider::Run(Navigator& n) {
 		if (TimeModule::GetElapsedTime("Calibration_" + std::to_string(GuidanceManeuverIndex)) >= calibrationTime) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Calibration complete.\n";
-			n.ConstructNavPlan(coordinateIndex);
+
+			if(Parser::GetOptimize()){
+				n.ConstructNavPlan(coordinateIndex);
+			}
+
 		}
 		break;
 
@@ -221,9 +228,6 @@ void Guider::Run(Navigator& n) {
 
 	case ManeuverState::AvoidDiverge:
 	{
-		double dtTurn = TimeModule::GetElapsedTime("Turn_" + std::to_string(GuidanceManeuverIndex));
-		man->currentTurnAngle = turnFactorDPS * dtTurn;
-		man->hasBeganDiverging = true;
 		if (man->currentTurnAngle >= man->requestedTurnAngle) {
 			man->hasBeganDiverging = false;
 			man->speed = 1.0;
@@ -232,6 +236,10 @@ void Guider::Run(Navigator& n) {
 				man->done = true;
 				std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Done maintaining course.\n";
 			}
+		}else{
+			double dtTurn = TimeModule::GetElapsedTime("Turn_" + std::to_string(GuidanceManeuverIndex));
+			man->currentTurnAngle = turnFactorDPS * dtTurn;
+			man->hasBeganDiverging = true;
 		}
 		break;
 	}

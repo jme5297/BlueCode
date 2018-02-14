@@ -46,8 +46,8 @@ IMeshSceneNode * error;
 * This function is also in charge of initializing all Irrlicht capabilities.
 */
 void PlantModel::Initialize(
-	std::vector<Coordinate> coords, 
-	std::vector<Obstacle> obs, 
+	std::vector<Coordinate> coords,
+	std::vector<Obstacle> obs,
 	double pldist) {
 
 	veh.Initialize();
@@ -155,7 +155,7 @@ void PlantModel::Initialize(
 		payloads[i]->getMaterial(0).NormalizeNormals = true;
 		payloads[i]->setPosition(vector3df(LonToX(coords[i].lon), 0, LatToZ(coords[i].lat)));
 	}
-	
+
 	// Draw all of the obstacles.
 	for (int i = 0; i < obs.size(); i++) {
 		obstacles.push_back(
@@ -175,7 +175,7 @@ void PlantModel::Initialize(
 		obstacles[i]->setTriangleSelector(selector);
 		selector->drop();
 	}
-	
+
 	// Draw GPS circle error
 	error = smgr->addSphereSceneNode(Parser::GetGPSUncertainty()*0.5, 32);
 	error->getMaterial(0).Wireframe = true;
@@ -366,7 +366,7 @@ void PlantModel::UpdateEngine(Coordinate coords)
 			vehicleModel->getPosition() + vector3df(dx, 0, dz),
 			SColor(255, 50, 255, 0)
 		);
-		
+
 		error->setPosition(vehicleModel->getPosition() -vector3df(0, vehicleModel->getPosition().Y * 0.9, 0));
 
 		// Check lasers (and draw lines for lasers in 3d space)
@@ -440,9 +440,9 @@ bool PlantModel::OnEvent(const SEvent &event)
 		else if (ev->Key == KEY_RIGHT)
 			m_Rot.Y += 0.1f;
 		else if (ev->Key == KEY_UP)
-			m_Rot.X += 0.1f;
+			m_Rad = (m_Rad > 3.0) ? 0.75*m_Rad : m_Rad;
 		else if (ev->Key == KEY_DOWN)
-			m_Rot.X -= 0.1f;
+			m_Rad = (m_Rad < 50.0) ? 1.5*m_Rad : m_Rad;
 
 		return true;
 	}

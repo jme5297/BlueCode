@@ -131,8 +131,8 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 
 #ifdef SIM
 	pm.Initialize(
-		myNavigator.GetNavPlan().coordinates, 
-		Parser::GetObstacles(), 
+		myNavigator.GetNavPlan().coordinates,
+		Parser::GetObstacles(),
 		myGuider.GetPayloadDropRadius());
 #ifdef DEBUG
 	TimeModule::SetTimeSimDelta(Parser::GetTimeDelta());
@@ -164,6 +164,7 @@ void MainOperations(SensorHub& mySensorHub, Navigator& myNavigator, Guider& myGu
 		TimeModule::Run();
 #endif
 		if (TimeModule::ProccessUpdate("Plant")) {
+			// Passing GPS coordinates so the simulation can plot true vs. actual.
 			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"), mySensorHub.GetGPS().GetCurrentGPSCoordinates());
 		}
 #endif
