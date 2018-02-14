@@ -1,12 +1,10 @@
 #pragma once
 #include <vector>
-#include <Parser.h>
 #include <Guidance.h>
 
 #ifdef SIM
 #include <PlantModel/PlantModel.h>
 #endif
-
 
 /// Motor control and actuator control classes and members
 namespace Control{

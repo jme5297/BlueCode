@@ -1,7 +1,5 @@
 #pragma once
-#include <cmath>
 #include <Navigation.h>
-#include <TimeModule.h>
 
 /// All guidance-related classes and members
 namespace Guidance {

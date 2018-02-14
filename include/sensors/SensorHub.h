@@ -1,5 +1,4 @@
 #pragma once
-#include <Parser.h>
 #include <sensors/GPS/GPS_generic.h>
 #include <sensors/Laser/Laser_generic.h>
 #include <sensors/Camera/Camera_generic.h>
@@ -12,7 +11,7 @@ namespace sensors {
 	 * references to all of the sensors on-board the vehicle, and all communications
 	 * happen with the sensors directly through this class. Class definitions commonly
 	 * have their own file, where struct definitions are stored in Parser.h.
-	 * 
+	 *
 	 * The following sensors communicate through the following:
 	 *  - **GPS**: Through the GetGPS() function
 	 *  - **Lasers**: Through the GetLasers() function
@@ -20,8 +19,8 @@ namespace sensors {
 	 */
 	class SensorHub {
 	public:
-		/*! 
-		 * The constructor handles the constructor for all of the 
+		/*!
+		 * The constructor handles the constructor for all of the
 		 * sensor classes.
 		 */
 		SensorHub();

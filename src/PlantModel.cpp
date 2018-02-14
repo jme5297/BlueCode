@@ -41,14 +41,13 @@ vector3df m_DragStartRotation;     // Rotation when drag started
 IAnimatedMeshSceneNode* terrain;
 ITriangleSelector* selector;
 IMeshSceneNode * error;
+Coordinate GPScoords;
+double GPSheading;
 
 /*! Initializes the PlantModel class.
 * This function is also in charge of initializing all Irrlicht capabilities.
 */
-void PlantModel::Initialize(
-	std::vector<Coordinate> coords,
-	std::vector<Obstacle> obs,
-	double pldist) {
+void PlantModel::Initialize() {
 
 	veh.Initialize();
 
@@ -117,13 +116,12 @@ void PlantModel::Initialize(
 	skin->setFont(font);
 	skin->setFont(guienv->getBuiltInFont(), EGDF_TOOLTIP);
 
-
-	// Add vehicle information->
+	// Add vehicle information
 	vehicleInfo = guienv->addStaticText(L"Vehicle Information:",
 		rect<s32>((s32)(screenSize.Width * 0.75), (s32)(screenSize.Height * 0.75), screenSize.Width - 10, screenSize.Height - 10), true);
 	vehicleInfo->setBackgroundColor(SColor(100, 255, 255, 255));
 
-	// Add terrain->
+	// Add terrain
 	terrain = smgr->addAnimatedMeshSceneNode(smgr->getMesh("irrlicht/media/field.obj"));
 	terrain->setRotation(vector3df(0, -226.0, 0));
 	terrain->setMaterialTexture(0, driver->getTexture("irrlicht/media/field.png"));
@@ -133,19 +131,24 @@ void PlantModel::Initialize(
 	selector->drop();
 	terrain->setID(0);
 
-	// Add very far terrain->
-	// IMeshSceneNode* farTerrain = smgr->addCubeSceneNode(1.0, 0, 0, vector3df(), vector3df(), vector3df(1000, 0.0, 1000));
-	// smgr->getMeshManipulator()->setVertexColors(farTerrain->getMesh(), SColor(255, 53, 96, 64));
-	// farTerrain->setMaterialFlag(EMF_LIGHTING, false);
-
 	// Add lights.
-	mainLight = smgr->addLightSceneNode(0, vector3df(0, 10, 0), SColorf(0.1, 0.1, 0.1));
+	mainLight = smgr->addLightSceneNode(0, vector3df(10, 10, 10), SColorf(0.1, 0.1, 0.1));
 	mainLight->setLightType(E_LIGHT_TYPE::ELT_DIRECTIONAL);
 	smgr->setAmbientLight(SColorf(0.2, 0.2, 0.2));
 
 	// Add skybox.
 	scene::ISceneNode* skydome = smgr->addSkyDomeSceneNode(driver->getTexture("irrlicht/media/skydome.jpg"), 16, 8, 0.95f, 2.0f);
 
+	// Draw GPS circle error
+	error = smgr->addSphereSceneNode(Parser::GetGPSUncertainty()*0.5, 32);
+	error->getMaterial(0).Wireframe = true;
+	error->setMaterialFlag(EMF_LIGHTING, false);
+	smgr->getMeshManipulator()->setVertexColors(error->getMesh(), SColor(255, 0, 100, 0));
+	error->getMaterial(0).NormalizeNormals = true;
+	error->setScale(vector3df(1.0, 0.001, 1.0));
+}
+void PlantModel::DrawPayloadLocations(std::vector<Coordinate> coords, double pldist)
+{
 	// Draw all of the payload locations.
 	for (int i = 0; i < coords.size(); i++) {
 		payloads.push_back(smgr->addSphereSceneNode(pldist));
@@ -155,7 +158,9 @@ void PlantModel::Initialize(
 		payloads[i]->getMaterial(0).NormalizeNormals = true;
 		payloads[i]->setPosition(vector3df(LonToX(coords[i].lon), 0, LatToZ(coords[i].lat)));
 	}
-
+}
+void PlantModel::DrawObstacles(std::vector<Obstacle> obs)
+{
 	// Draw all of the obstacles.
 	for (int i = 0; i < obs.size(); i++) {
 		obstacles.push_back(
@@ -175,16 +180,11 @@ void PlantModel::Initialize(
 		obstacles[i]->setTriangleSelector(selector);
 		selector->drop();
 	}
-
-	// Draw GPS circle error
-	error = smgr->addSphereSceneNode(Parser::GetGPSUncertainty()*0.5, 32);
-	error->getMaterial(0).Wireframe = true;
-	error->setMaterialFlag(EMF_LIGHTING, false);
-	smgr->getMeshManipulator()->setVertexColors(error->getMesh(), SColor(255, 0, 100, 0));
-	error->getMaterial(0).NormalizeNormals = true;
-	error->setScale(vector3df(1.0, 0.001, 1.0));
 }
-
+void PlantModel::SendGPSData(Coordinate c, double h){
+	GPScoords = c;
+	GPSheading = h;
+}
 void PlantModel::Cleanup() {
 	device->drop();
 }
@@ -214,7 +214,7 @@ void PlantModel::UpdateImage(std::string str)
 /**
  * This class handles the physics update of the plant model.
  */
-void PlantModel::Run(double dt, Coordinate c) {
+void PlantModel::Run(double dt) {
 
 	double dx;
 	double dy;
@@ -290,7 +290,7 @@ void PlantModel::Run(double dt, Coordinate c) {
 	GetVehicle()->gps.coords.lat += dy / latToM;
 
 	// Update the Irrlicht engine.
-	UpdateEngine(c);
+	UpdateEngine();
 
 	return;
 }
@@ -299,7 +299,7 @@ void PlantModel::Run(double dt, Coordinate c) {
  * Handles updating of the Irrlicht engine. Some information is also passed back
  * to the vehicle (ex: obstacle detection).
  */
-void PlantModel::UpdateEngine(Coordinate coords)
+void PlantModel::UpdateEngine()
 {
 	/// @todo Determine if this conditional is necessary.
 	if (device->run())
@@ -357,16 +357,30 @@ void PlantModel::UpdateEngine(Coordinate coords)
 			vehicleModel->getPosition() + core::vector3df(sin(PI / 180.0 * head)*5.0, 0.0f, cos(PI / 180.0 * head)*5.0),
 			SColor(255, 0, 255, 255)
 		);
+		// Draw a line that displays the vehicle's current GPS based heading.
+		driver->draw3DLine(
+			vehicleModel->getPosition(),
+			vehicleModel->getPosition() + core::vector3df(sin(PI / 180.0 * GPSheading)*5.0, 0.0f, cos(PI / 180.0 * GPSheading)*5.0),
+			SColor(255, 50, 255, 100)
+		);
 
 		// GPS error
-		double dx = (veh.gps.coords.lon - coords.lon) * lonToM;
-		double dz = (veh.gps.coords.lat - coords.lat) * latToM;
+		double dx = -(veh.gps.coords.lon - GPScoords.lon) * lonToM;
+		double dz = -(veh.gps.coords.lat - GPScoords.lat) * latToM;
 		driver->draw3DLine(
 			vehicleModel->getPosition(),
 			vehicleModel->getPosition() + vector3df(dx, 0, dz),
 			SColor(255, 50, 255, 0)
 		);
-
+		/*
+		for(int i = 0; i < payloads.size(); i++){
+			driver->draw3DLine(
+				vehicleModel->getPosition() + vector3df(dx, 0, dz),
+				vehicleModel->getPosition() + payloads[i]->getPosition(),
+				SColor(255, 50, 255, 0)
+			);
+		}
+		*/
 		error->setPosition(vehicleModel->getPosition() -vector3df(0, vehicleModel->getPosition().Y * 0.9, 0));
 
 		// Check lasers (and draw lines for lasers in 3d space)

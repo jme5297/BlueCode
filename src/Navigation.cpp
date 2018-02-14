@@ -14,8 +14,6 @@ void Navigator::Initialize(SensorHub* sh)
 	vehicleHeading = 0.0;
 	curPos = sh->GetGPS()->GetCurrentGPSCoordinates();
 	lastCoordinates = curPos;
-
-	TimeModule::InitProccessCounter("GPS", Parser::GetRefresh_GPS());
 }
 /**
  *
@@ -36,23 +34,11 @@ void Navigator::Run(SensorHub* sh)
 		}
 	}
 
-	if (TimeModule::ProccessUpdate("GPS")) {
-#ifdef SIM
-		curPos = PlantModel::GetVehicle()->gps.coords;
-		Coordinate c1 = lastCoordinates;
-		Coordinate c2 = curPos;
-		double dx = c2.lon - c1.lon;
-		double dy = c2.lat - c1.lat;
-		double z = atan2(dy, dx) * 180.0 / PI;
-		double head = 90.0 - z;
-		head = (head < 0.0) ? 360.0 + head : head;
-		vehicleHeading = head + (-0.5 + ((double)rand() / (RAND_MAX))) * Parser::GetGPSHeadingUncertainty();
-		lastCoordinates = curPos;
-#else
-		// Actual data goes here
-
-#endif
-	}
+	// Run the GPS.
+	lastCoordinates = curPos;
+	sh->GetGPS()->Run();
+	curPos = sh->GetGPS()->GetCurrentGPSCoordinates();
+	vehicleHeading = sh->GetGPS()->GetGPSGroundCourse();
 
 	return;
 }
@@ -98,7 +84,7 @@ void Navigator::ConstructNavPlan(int cInd)
 	for (int i = cInd; i < activeNavPlan.coordinates.size(); i++) {
 		coordsToGo.push_back(activeNavPlan.coordinates[i]);
 	}
-	
+
 	GenerateAllCoordinatePermutations(coordsToGo, 0);
 
 	std::cout << std::to_string(totalPermutations) + " possible permutations.\n";

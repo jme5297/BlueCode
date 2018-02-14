@@ -58,7 +58,7 @@ bool Camera::TakeImage(int i){
 
 	// If simulation mode is enabled, then update the displayed image on the screen->
 	#ifdef SIM
-	PlantModel::UpdateImage(img_name);
+	// PlantModel::UpdateImage(img_name);
 	#endif
 
 	// Release the video capture.

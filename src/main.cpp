@@ -8,10 +8,10 @@
 
 // BlueCode Includes
 #include <Parser.h>
+#include <TimeModule.h>
 #include <Navigation.h>
 #include <Guidance.h>
 #include <Control.h>
-#include <TimeModule.h>
 
 // Optional simulation include
 #ifdef SIM
@@ -188,12 +188,12 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 
 	// Initialize the plant model (and Irrlicht window).
 #ifdef SIM
-	pm.Initialize(
-		myNavigator->GetNavPlan().coordinates,
-		Parser::GetObstacles(),
-		myGuider->GetPayloadDropRadius());
-	// If DEBUG mode is active, ensure the TimeModule is not running on std::chrono.
-#ifdef DEBUG	
+	// Initialize is a non-static function.
+	pm.Initialize();
+	PlantModel::DrawObstacles(Parser::GetObstacles());
+	PlantModel::DrawPayloadLocations(myNavigator->GetNavPlan().coordinates,myGuider->GetPayloadDropRadius());
+	// If debug mode is active, ensure the TimeModule is not running on std::chrono.
+#ifdef DEBUG
 	TimeModule::SetTimeSimDelta(Parser::GetTimeDelta());
 #endif
 #endif
@@ -227,7 +227,10 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 #endif
 		if (TimeModule::ProccessUpdate("Plant")) {
 			// Passing GPS coordinates so the simulation can plot true vs. actual.
-			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"), mySensorHub->GetGPS()->GetCurrentGPSCoordinates());
+			PlantModel::SendGPSData(
+				mySensorHub->GetGPS()->GetCurrentGPSCoordinates(),
+				mySensorHub->GetGPS()->GetGPSGroundCourse());
+			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"));
 		}
 #endif
 

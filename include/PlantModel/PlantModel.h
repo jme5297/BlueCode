@@ -38,10 +38,9 @@ namespace Plant {
 	public:
 
 		/// Used to initialize the plant model and the Irrlicht engine.
-		void Initialize(
-			std::vector<sensors::Coordinate> coords, 
-			std::vector<Obstacle> obs,
-			double pldist);
+		void Initialize();
+		static void DrawPayloadLocations(std::vector<Coordinate> coords, double pldist);
+		static void DrawObstacles(std::vector<Obstacle> obs);
 
 		/// Shuts down the plant model and the Irrlicht device that was created.
 		static void Cleanup();
@@ -51,8 +50,9 @@ namespace Plant {
 		 * for both wheel vehicles and track vehicles. Ideally, track vehicles should be able to
 		 * pivot around the centroid. This capability should be built in.
 		 */
-		static void Run(double dt, Coordinate c);         ///< Main execution function for the plant model.
-		static void UpdateEngine(Coordinate);         ///< Updates the Irrlicht 3d engine.
+		static void Run(double dt);         ///< Main execution function for the plant model.
+		static void UpdateEngine();         ///< Updates the Irrlicht 3d engine.
+		static void SendGPSData(Coordinate, double);	///< Draws GPS information
 		static Coordinate GetGPSCoords();   ///< Get the vehicle's current GPS coordinates.
 		static Vehicle * GetVehicle();      ///< Returns a pointer to the main vehicle object in the simulation.
 		static double GetElapsedSeconds();  ///< Get elapsed seconds since the plant model was initialized.

@@ -5,6 +5,9 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
 
 namespace Control {
 	/*!

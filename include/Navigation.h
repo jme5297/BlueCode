@@ -1,11 +1,5 @@
 #pragma once
-#include <vector>
-#include <algorithm>
-#include <cmath>
-#include <iostream>
-#include <string>
 #include <sensors/SensorHub.h>
-#include <TimeModule.h>
 
 /// All navigation-related classes and members
 namespace Navigation {
