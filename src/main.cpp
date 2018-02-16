@@ -1,5 +1,6 @@
 // C++ Includes
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <chrono>
 #include <string>
@@ -186,14 +187,17 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 
 void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuider, Controller* myController) {
 
-	// Initialize the plant model (and Irrlicht window).
+	// Initialize the plant model (and Irrlicht window, if desired).
 #ifdef SIM
 	// Initialize is a non-static function.
 	pm.Initialize();
+	#ifdef USE_IRRLICHT
 	PlantModel::DrawObstacles(Parser::GetObstacles());
 	PlantModel::DrawPayloadLocations(myNavigator->GetNavPlan().coordinates,myGuider->GetPayloadDropRadius());
-	// If debug mode is active, ensure the TimeModule is not running on std::chrono.
+	#endif
 #endif
+
+	// If debug mode is active, ensure the TimeModule is not running on std::chrono.	
 #ifdef DEBUG
 	TimeModule::SetTimeSimDelta(Parser::GetTimeDelta());
 #endif
@@ -228,10 +232,14 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 		// Run the plant model, and update the simulation time (if running DEBUG mode).
 #ifdef SIM
 		if (TimeModule::ProccessUpdate("Plant")) {
+
+			#ifdef USE_IRRLICHT
 			// Passing GPS coordinates so the simulation can plot true vs. actual.
 			PlantModel::SendGPSData(
 				mySensorHub->GetGPS()->GetCurrentGPSCoordinates(),
 				mySensorHub->GetGPS()->GetGPSGroundCourse());
+			#endif
+
 			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"));
 		}
 #endif
@@ -256,13 +264,15 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 		double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
 		double lat = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lat;
 		if (TimeModule::ProccessUpdate("Print")) {
-			std::cout << "t: " << TimeModule::GetElapsedTime("BeginMainOpsTime") <<
-				" --- lat: " << std::to_string(myNavigator->GetCoordinates().lat) << ", lon: " << myNavigator->GetCoordinates().lon << "\n";
+			std::cout << 
+				"t: " << std::fixed << std::setprecision(5) << TimeModule::GetElapsedTime("BeginMainOpsTime") <<
+				" --- lat: " << std::setprecision(12) << myNavigator->GetCoordinates().lat << 
+				", lon: " << myNavigator->GetCoordinates().lon << "\n";
 		}
 
 		// Write program information to the output data file.
 		if (TimeModule::ProccessUpdate("Write")) {
-			output << TimeModule::GetElapsedTime("BeginMainOpsTime") << ","
+			output << TimeModule::GetElapsedTime("BeginMainOpsTime") << "," << std::setprecision(12)
 				<< lon << ","
 				<< lat << ","
 				<< myNavigator->GetHeading() << "\n";

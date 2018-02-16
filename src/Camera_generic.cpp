@@ -57,7 +57,7 @@ bool Camera::TakeImage(int i){
 	}
 
 	// If simulation mode is enabled, then update the displayed image on the screen->
-	#ifdef SIM
+	#ifdef SIM && USE_IRRLICHT
 	PlantModel::UpdateImage(img_name);
 	#endif
 

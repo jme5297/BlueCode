@@ -38,6 +38,9 @@ bool GPS::Init(){
 	return true;
 }
 void GPS::Run(){
+
+	double PI = 3.14159265;
+	
 	#ifdef SIM
 	if (TimeModule::ProccessUpdate("GPS")) {
 		// Calculate GPS.

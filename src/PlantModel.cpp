@@ -15,6 +15,7 @@ double PlantModel::lonToM = 84397.0;
 // ---------------------
 //		IRRLICHT
 // ---------------------
+#ifdef USE_IRRLICHT
 using namespace irr;
 using namespace core;
 using namespace scene;
@@ -43,6 +44,8 @@ ITriangleSelector* selector;
 IMeshSceneNode * error;
 Coordinate GPScoords;
 double GPSheading;
+bool deviceDropped;
+#endif
 
 /*! Initializes the PlantModel class.
 * This function is also in charge of initializing all Irrlicht capabilities.
@@ -58,11 +61,14 @@ void PlantModel::Initialize() {
 	initLat = Parser::GetInitialLatitude();
 	initLon = Parser::GetInitialLongitude();
 
+  #ifdef USE_IRRLICHT
+
 	// Determine screen resolution and create the main Irrlicht device.
 	device = createDevice(video::EDT_OPENGL, dimension2d<u32>(1280, 720), 16, false, false, false, this);
 	if (!device) { return; }
 	device->setWindowCaption(L"BlueCode Simulator");
 	device->setResizable(true);
+  deviceDropped = false;
 
 	// This is meant for debugging to see what directory Irrlicht starts in->
 	path p = device->getFileSystem()->getWorkingDirectory();
@@ -146,7 +152,11 @@ void PlantModel::Initialize() {
 	smgr->getMeshManipulator()->setVertexColors(error->getMesh(), SColor(255, 0, 100, 0));
 	error->getMaterial(0).NormalizeNormals = true;
 	error->setScale(vector3df(1.0, 0.001, 1.0));
+
+  #endif
 }
+
+#ifdef USE_IRRLICHT
 void PlantModel::DrawPayloadLocations(std::vector<Coordinate> coords, double pldist)
 {
 	// Draw all of the payload locations.
@@ -185,10 +195,6 @@ void PlantModel::SendGPSData(Coordinate c, double h){
 	GPScoords = c;
 	GPSheading = h;
 }
-void PlantModel::Cleanup() {
-	device->drop();
-}
-
 /**
  * Updates the image being displayed on the corner of the Irrlicht window. This functionality
  * was added to ensure that pictures were being taken by the camera if USE_CAMERA was defined.
@@ -209,6 +215,18 @@ void PlantModel::UpdateImage(std::string str)
 		myImage->setScaleImage(true);
 		myImage->setVisible(true);
 	}
+}
+#endif
+
+void PlantModel::Cleanup() {
+
+  #ifdef USE_IRRLICHT
+  if(!deviceDropped){
+    device->drop();
+    deviceDropped = true;
+  }
+  #endif
+
 }
 
 /**
@@ -290,7 +308,11 @@ void PlantModel::Run(double dt) {
 	GetVehicle()->gps.coords.lat += dy / latToM;
 
 	// Update the Irrlicht engine.
-	UpdateEngine();
+  #ifdef USE_IRRLICHT
+  if(!deviceDropped){
+  	UpdateEngine();
+  }
+  #endif
 
 	return;
 }
@@ -299,6 +321,7 @@ void PlantModel::Run(double dt) {
  * Handles updating of the Irrlicht engine. Some information is also passed back
  * to the vehicle (ex: obstacle detection).
  */
+#ifdef USE_IRRLICHT
 void PlantModel::UpdateEngine()
 {
 	/// @todo Determine if this conditional is necessary.
@@ -422,7 +445,14 @@ void PlantModel::UpdateEngine()
 
 		// Push the scene to the render buffer.
 		driver->endScene();
-	}
+	}else{
+    device->drop();
+    deviceDropped = true;
+    // Check lasers (and draw lines for lasers in 3d space)
+    for (int i = 0; i < veh.lasers.size(); i++) {
+      veh.lasers[i].val = false;
+    }
+  }
 }
 
 vector3df PlantModel::getPositionOnSphere(f32 angleH, f32 angleV, f32 radius)
@@ -499,6 +529,7 @@ bool PlantModel::OnEvent(const SEvent &event)
 
 	return false;
 }
+#endif
 
 void PlantModel::PrintStatus() {
 	std::cout << "t: " << GetElapsedSeconds() <<

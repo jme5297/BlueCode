@@ -5,6 +5,7 @@ project(BlueCode)
 set(CMAKE_CXX_STANDARD 11)
 
 set(SIM false CACHE BOOL "Compile with a plant model and a simulated vehicle")
+set(USE_IRRLICHT false CACHE BOOL "Compile with a plant model and a simulated vehicle")
 set(DEBUG false CACHE BOOL "Compile without std::chrono dependencies (simple counter for clock)")
 set(USE_CAMERA false CACHE BOOL "Use the default camera for actual photos. REQUIRES OPENCV.")
 
@@ -12,37 +13,46 @@ SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 # Compile the plant/vehicle model.
 if(${SIM})
-  message(STATUS "Compiling #SIM mode.")
-  FIND_PACKAGE(OpenGL)
-  FIND_PACKAGE(Irrlicht)
-
-  message(STATUS "${IRRLICHT_LIBRARIES}")
-
-  IF (APPLE)
-    message(STATUS "Adding additional Apple libraries.")
-  	FIND_LIBRARY(CARBON_LIBRARY Carbon)
-  	FIND_LIBRARY(COCOA_LIBRARY Cocoa)
-  	FIND_LIBRARY(IOKIT_LIBRARY IOKit)
-  	SET(OSX_LIBRARIES ${CARBON_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY})
-  ENDIF (APPLE)
-
-  if(UNIX AND NOT APPLE)
-    message(STATUS "Adding additional linux libraries.")
-    SET(LINUX_LIBRARIES X11 Xxf86vm )
-  endif()
-
-  if (MSVC_IDE)
-      # hack to get around the "Debug" and "Release" directories cmake tries to add on Windows
-      FILE(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/Debug)
-      FILE(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/Release)
-      message(STATUS "Running on windows. Copying over Irrlicht DLL...")
-      FILE(COPY ${PROJECT_SOURCE_DIR}/irrlicht/bin/Win32-VisualStudio/Irrlicht.dll DESTINATION ${PROJECT_BINARY_DIR}/Debug)
-      FILE(COPY ${PROJECT_SOURCE_DIR}/irrlicht/bin/Win32-VisualStudio/Irrlicht.dll DESTINATION ${PROJECT_BINARY_DIR}/Release)
-  endif()
-
   add_definitions(-D SIM)
-  INCLUDE_DIRECTORIES(${IRRLICHT_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
-endif()
+  message(STATUS "Compiling #SIM mode.")
+
+  # Compile the 3d engine along with the simulation.
+  if(${USE_IRRLICHT})
+
+    add_definitions(-D USE_IRRLICHT)
+    message(STATUS "Adding #USE_IRRLICHT dependencies.")
+
+    FIND_PACKAGE(OpenGL)
+    FIND_PACKAGE(Irrlicht)
+    message(STATUS "${IRRLICHT_LIBRARIES}")
+
+    IF (APPLE)
+      message(STATUS "Adding additional Apple libraries.")
+    	FIND_LIBRARY(CARBON_LIBRARY Carbon)
+    	FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+    	FIND_LIBRARY(IOKIT_LIBRARY IOKit)
+    	SET(OSX_LIBRARIES ${CARBON_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY})
+    ENDIF (APPLE)
+
+    if(UNIX AND NOT APPLE)
+      message(STATUS "Adding additional linux libraries.")
+      SET(LINUX_LIBRARIES X11 Xxf86vm )
+    endif(UNIX AND NOT APPLE)
+
+    if (MSVC_IDE)
+        # hack to get around the "Debug" and "Release" directories cmake tries to add on Windows
+        FILE(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/Debug)
+        FILE(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/Release)
+        message(STATUS "Running on windows. Copying over Irrlicht DLL...")
+        FILE(COPY ${PROJECT_SOURCE_DIR}/irrlicht/bin/Win32-VisualStudio/Irrlicht.dll DESTINATION ${PROJECT_BINARY_DIR}/Debug)
+        FILE(COPY ${PROJECT_SOURCE_DIR}/irrlicht/bin/Win32-VisualStudio/Irrlicht.dll DESTINATION ${PROJECT_BINARY_DIR}/Release)
+    endif(MSVC_IDE)
+
+    INCLUDE_DIRECTORIES(${IRRLICHT_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
+
+  endif(${USE_IRRLICHT})
+
+endif(${SIM})
 
 # Compile debug mode (no dependencies on std::chrono)
 if(${DEBUG})
@@ -77,7 +87,7 @@ include_directories(include)
 file(GLOB SOURCES "src/*.cpp")
 set(source_files ${SOURCES})
 if(NOT ${SIM})
-  message(STATUS "Compiling for use on BeagleBone...")
+  message(STATUS "Compiling for use on BeagleBone (no SIM)...")
   list(REMOVE_ITEM source_files "${PROJECT_SOURCE_DIR}/src/Vehicle.cpp")
   list(REMOVE_ITEM source_files "${PROJECT_SOURCE_DIR}/src/PlantModel.cpp")
 endif()
