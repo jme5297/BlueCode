@@ -26,14 +26,11 @@ namespace sensors{
 #endif
 
 	protected:
-
-#ifdef SIM
 		Coordinate currentGPSCoordinates;
 		Coordinate lastCoordinates;
 		double vehicleHeading;
 		double gpsUncertainty;
 		double latToM = 111050.0;
 		double lonToM = 84397.0;
-#endif
 	};
 }

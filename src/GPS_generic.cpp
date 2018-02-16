@@ -24,6 +24,15 @@ bool GPS::Init(){
 	return PlantModel::GetVehicle()->gps.initialized;
 	#else
 	// Actual GPS initialization code goes here
+	
+	// THIS IS TEMPORARY
+	Coordinate c;
+	c.lat = Parser::GetInitialLatitude();
+	c.lon = Parser::GetInitialLongitude();
+	currentGPSCoordinates = c;
+	lastCoordinates = c;
+	vehicleHeading = Parser::GetInitialHeading();
+	
 	#endif
 
 	return true;
@@ -57,19 +66,9 @@ bool GPS::Reset(){
 }
 Coordinate GPS::GetCurrentGPSCoordinates(){
 
-	#ifdef SIM
 	return currentGPSCoordinates;
-	#else
-	// Actual code goes here to get GPS coordinates
-
-	#endif
 }
 double GPS::GetGPSGroundCourse(){
 
-	#ifdef SIM
 	return vehicleHeading;
-	#else
-	// Actual code goes here to get GPS heading
-
-	#endif
 }

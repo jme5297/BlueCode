@@ -193,9 +193,9 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 	PlantModel::DrawObstacles(Parser::GetObstacles());
 	PlantModel::DrawPayloadLocations(myNavigator->GetNavPlan().coordinates,myGuider->GetPayloadDropRadius());
 	// If debug mode is active, ensure the TimeModule is not running on std::chrono.
+#endif
 #ifdef DEBUG
 	TimeModule::SetTimeSimDelta(Parser::GetTimeDelta());
-#endif
 #endif
 
 	// Set initial process frequencies and log the starting time of the program.
@@ -204,6 +204,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 	TimeModule::InitProccessCounter("Guid", Parser::GetRefresh_GUID());
 	TimeModule::InitProccessCounter("Ctrl", Parser::GetRefresh_CTRL());
 	TimeModule::InitProccessCounter("Write", Parser::GetRefresh_OUT());
+	TimeModule::InitProccessCounter("Print", 1.0);
 
 	// If in simulation mode, set the plant model process frequency.
 #ifdef SIM
@@ -212,7 +213,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 
 	// Open a file to save the output information the vehicle.
 	std::ofstream output;
-	output.open("out/data.csv");
+	output.open("data.csv");
 
 	//-----------------------------------------
 	//                     Main Logic loop
@@ -220,11 +221,12 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 	bool running = true;
 	while (running) {
 
-		// Run the plant model, and update the simulation time (if running DEBUG mode).
-#ifdef SIM
 #ifdef DEBUG
 		TimeModule::Run();
 #endif
+
+		// Run the plant model, and update the simulation time (if running DEBUG mode).
+#ifdef SIM
 		if (TimeModule::ProccessUpdate("Plant")) {
 			// Passing GPS coordinates so the simulation can plot true vs. actual.
 			PlantModel::SendGPSData(
@@ -233,7 +235,6 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"));
 		}
 #endif
-
 		// Run Navigator.
 		if (TimeModule::ProccessUpdate("Nav")) {
 			myNavigator->Run(mySensorHub);
@@ -248,6 +249,8 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 		if (TimeModule::ProccessUpdate("Ctrl")) {
 			myController->Run(myGuider, mySensorHub);
 		}
+		
+		// std::cout << TimeModule::GetElapsedTime("BeginMainOpsTime") << std::endl;
 
 		// If the "Print" process is intialized, then display basic information->
 		double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;

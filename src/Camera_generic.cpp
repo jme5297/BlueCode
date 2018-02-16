@@ -48,7 +48,7 @@ bool Camera::TakeImage(int i){
 	}
 
 	// Save the image to the device and report on either its success or failure.
-	std::string img_name = "out/capture_" + std::to_string(i) + ".bmp";
+	std::string img_name = "capture_" + std::to_string(i) + ".bmp";
 	bool check = imwrite(img_name, frame);
 	if (check){
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Camera image taken!\n";
@@ -58,7 +58,7 @@ bool Camera::TakeImage(int i){
 
 	// If simulation mode is enabled, then update the displayed image on the screen->
 	#ifdef SIM
-	// PlantModel::UpdateImage(img_name);
+	PlantModel::UpdateImage(img_name);
 	#endif
 
 	// Release the video capture.
