@@ -202,19 +202,22 @@ void PlantModel::SendGPSData(Coordinate c, double h){
  */
 void PlantModel::UpdateImage(std::string str)
 {
-	// Pull in the image as a texture.
-	ITexture* recentImage;
-	recentImage = driver->getTexture(str.c_str());
+	if(!deviceDropped){
+		// Pull in the image as a texture.
+		ITexture* recentImage;
+		recentImage = driver->getTexture(str.c_str());
 
-	// If texture creation successful, add to the screen->
-	if (recentImage) {
-		dimension2du screenSize = driver->getScreenSize();
-		s32 offset = 10;
-		IGUIImage * myImage = guienv->addImage(rect<s32>(offset, offset, offset + screenSize.Width / 4, offset + screenSize.Height / 4));
-		myImage->setImage(recentImage);
-		myImage->setScaleImage(true);
-		myImage->setVisible(true);
+		// If texture creation successful, add to the screen->
+		if (recentImage) {
+			dimension2du screenSize = driver->getScreenSize();
+			s32 offset = 10;
+			IGUIImage * myImage = guienv->addImage(rect<s32>(offset, offset, offset + screenSize.Width / 4, offset + screenSize.Height / 4));
+			myImage->setImage(recentImage);
+			myImage->setScaleImage(true);
+			myImage->setVisible(true);
+		}
 	}
+
 }
 #endif
 
