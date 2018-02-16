@@ -1,15 +1,9 @@
 # Atom compiling error text file
 src/compiling_error.txt
 
-# Irrlicht source files (get them from Jason Everett!!)
-irrlicht/
-
 # Main build
 bin/
 build/
-
-#Doxygen documentation
-Dox/
 
 .DS_Store
 capture_*.bmp
