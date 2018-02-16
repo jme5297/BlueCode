@@ -2,17 +2,24 @@
 Coding base for AERSP 440's Blue Team (a.k.a. the winning team)
 
 # Prerequisites
+### General
 * Download and install CMake.
 * **MacOSX**: make sure you have the XCode development suite (just the tool library is enough.)
 * **Windows**: make sure you have Visual Studio 2015 or higher.
 * **Linux**: make sure you have gcc, g++, and gdb.
 
-## Camera Testing & OpenCV
-* Windows:
+### Simulation Testing
+A simple physics plant model has been included in this project that will allow for vehicle testing and new code testing. The simulation portion of this project also comes with a pre-packaged version of a lightweight 3D C++ engine called Irrlicht. You can run the simulation with or without the use of Irrlicht. If the simulation is ran without Irrlicht, then there will be no obstacle detection and no laser sensor readings. Prerequisites for Irrlicht are below.
+* **Linux**:
+  * `sudo apt-get -y install build-essential xserver-xorg-dev x11proto-xf86vidmode-dev libxxf86vm-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libxext-dev libxcursor-dev`
+  
+### Camera Testing & OpenCV
+Camera Testing is not a necessity for the simulation, but it is a feature that can be enabled if OpenCV is installed and configured on your machine.
+* **Windows**:
   * https://docs.opencv.org/2.4/doc/tutorials/introduction/windows_install/windows_install.html
-* Linux:
+* **Linux**:
   * https://www.learnopencv.com/install-opencv3-on-ubuntu/
-* MacOSX:
+* **MacOSX**:
   * Get Homebrew if you haven't already.
     * `ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
     * `brew update`
@@ -20,17 +27,14 @@ Coding base for AERSP 440's Blue Team (a.k.a. the winning team)
     * `brew tap homebrew/science`
     * `brew install opencv3 --with-contrib`
 
-## Simulation Testing
-You can run the simulation with or without the use of a pre-compiled 3d engine called Irrlicht. If the simulation is ran without Irrlicht, then there will be no obstacle detection and no laser sensor readings. Prerequisites for Irrlicht are below.
-* For Linux/WSL users:
-  * `sudo apt-get -y install build-essential xserver-xorg-dev x11proto-xf86vidmode-dev libxxf86vm-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libxext-dev libxcursor-dev`
-
 # CMake
-An option is to run cmake-gui. You can also control from command line. If you wish to run cmake from the command line, you'll have to set your variables with `-D <variable>=<value>`. Multiple variables can be passed to the command line (example: `cmake -D <var1>=true -D <var2>=true ..`).
+To run CMake for this project, you may either run the CMake GUI application, or run CMake from the command line. If you wish to run cmake from the command line, you'll have to set your variables with `-D <variable>=<value>`. Multiple variables can be passed to the command line (example: `cmake -D <var1>=true -D <var2>=true ..`).
+
+### General
 * Make a directory called "build" in the main BlueCode directory.
 * Move into the "build" directory.
 
-## CMake Method (GUI or Command-Line)
+### Choose A CMake Method (GUI or Command-Line)
 * **CMake GUI**
   * Source directory is "BlueCode".
   * Build directory is "BlueCode/build".
@@ -41,14 +45,13 @@ An option is to run cmake-gui. You can also control from command line. If you wi
 * **CMake Command-Line**
   * `cmake -D <var1>=<value1> -D <var2>=<value2> ..`
 
-## CMake Parameters
+### CMake Parameters
 | Parameter/Variable | Description | Default Value |
 | --- | --- | --- |
-| `SIM`     | Uses a physics plant model and fake motor controls. | `false` |
-| `DEBUG`   | Uses a counter loop for time rather than std::chrono. <br> Do NOT use `DEBUG` when running on BBB. | `false` |
-| `USE_IRRLICHT`     | Render a 3D engine of the simulation and calculate obstacles & laser ranges. <br> Note: `SIM` is required. | `false` |
-| `USE_CAMERA` | Use whatever camera is attached to device to take images. <br> Note: requires OpenCV. | `false` |
-
+| `SIM` | Uses a physics plant model, fake motor controls and fake sensors to test GNC code. | `false` |
+| `DEBUG` | Compiles with debugging symbols. Also uses a counter loop for time rather than std::chrono. | `false` |
+| `USE_IRRLICHT` | Render the simulation in 3D, and calculate obstacles & laser ranges. <br> Note: `SIM` is required. | `false` |
+| `USE_CAMERA` | Use whatever camera is attached to the device to take images. <br> Note: requires OpenCV. | `false` |
 
 # Build
 * **Windows**
