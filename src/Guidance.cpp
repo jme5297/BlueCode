@@ -48,17 +48,18 @@ void Guider::Run(Navigator* n) {
 	}
 	// ----------- ANALYZE -------------
 	// If this is our "first pass", then we need to calibrate.
-	if (GuidanceManeuverBuffer.empty()) {
-
+	if (GuidanceManeuverBuffer.empty())
+	{
 		GuidanceManeuverIndex++;
+
 		// Request a new calibration guidance maneuver.
 		GuidanceManeuver gm;
 		gm.state = ManeuverState::Calibrate;
 		gm.speed = 1.0;
 		gm.turnDirection = 0;
 		gm.done = false;
+		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		RequestGuidanceManeuver(gm);
-		TimeModule::AddMilestone("Calibration_" + std::to_string(GuidanceManeuverIndex));
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Calibrating...\n";
 	}
 	// if we've just dropped off a payload successfully, then we need to calibrate.
@@ -73,8 +74,8 @@ void Guider::Run(Navigator* n) {
 		gm.speed = 1.0;
 		gm.turnDirection = 0;
 		gm.done = false;
+		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		RequestGuidanceManeuver(gm);
-		TimeModule::AddMilestone("Calibration_" + std::to_string(GuidanceManeuverIndex));
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Calibrating...\n";
 	}
 	// If we're within payload dropping distance, and if we haven't yet queued a payload drop,
@@ -98,10 +99,8 @@ void Guider::Run(Navigator* n) {
 		gm.speed = 0.0;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
+		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		RequestGuidanceManeuver(gm);
-
-		// Add a reference to this time.
-		TimeModule::AddMilestone("PayloadDrop_" + std::to_string(GuidanceManeuverIndex));
 	}
 	// If there's obstructions that we didn't previously know about, then take care of this immediately.
 	else if ((n->GetPathObstructions().at(0) || n->GetPathObstructions().at(1)) && !GetCurrentGuidanceManeuver().hasBeganDiverging) {
@@ -120,10 +119,9 @@ void Guider::Run(Navigator* n) {
 		gm.currentTurnAngle = 0.0;
 		gm.requestedTurnAngle = obstacleDivergenceAngle;
 		gm.hasBeganDiverging = false;
-		gm.speed = -1.0;
-		TimeModule::AddMilestone("Turn_" + std::to_string(GuidanceManeuverIndex));
+		gm.speed = -0.25;
+		gm.speedRate = Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
 		gm.maintainTime = obstacleDivergenceTime;
-		TimeModule::AddMilestone("Maintain_" + std::to_string(GuidanceManeuverIndex));
 		gm.done = false;
 		RequestGuidanceManeuver(gm);
 
@@ -133,7 +131,7 @@ void Guider::Run(Navigator* n) {
 	// course maintain, or a turn, then see if we need to either turn or maintain course.
 	else if (GuidanceManeuverBuffer[GuidanceManeuverIndex].done && !isNavPlanComplete) {
 
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: -------------- Grabbing current GPS information->\n";
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: -------------- Grabbing current GPS information.\n";
 		Movement m;
 		m = n->CalculateMovement(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]);
 		double x1 = sin(n->GetHeading() * PI / 180.0);
@@ -161,8 +159,9 @@ void Guider::Run(Navigator* n) {
 			}
 			gm.currentTurnAngle = 0.0;
 			gm.requestedTurnAngle = fabs(offAngle);
-			gm.speed = 1.0;
-			TimeModule::AddMilestone("Turn_" + std::to_string(GuidanceManeuverIndex));
+			gm.speed = 0.25;
+			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
+			//TimeModule::AddMilestone("Turn_" + std::to_string(GuidanceManeuverIndex));
 			gm.done = false;
 			RequestGuidanceManeuver(gm);
 		}
@@ -175,24 +174,30 @@ void Guider::Run(Navigator* n) {
 			gm.state = ManeuverState::Maintain;
 			gm.turnDirection = 0;
 			gm.speed = 1.0;
+			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			// We will maintain course, but never undershoot the minimum calibration time for maintaing course.
 			double time = dist / maxVehicleSpeed * 0.5;
 			gm.maintainTime = (time < minimumMaintainTime) ? minimumMaintainTime : time;
-			TimeModule::AddMilestone("Maintain_" + std::to_string(GuidanceManeuverIndex));
+			//TimeModule::AddMilestone("Maintain_" + std::to_string(GuidanceManeuverIndex));
 			gm.done = false;
 			RequestGuidanceManeuver(gm);
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Maintaining course for " << std::to_string(gm.maintainTime) << " seconds.\n";
 		}
 	}
 
+
 	/* ----------- PERFORM --------------
 	 * This logic is in charge of making decisions about the current state of
 	 * the current guidance maneuver in the buffer.
 	 */
 	GuidanceManeuver* man = &GuidanceManeuverBuffer[GuidanceManeuverIndex];
-	switch (man->state) {
 
+	switch (man->state) {
 	case ManeuverState::Calibrate:
+
+		if(!man->hasFixedSpeed)
+			break;
+
 		// If the total required calibration time has elapsed, then the maneuver is complete.
 		if (TimeModule::GetElapsedTime("Calibration_" + std::to_string(GuidanceManeuverIndex)) >= calibrationTime) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
@@ -201,12 +206,14 @@ void Guider::Run(Navigator* n) {
 			if(Parser::GetOptimize()){
 				n->ConstructNavPlan(coordinateIndex);
 			}
-
 		}
 		break;
-
 	case ManeuverState::Turn:
 	{
+
+		if(!man->hasFixedSpeed)
+			break;
+
 		// If the total off-angle has subsided, then we can consider the turn to be complete.
 		double dtTurn = TimeModule::GetElapsedTime("Turn_" + std::to_string(GuidanceManeuverIndex));
 		man->currentTurnAngle = turnFactorDPS * dtTurn;
@@ -217,6 +224,10 @@ void Guider::Run(Navigator* n) {
 		break;
 	}
 	case ManeuverState::Maintain:
+
+		if(!man->hasFixedSpeed)
+			break;
+
 		// If the off-angle grows too large, then our maintenance maneuver is over, and a turn maneuver will be added next pass.
 		if (TimeModule::GetElapsedTime("Maintain_" + std::to_string(GuidanceManeuverIndex)) >= man->maintainTime) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
@@ -230,14 +241,22 @@ void Guider::Run(Navigator* n) {
 			man->hasBeganDiverging = false;
 			man->speed = 1.0;
 			man->turnDirection = 0;
-			if (TimeModule::GetElapsedTime("Turn_" + std::to_string(GuidanceManeuverIndex)) >= man->maintainTime) {
+			man->speedRate = 0.5*Parser::GetRefresh_GUID();
+			if (TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex)) >= man->maintainTime) {
 				man->done = true;
-				std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Done maintaining course.\n";
+				std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Done avoiding obstacle.\n";
 			}
 		}else{
-			double dtTurn = TimeModule::GetElapsedTime("Turn_" + std::to_string(GuidanceManeuverIndex));
+			double dtTurn = TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex));
 			man->currentTurnAngle = turnFactorDPS * dtTurn;
 			man->hasBeganDiverging = true;
+			if (man->currentTurnAngle >= man->requestedTurnAngle) {
+				man->hasFixedSpeed = false;
+				man->hasBeganDiverging = false;
+				man->speed = 1.0;
+				man->turnDirection = 0;
+				man->speedRate = 0.5*Parser::GetRefresh_GUID();
+			}
 		}
 		break;
 	}
@@ -246,10 +265,14 @@ void Guider::Run(Navigator* n) {
 		break;
 
 	case ManeuverState::PayloadDrop:
+
+		if(!man->hasFixedSpeed)
+			break;
+
 		// If the payload-drop complete flag has been triggered, then this guidance maneuver has been completed.
 		if (man->payloadDropComplete && man->payloadImageTaken) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
-			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Payload dropped, image taken->" << std::endl;
+			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Payload dropped, image taken." << std::endl;
 			coordinateIndex++;
 		}
 		break;

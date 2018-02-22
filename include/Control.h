@@ -51,11 +51,12 @@ namespace Control{
 		double wheelSpeedN;
 		double wheelSteeringN;
 
+		double currentWheelSpeed;
+
 		VehicleMode currentVehicleMode;
 		GuidanceManeuver currentGuidanceManeuver;
 
 		double maxTurnSteering;
-
 		int maxCameraAttempts;
 
 	};

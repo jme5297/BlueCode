@@ -49,6 +49,9 @@ namespace Guidance {
 		double maintainTime;		///< Time (seconds) that vehicle should be maintained.
 
 		double speed;				///< Normalized requested control speed.
+		bool hasFixedSpeed = false;
+		double speedRate = 0.005;
+
 		bool done;					///< Represents if the guidance maneuver has been completed.
 									/**< This value will be used by both the Guider and the Controller to
 										* determine when the next guidance maneuver in the guidance maneuver

@@ -16,6 +16,8 @@ double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
 double Parser::OffAngleAccepted;
 double Parser::TurnFactorDPS;
+double Parser::AccFactor;
+double Parser::AccFactorObs;
 double Parser::MaxSpeedMPS;
 double Parser::CalibrationTime;
 double Parser::MinimumMaintainTime;
@@ -134,6 +136,18 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> TurnFactorDPS;
+			continue;
+		}
+		else if (s.find("AccFactorObs") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> AccFactorObs;
+			continue;
+		}
+		else if (s.find("AccFactor") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> AccFactor;
 			continue;
 		}
 		else if (s.find("CalibrationTime") != std::string::npos) {

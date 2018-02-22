@@ -380,7 +380,7 @@ void PlantModel::UpdateEngine()
 		// Draw a line that displays the vehicle's current heading.
 		driver->draw3DLine(
 			vehicleModel->getPosition(),
-			vehicleModel->getPosition() + core::vector3df(sin(PI / 180.0 * head)*5.0, 0.0f, cos(PI / 180.0 * head)*5.0),
+			vehicleModel->getPosition() + core::vector3df(sin(PI / 180.0 * head)*5.0*GetVehicle()->wheelSpeedN, 0.0f, GetVehicle()->wheelSpeedN*cos(PI / 180.0 * head)*5.0),
 			SColor(255, 0, 255, 255)
 		);
 		// Draw a line that displays the vehicle's current GPS based heading.

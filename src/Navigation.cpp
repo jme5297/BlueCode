@@ -14,6 +14,7 @@ void Navigator::Initialize(SensorHub* sh)
 	vehicleHeading = 0.0;
 	curPos = sh->GetGPS()->GetCurrentGPSCoordinates();
 	lastCoordinates = curPos;
+	initialPosition = curPos;
 }
 /**
  *
@@ -81,11 +82,19 @@ void Navigator::ConstructNavPlan(int cInd)
 	// This function populates the allCoordinatePermutations vector
 	allCoordinatePermutations.clear();
 	std::vector<Coordinate> coordsToGo;
-	for (int i = cInd; i < activeNavPlan.coordinates.size(); i++) {
+
+	// All except last (last needs to remain the same for returning to original location)
+	// hence size() - 1
+	for (int i = cInd; i < activeNavPlan.coordinates.size()-1; i++) {
 		coordsToGo.push_back(activeNavPlan.coordinates[i]);
 	}
 
 	GenerateAllCoordinatePermutations(coordsToGo, 0);
+
+	// Add the initial position back to the end.
+	for (int i = 0; i < allCoordinatePermutations.size(); i++){
+		allCoordinatePermutations[i].push_back(initialPosition);
+	}
 
 	std::cout << std::to_string(totalPermutations) + " possible permutations.\n";
 
@@ -140,7 +149,7 @@ void Navigator::PopulateMovements(SensorHub* sh)
 	}
 
 	// If we have to return to the original location, then include this.
-	// moves.push_back(CalculateMovement(coords[coords.size() - 1], myLoc));
+	// moves.push_back(CalculateMovement(coords[coords.size() - 1], initialPosition));
 
 	// Update the total movement vector to the Active Nav Plan->
 	activeNavPlan.movements = moves;
@@ -178,7 +187,7 @@ double Navigator::CalculateTotalNavPlanDistance(std::vector<Coordinate> coords)
 	}
 
 	// If we have to return to the original location, then include this.
-	// totalDistance += DistanceBetweenCoordinates(curPos, coords[coords.size() - 1]);
+	// totalDistance += DistanceBetweenCoordinates(curPos, initialPosition);
 
 	return totalDistance;
 }

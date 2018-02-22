@@ -1,12 +1,3 @@
-// C++ Includes
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <chrono>
-#include <string>
-#include <cstdlib>
-#include <ctime>
-
 // BlueCode Includes
 #include <Parser.h>
 #include <TimeModule.h>
@@ -197,7 +188,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 	#endif
 #endif
 
-	// If debug mode is active, ensure the TimeModule is not running on std::chrono.	
+	// If debug mode is active, ensure the TimeModule is not running on std::chrono.
 #ifdef DEBUG
 	TimeModule::SetTimeSimDelta(Parser::GetTimeDelta());
 #endif
@@ -208,7 +199,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 	TimeModule::InitProccessCounter("Guid", Parser::GetRefresh_GUID());
 	TimeModule::InitProccessCounter("Ctrl", Parser::GetRefresh_CTRL());
 	TimeModule::InitProccessCounter("Write", Parser::GetRefresh_OUT());
-	TimeModule::InitProccessCounter("Print", 1.0);
+	// TimeModule::InitProccessCounter("Print", 1.0);
 
 	// If in simulation mode, set the plant model process frequency.
 #ifdef SIM
@@ -257,16 +248,16 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 		if (TimeModule::ProccessUpdate("Ctrl")) {
 			myController->Run(myGuider, mySensorHub);
 		}
-		
+
 		// std::cout << TimeModule::GetElapsedTime("BeginMainOpsTime") << std::endl;
 
 		// If the "Print" process is intialized, then display basic information->
 		double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
 		double lat = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lat;
 		if (TimeModule::ProccessUpdate("Print")) {
-			std::cout << 
+			std::cout <<
 				"t: " << std::fixed << std::setprecision(5) << TimeModule::GetElapsedTime("BeginMainOpsTime") <<
-				" --- lat: " << std::setprecision(12) << myNavigator->GetCoordinates().lat << 
+				" --- lat: " << std::setprecision(12) << myNavigator->GetCoordinates().lat <<
 				", lon: " << myNavigator->GetCoordinates().lon << "\n";
 		}
 

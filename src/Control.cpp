@@ -11,10 +11,42 @@ using namespace sensors;
 /// @todo This should not be hard-coded if a generalized model is desired.
 Controller::Controller() {
 	currentVehicleMode = Parser::GetControlMode();
+	currentWheelSpeed = 0.0;
 }
 
 /// @todo Determine if all of these switches are necessary.
 void Controller::Run(Guider* g, SensorHub* sh) {
+
+	// Update the speeds.
+	if(!g->GetCurrentGuidanceManeuver().hasFixedSpeed){
+		if(!(fabs(currentWheelSpeed - g->GetCurrentGuidanceManeuver().speed) <= 2.0 * 0.005)){
+			double sign = (g->GetCurrentGuidanceManeuver().speed - currentWheelSpeed) / fabs(currentWheelSpeed - g->GetCurrentGuidanceManeuver().speed);
+			currentWheelSpeed += sign*g->GetCurrentGuidanceManeuver().speedRate;
+			SetWheelSpeed(currentWheelSpeed);
+			SetWheelSteering(0.0);
+		}else{
+			g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
+			switch (g->GetCurrentGuidanceManeuver().state) {
+				case ManeuverState::Calibrate:
+					TimeModule::AddMilestone("Calibration_" + std::to_string(g->GetGuidanceManeuverIndex()));
+					break;
+				case ManeuverState::Turn:
+					TimeModule::AddMilestone("Turn_" + std::to_string(g->GetGuidanceManeuverIndex()));
+				case ManeuverState::Maintain:
+					TimeModule::AddMilestone("Maintain_" + std::to_string(g->GetGuidanceManeuverIndex()));
+					break;
+				case ManeuverState::AvoidDiverge:
+					TimeModule::AddMilestone("Avoid_" + std::to_string(g->GetGuidanceManeuverIndex()));
+					break;
+				case ManeuverState::AvoidConverge:
+					break;
+				case ManeuverState::PayloadDrop:
+					TimeModule::AddMilestone("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex()));
+					break;
+			}
+		}
+		return;
+	}
 
 	// If the NAV plan is complete, then stop the vehicle and return->
 	if (g->IsNavPlanComplete()) {
@@ -71,7 +103,6 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		SetMotorSpeeds(g->GetCurrentGuidanceManeuver().speed);
 		break;
 	}
-	return;
 
 	return;
 }

@@ -43,14 +43,22 @@ OffAngleDeviate = 10.0
 OffAngleAccepted = 5.0
 
 # How many degrees per second will the vehicle turn at full turn speed?
-TurnFactorDPS = 100.0
+TurnFactorDPS = 49.0
+
+# Acceleration factor for normal operations.
+# A factor of 1 represents: 1 * (max speed MPS) m/s^2.
+# A factor of 2 represents: 2 * (max speed MPS) m/s^2.
+AccFactor = 0.5;
+
+# Acceleration factor for emergency (obstacle avoidance) operations.
+AccFactorObs = 2.0;
 
 # Maximum speed of the vehicle (meters/second)?
-# NOTE: This value is also used in the SIM mode.
-MaxSpeedMPS = 1.0
+# Note: This value is also used in the SIM mode.
+MaxSpeedMPS = 2.0
 
 # Minimum amount of time (seconds) to travel straight after stopping to calibrate GPS?
-CalibrationTime = 12.0
+CalibrationTime = 6.0
 
 # Minimum amount of time required to stay straight in a maintain mode?
 MinimumMaintainTime = 4.0
@@ -111,9 +119,9 @@ InitialHeading = 180
 # Add some obstacles to the scene
 # Format: lon(deg), lat(deg), length(m), width(m), height(m), z-rotation(deg)
 BEGIN_OBSTACLES
--77.872148,	40.793335,	7,	3,	0.5,	-20
--77.871981, 40.793170,	6,	3,	0.5,	70
--77.872361, 40.792852, 	5,	3,	0.5,	340
+-77.872148,	40.793335,	10,	3,	0.5,	-20
+-77.871981, 40.793170,	10,	3,	0.5,	90
+-77.872361, 40.792952, 	10,	4,	0.5,	320
 END_OBSTACLES
 
 # Add lasers to the vehicle.

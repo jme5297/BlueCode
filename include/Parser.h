@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <iomanip>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -90,6 +91,8 @@ public:
 	static double GetOffAngleDeviate() { return OffAngleDeviate; }
 	static double GetOffAngleAccepted() { return OffAngleAccepted; }
 	static double GetTurnFactorDPS() { return TurnFactorDPS; }
+	static double GetAccFactor() { return AccFactor; }
+	static double GetAccFactorObs() { return AccFactorObs; }
 	static double GetCalibrationTime() { return CalibrationTime; }
 	static double GetMinimumMaintainTime() { return MinimumMaintainTime; }
 	static double GetObstacleDivergenceAngle() { return ObstacleDivergenceAngle; }
@@ -128,6 +131,8 @@ protected:
 	static double OffAngleDeviate;
 	static double OffAngleAccepted;
 	static double TurnFactorDPS;
+	static double AccFactor;
+	static double AccFactorObs;
 	static double CalibrationTime;
 	static double MinimumMaintainTime;
 	static double ObstacleDivergenceAngle;

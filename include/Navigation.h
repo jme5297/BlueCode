@@ -42,6 +42,7 @@ namespace Navigation {
 		void Run(SensorHub* sh); 		///< Main execution loop for the Navigator.
 
 		// Vehicle State functions.
+		Coordinate GetInitialNavPosition(){ return initialPosition; }
 		double GetHeading(); 			///< Return vehicle heading.
 		Coordinate GetCoordinates();	///< Return vehicle GPS coordinates.
 		bool IsNavPlanComplete();		///< Check if NavPlan is complete.
@@ -60,6 +61,7 @@ namespace Navigation {
 		double vehicleHeading;				///< Current vehicle heading
 		Coordinate lastCoordinates;			///< Last trusted GPS coordinates
 		Coordinate curPos;
+		Coordinate initialPosition;			///< Initial position of the vehicle.
 
 		std::vector<int> isPathObstructed;	///< Do the laser readings show an obstructed path?
 		double latToM = 111050.0;
