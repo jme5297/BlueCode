@@ -108,8 +108,8 @@ int main(int argc, char* argv[]) {
 
 	// Allow user to provide input before closing out of the Irrlicht window.
 #ifdef SIM
-	std::cout << "Press return to finish...";
-	std::cin.get();
+	//std::cout << "Press return to finish...";
+	//std::cin.get();
 #endif
 
 	// Perform any necessary clean-up operations.
@@ -173,6 +173,14 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	// Come up with nominal Nav-Plan movement and distance info.
 	myNavigator->PopulateMovements(mySensorHub);
 
+	std::ofstream pts;
+	pts.open("pts.csv");
+	std::vector<Coordinate> coords = myNavigator->GetWaypoints();
+	for (int i = 0; i < (int)coords.size(); i++) {
+		pts << coords[i].lon << "," << coords[i].lat << "\n";
+	}
+	pts.close();
+
 	return true;
 }
 
@@ -206,9 +214,20 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 	TimeModule::InitProccessCounter("Plant", Parser::GetSimDelta());
 #endif
 
+	int ii = 0;
+	std::string name = "data_" + std::to_string(ii) + ".csv";
+	std::ifstream f(name.c_str());
+	while(f.good()){
+		ii = ii + 1;
+		name = "data_" + std::to_string(ii) + ".csv";
+		f.close();
+		f.open(name.c_str());
+	}
+	f.close();
+
 	// Open a file to save the output information the vehicle.
 	std::ofstream output;
-	output.open("data.csv");
+	output.open((name).c_str());
 
 	//-----------------------------------------
 	//                     Main Logic loop
