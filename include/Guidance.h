@@ -87,6 +87,8 @@ namespace Guidance {
 		double GetPayloadDropRadius() { return payloadDropRadius; }
 		double GetPayloadServoTime() { return payloadServoTime; }
 
+		int coordinateIndex;  ///< The coordinate index of the NavPlan being targeted.
+
 	protected:
 		int GuidanceManeuverIndex; ///< Index of the current guidance maneuver being analyzed.
 
@@ -107,7 +109,6 @@ namespace Guidance {
 		 * by calling RequestGuidanceManeuver with a pre-constructed guidance maneuver.
 		 */
 		std::vector<GuidanceManeuver> GuidanceManeuverBuffer;
-		int coordinateIndex;  ///< The coordinate index of the NavPlan being targeted.
 		bool isNavPlanComplete; ///< For determining if all of the nav plan objectives have been completed.
 
 		double latToM = 111050.0;

@@ -88,6 +88,14 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			SetMotorSpeeds(0.0);
 			break;
 		}
+		// If we're on our last leg, then we're done here.
+		if(g->coordinateIndex == 4){
+			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
+			g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
+			std::cout << "=== RETURNED TO HOME ===\n";
+			return;
+		}
+
 		PayloadDrop(g, sh);
 		return;
 	}

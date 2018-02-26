@@ -105,6 +105,17 @@ void Guider::Run(Navigator* n) {
 	// If there's obstructions that we didn't previously know about, then take care of this immediately.
 	else if ((n->GetPathObstructions().at(0) || n->GetPathObstructions().at(1)) && !GetCurrentGuidanceManeuver().hasBeganDiverging) {
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
+
+		// If this was the last coordinate, then lets wrap it up here.
+		/*
+		if (coordinateIndex == (int)n->GetNavPlan().coordinates.size()-1) {
+			isNavPlanComplete = true;
+			std::cout << "==== Returned to original location. We're done here. ====\n";
+			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Guider's Nav Plan comlete! Returning to main for clean-up ops.\n";
+			return;
+		}
+		*/
+
 		GuidanceManeuverIndex++;
 		GuidanceManeuver gm;
 

@@ -64,7 +64,7 @@ CalibrationTime = 6.0
 MinimumMaintainTime = 4.0
 
 # Angle to turn away from obstacle to diverge?
-ObstacleDivergenceAngle = 35.0
+ObstacleDivergenceAngle = 25.0
 
 # Amount of time to travel parallel to an obstacle before converging back to target?
 ObstacleDivergenceTime = 7.0
@@ -89,7 +89,7 @@ ControlMode = Wheel
 # ----------------------------------------------------------------------------
 
 # Time delta in debug mode from one main loop to the next?
-TimeDelta = 0.001
+TimeDelta = 0.01
 
 # Sim delta from one Plant/simulation update to the next (seconds)?
 SimDelta = 0.01
