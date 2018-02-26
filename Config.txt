@@ -89,7 +89,7 @@ ControlMode = Wheel
 # ----------------------------------------------------------------------------
 
 # Time delta in debug mode from one main loop to the next?
-TimeDelta = 0.01
+TimeDelta = 0.000005
 
 # Sim delta from one Plant/simulation update to the next (seconds)?
 SimDelta = 0.01

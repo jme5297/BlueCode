@@ -88,8 +88,9 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			SetMotorSpeeds(0.0);
 			break;
 		}
-		// If we're on our last leg, then we're done here.
-		if(g->coordinateIndex == 4){
+
+		// If we're on our last leg (return-to-home), then no need to drop payload.
+		if(g->coordinateIndex == g->totalCoordinates-1){
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
 			g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
 			std::cout << "=== RETURNED TO HOME ===\n";

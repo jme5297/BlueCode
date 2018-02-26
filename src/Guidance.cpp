@@ -14,6 +14,7 @@ Guider::Guider() {
 	GuidanceManeuverIndex = -1;
 	isNavPlanComplete = false;
 	coordinateIndex = 0;
+	totalCoordinates = 0;
 }
 
 /**
@@ -40,13 +41,40 @@ void Guider::Run(Navigator* n) {
 
 	double PI = 3.14159265;
 
+	// If value for total coordinates has not been taken from NavPlan yet, update this now.
+	if(totalCoordinates != (int)n->GetNavPlan().coordinates.size()){
+		totalCoordinates = (int)n->GetNavPlan().coordinates.size();
+	}
+
 	// If coordinateIndex passes through all coordinates, it's assumed that all targets have been acheived.
-	if (coordinateIndex == (int)n->GetNavPlan().coordinates.size()) {
+	// This logic will only be hit on the final pipeline rotation through GNC
+	if (coordinateIndex == totalCoordinates) {
 		isNavPlanComplete = true;
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Guider's Nav Plan comlete! Returning to main for clean-up ops.\n";
 		return;
 	}
+
 	// ----------- ANALYZE -------------
+	/* This phase of guidance is used to pass new manuevers to the maneuver buffer
+	 * upon certain events occuring. The events are also triggered with priority in the
+	 * logic that is written below (i.e. Event 1 has higher priority than Event 2). If Event (n)
+	 * occurs, then all other events (Event n+1, etc.) will be skipped in this section.
+	 *
+	 * Event 1: buffer is empty (nothing has been queued yet)
+	 *  - Queue the first calibration maneuver.
+	 * Event 2: vehicle just completed a payload drop
+	 *  - Queue the next calibration manuever to get ready to hit the next target.
+	 * Event 3: vehicle in payload drop range for the current drop, and this specific payload drop has not been triggered
+	 *  - Queue a payload drop maneuver
+	 * Event 4: vehicle encounters an obstacle that it is not currently handling
+	 *  - Queue an avoid-diverge maneuver to avoid this obstacle.
+	 * Event 5: previous maneuver is complete and nav-plan is not complete (basically a catch-all)
+	 *  - If vehicle is on heading for the next maneuver:
+	 *    - Queue a maintain-direction maneuver
+	 *  - If vehicle is off course/off heading for next manuever:
+	 *    - Queue a vehicle turn maneuver.
+	 */
+
 	// If this is our "first pass", then we need to calibrate.
 	if (GuidanceManeuverBuffer.empty())
 	{
@@ -105,16 +133,6 @@ void Guider::Run(Navigator* n) {
 	// If there's obstructions that we didn't previously know about, then take care of this immediately.
 	else if ((n->GetPathObstructions().at(0) || n->GetPathObstructions().at(1)) && !GetCurrentGuidanceManeuver().hasBeganDiverging) {
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
-
-		// If this was the last coordinate, then lets wrap it up here.
-		/*
-		if (coordinateIndex == (int)n->GetNavPlan().coordinates.size()-1) {
-			isNavPlanComplete = true;
-			std::cout << "==== Returned to original location. We're done here. ====\n";
-			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Guider's Nav Plan comlete! Returning to main for clean-up ops.\n";
-			return;
-		}
-		*/
 
 		GuidanceManeuverIndex++;
 		GuidanceManeuver gm;
@@ -197,12 +215,35 @@ void Guider::Run(Navigator* n) {
 	}
 
 
-	/* ----------- PERFORM --------------
+	/* ----------- CHECK --------------
 	 * This logic is in charge of making decisions about the current state of
-	 * the current guidance maneuver in the buffer.
+	 * the current guidance maneuver in the buffer. This logic will set the "done" flag for the current
+	 * guidance maneuver if the logic determines that the guidance maneuver has been completed. The
+	 * logic that is triggered below depends on which type of maneuver is currently being performed.
+	 * Many of the checks below are only checked once the vehicle has acheived a fixed speed after
+	 * acceleration or deceleration. The hasFixedSpeed flax is set in the Controller after accelerating.
+	 *
+	 * Calibrate:
+	 *  - If vehicle has calibrated for requested calibration time:
+	 *    - DONE
+	 *    - If vehicle set to optimize nav-plan, then re-optimize now.
+	 * Turn:
+	 *  - Update current turn angle using integrator
+	 *  - If vehicle has turned the total requested turn amount:
+	 *    - DONE
+	 * Maintain:
+	 *  - If vehicle has maintained course for total requested amount of time:
+	 *    - DONE
+	 * AvoidDiverge:
+	 *  - If vehicle has completed the reverse avoidance turn:
+	 *    - If vehicle has maintained path for the requested obstacle avoidance time:
+	 *      - DONE
+	 *  - If vehicle has not completed turning yet:
+	 *    - Update current turn angle using integrator
+	 *    - If vehicle has completed turn:
+	 *      - Set completed turn flag.
 	 */
 	GuidanceManeuver* man = &GuidanceManeuverBuffer[GuidanceManeuverIndex];
-
 	switch (man->state) {
 	case ManeuverState::Calibrate:
 
@@ -225,9 +266,11 @@ void Guider::Run(Navigator* n) {
 		if(!man->hasFixedSpeed)
 			break;
 
-		// If the total off-angle has subsided, then we can consider the turn to be complete.
+		// Use a basic integrator to estimate the amount of time we have been turning.
 		double dtTurn = TimeModule::GetElapsedTime("Turn_" + std::to_string(GuidanceManeuverIndex));
 		man->currentTurnAngle = turnFactorDPS * dtTurn;
+
+		// If the total off-angle has subsided, then we can consider the turn to be complete.
 		if (man->currentTurnAngle >= man->requestedTurnAngle) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Turn complete.\n";
@@ -248,8 +291,18 @@ void Guider::Run(Navigator* n) {
 
 	case ManeuverState::AvoidDiverge:
 	{
+		// Notify the rest of guidance that we have began diverging.
+		man->hasBeganDiverging = true;
+
+		if(!man->hasFixedSpeed)
+			break;
+
+		// If vehicle finished backup turn, start driving straight and maintaining.
 		if (man->currentTurnAngle >= man->requestedTurnAngle) {
+
+			// Vehicle is once again succeptable for obstacle detection.
 			man->hasBeganDiverging = false;
+
 			man->speed = 1.0;
 			man->turnDirection = 0;
 			man->speedRate = 0.5*Parser::GetRefresh_GUID();
@@ -257,10 +310,13 @@ void Guider::Run(Navigator* n) {
 				man->done = true;
 				std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Done avoiding obstacle.\n";
 			}
-		}else{
+		}
+		// Else, continue the backup turn maneuver.
+		else{
 			double dtTurn = TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex));
 			man->currentTurnAngle = turnFactorDPS * dtTurn;
-			man->hasBeganDiverging = true;
+
+			// If we've hit our target turn angle, get ready for maintain on next loop.
 			if (man->currentTurnAngle >= man->requestedTurnAngle) {
 				man->hasFixedSpeed = false;
 				man->hasBeganDiverging = false;
@@ -283,7 +339,7 @@ void Guider::Run(Navigator* n) {
 		// If the payload-drop complete flag has been triggered, then this guidance maneuver has been completed.
 		if (man->payloadDropComplete && man->payloadImageTaken) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
-			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Payload dropped, image taken." << std::endl;
+			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Received payload-drop and image-taken signals from controller." << std::endl;
 			coordinateIndex++;
 		}
 		break;

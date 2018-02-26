@@ -88,6 +88,7 @@ namespace Guidance {
 		double GetPayloadServoTime() { return payloadServoTime; }
 
 		int coordinateIndex;  ///< The coordinate index of the NavPlan being targeted.
+		int totalCoordinates;  ///< Total amount of coordinates required to be hit
 
 	protected:
 		int GuidanceManeuverIndex; ///< Index of the current guidance maneuver being analyzed.
