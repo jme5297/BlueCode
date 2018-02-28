@@ -139,8 +139,10 @@ bool Camera::TakeImage(int a){
         tv.tv_sec = 2;
         tv.tv_usec = 0;
 
+        std::cout << "About to select r.\n";
         r = select(fd + 1, &fds, NULL, NULL, &tv);
     } while ((r == -1 && (errno = EINTR)));
+
     if (r == -1) {
         perror("select");
         return errno;
