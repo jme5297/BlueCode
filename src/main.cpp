@@ -273,6 +273,11 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 		// If the "Print" process is intialized, then display basic information->
 		double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
 		double lat = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lat;
+		#ifdef SIM
+		lon = PlantModel::GetVehicle()->gps.coords.lon;
+		lat = PlantModel::GetVehicle()->gps.coords.lat;
+		#endif
+
 		if (TimeModule::ProccessUpdate("Print")) {
 			std::cout <<
 				"t: " << std::fixed << std::setprecision(5) << TimeModule::GetElapsedTime("BeginMainOpsTime") <<
