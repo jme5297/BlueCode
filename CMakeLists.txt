@@ -4,6 +4,7 @@ project(BlueCode)
 # Compile against c++ 11
 set(CMAKE_CXX_STANDARD 11)
 
+set(USE_LASER false CACHE BOOL "Compile with laser logic included.")
 set(SIM false CACHE BOOL "Compile with a plant model and a simulated vehicle")
 set(USE_IRRLICHT false CACHE BOOL "Compile with a plant model and a simulated vehicle")
 set(DEBUG false CACHE BOOL "Compile without std::chrono dependencies (simple counter for clock)")
@@ -53,6 +54,12 @@ if(${SIM})
   endif(${USE_IRRLICHT})
 
 endif(${SIM})
+
+# Compile laser logic.
+if(${USE_LASER})
+  message(STATUS "Compiling #USE_LASER code.")
+  add_definitions(-D USE_LASER)
+endif()
 
 # Compile debug mode (no dependencies on std::chrono)
 if(${DEBUG})

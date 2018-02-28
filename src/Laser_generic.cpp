@@ -6,6 +6,8 @@ using namespace sensors;
 using namespace Plant;
 #endif
 
+using namespace std;
+
 Laser::Laser(int i){
 	ID = i;
 }
