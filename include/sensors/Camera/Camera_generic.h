@@ -1,7 +1,11 @@
 #pragma once
-#include <preprocdef.h>
-#include <sensors/Sensors_generic.h>
+
+#ifdef SIM
 #include <PlantModel/PlantModel.h>
+#endif
+
+#include <TimeModule.h>
+#include <Parser.h>
 
 #ifdef USE_CAMERA
 #include <stdio.h>
@@ -29,7 +33,7 @@ namespace sensors{
         bool Reset();
         bool Enable();
         bool Disable();
-        bool TakeImage(int argc, char **argv, int a);
+        bool TakeImage(int a);
         
         
     };

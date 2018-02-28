@@ -43,7 +43,8 @@ bool Camera::Disable(){
 
 	return true;
 }
-bool Camera::TakeImage(int argc, char **argv, int a){
+bool Camera::TakeImage(int a){
+//bool Camera::TakeImage(int argc, char **argv, int a){
 
 	#ifndef USE_CAMERA
 
@@ -95,7 +96,8 @@ bool Camera::TakeImage(int argc, char **argv, int a){
     req.memory = V4L2_MEMORY_MMAP;
     xioctl(fd, VIDIOC_REQBUFS, &req);
     
-    buffers = calloc(req.count, sizeof(*buffers));
+    buffers = (buffer*)calloc(req.count, sizeof(*buffers));
+
     for (n_buffers = 0; n_buffers < req.count; ++n_buffers) {
         CLEAR(buf);
         
