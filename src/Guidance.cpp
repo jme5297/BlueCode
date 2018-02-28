@@ -134,7 +134,8 @@ void Guider::Run(Navigator* n) {
 	else if (
 			(n->GetPathObstructions().at(0) || n->GetPathObstructions().at(1)) &&
 			!GetCurrentGuidanceManeuver().hasBeganDiverging &&
-			GuidanceManeuverBuffer[GuidanceManeuverIndex-1].state != ManeuverState::PayloadDrop) {
+			GuidanceManeuverBuffer[GuidanceManeuverIndex].state != ManeuverState::PayloadDrop) {
+
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 
 		GuidanceManeuverIndex++;
