@@ -1,36 +1,37 @@
 #pragma once
-#include <Parser.h>
-#include <TimeModule.h>
-
-#ifdef SIM
+#include <preprocdef.h>
+#include <sensors/Sensors_generic.h>
 #include <PlantModel/PlantModel.h>
-#endif
-
-// If Camera use is defined, then include OpenCV header files here.
-#ifdef USE_CAMERA
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui.hpp>
-#endif
-
-namespace sensors {
 
 #ifdef USE_CAMERA
-	using namespace cv;
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/mman.h>
+#include <linux/videodev2.h>
+#include <libv4l2.h>
 #endif
 
-	/*!
-	 * Main class for operating the connected camera. If USE_CAMERA compiling flag was enabled,
-	 * then OpenCV will be called to take a photo of the first default camera connected to this
-	 * device.
-	 */
-	class Camera {
-	public:
-		/// Main initializion routine for the Camera.
-		bool Init();
-		/// Main reset routine for the Camera class.
-		bool Reset();
-		/// In charge of enabling the connected camera and taking an image.
-		bool TakeImage(int i);
-	};
-
+namespace sensors{
+    
+    
+    // Main class for handling camera capabilities
+    class Camera{
+    public:
+        Camera();
+        ~Camera();
+        bool Init();
+        bool Reset();
+        bool Enable();
+        bool Disable();
+        bool TakeImage(int argc, char **argv, int a);
+        
+        
+    };
+    
 }
