@@ -66,7 +66,7 @@ void Guider::Run(Navigator* n) {
 	 *  - Queue the next calibration manuever to get ready to hit the next target.
 	 * Event 3: vehicle in payload drop range for the current drop, and this specific payload drop has not been triggered
 	 *  - Queue a payload drop maneuver
-	 * Event 4: vehicle encounters an obstacle that it is not currently handling
+	 * Event 4: vehicle encounters an obstacle that it is not currently handling & is not in a payload drop non-move state
 	 *  - Queue an avoid-diverge maneuver to avoid this obstacle.
 	 * Event 5: previous maneuver is complete and nav-plan is not complete (basically a catch-all)
 	 *  - If vehicle is on heading for the next maneuver:
