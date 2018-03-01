@@ -103,6 +103,7 @@ namespace Guidance {
 		double payloadServoTime;
 		double turnFactorDPS;
 		double maxVehicleSpeed;
+		double savedHeading;
 
 		/*!
 		 * Buffer of all guidance maneuvers. This buffer contains all information about the maneuvers that

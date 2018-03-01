@@ -24,7 +24,7 @@ bool GPS::Init(){
 	return PlantModel::GetVehicle()->gps.initialized;
 	#else
 	// Actual GPS initialization code goes here
-	
+
 	// THIS IS TEMPORARY
 	Coordinate c;
 	c.lat = Parser::GetInitialLatitude();
@@ -32,7 +32,7 @@ bool GPS::Init(){
 	currentGPSCoordinates = c;
 	lastCoordinates = c;
 	vehicleHeading = Parser::GetInitialHeading();
-	
+
 	#endif
 
 	return true;
@@ -40,7 +40,7 @@ bool GPS::Init(){
 void GPS::Run(){
 
 	double PI = 3.14159265;
-	
+
 	#ifdef SIM
 	if (TimeModule::ProccessUpdate("GPS")) {
 		// Calculate GPS.

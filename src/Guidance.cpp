@@ -15,6 +15,7 @@ Guider::Guider() {
 	isNavPlanComplete = false;
 	coordinateIndex = 0;
 	totalCoordinates = 0;
+	savedHeading = 0;
 }
 
 /**
@@ -91,6 +92,7 @@ void Guider::Run(Navigator* n) {
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Calibrating...\n";
 	}
 	// if we've just dropped off a payload successfully, then we need to calibrate.
+	/*
 	else if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop &&
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done == true)
 	{
@@ -106,6 +108,7 @@ void Guider::Run(Navigator* n) {
 		RequestGuidanceManeuver(gm);
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Calibrating...\n";
 	}
+	*/
 	// If we're within payload dropping distance, and if we haven't yet queued a payload drop,
 	// then request a new payload drop.
 	else if (n->DistanceBetweenCoordinates(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]) <= (payloadDropRadius - Parser::GetGPSUncertainty())
@@ -119,6 +122,9 @@ void Guider::Run(Navigator* n) {
 		// The state that we were currently in is complete now.
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 		GuidanceManeuverIndex++;
+
+		// Save the heading that was before the payload drop.
+		savedHeading = n->GetHeading();
 
 		//Push back a control move to drop payload.
 		GuidanceManeuver gm;
@@ -164,11 +170,19 @@ void Guider::Run(Navigator* n) {
 	// course maintain, or a turn, then see if we need to either turn or maintain course.
 	else if (GuidanceManeuverBuffer[GuidanceManeuverIndex].done && !isNavPlanComplete) {
 
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: -------------- Grabbing current GPS information.\n";
+		// If we're just coming from a payload-drop state, we already know our heading.
+		double usedHeading = 0.0;
+		if(GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop){
+			usedHeading = savedHeading;
+		}else{
+			usedHeading = n->GetHeading();
+		}
+		double x1 = sin(usedHeading * PI / 180.0);
+		double y1 = cos(usedHeading * PI / 180.0);
+
+		// Calculate the desired heading to the next coordinate.
 		Movement m;
 		m = n->CalculateMovement(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]);
-		double x1 = sin(n->GetHeading() * PI / 180.0);
-		double y1 = cos(n->GetHeading() * PI / 180.0);
 		double x2 = sin(m.heading * PI / 180.0);
 		double y2 = cos(m.heading * PI / 180.0);
 		double offAngle;
@@ -298,14 +312,14 @@ void Guider::Run(Navigator* n) {
 		// Notify the rest of guidance that we have began diverging.
 		man->hasBeganDiverging = true;
 
-		if(!man->hasFixedSpeed)
-			break;
-
 		// If vehicle finished backup turn, start driving straight and maintaining.
 		if (man->currentTurnAngle >= man->requestedTurnAngle) {
 
 			// Vehicle is once again succeptable for obstacle detection.
 			man->hasBeganDiverging = false;
+
+			if(!man->hasFixedSpeed)
+				break;
 
 			man->speed = 1.0;
 			man->turnDirection = 0;
@@ -317,6 +331,10 @@ void Guider::Run(Navigator* n) {
 		}
 		// Else, continue the backup turn maneuver.
 		else{
+
+			if(!man->hasFixedSpeed)
+				break;
+
 			double dtTurn = TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex));
 			man->currentTurnAngle = turnFactorDPS * dtTurn;
 
