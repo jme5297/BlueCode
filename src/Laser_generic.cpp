@@ -16,14 +16,15 @@ Laser::~Laser(){
 }
 bool Laser::Init(){
 
+	#ifdef USE_LASER
 	ifstream laser;
 	string laserLoc = "/sys/class/gpio/gpio" + std::to_string(ID) + "/value";
 	laser.open(laserLoc);
-
 	if (!laser.is_open()) {
 			cout << "INIT ERROR: Unable to read the laser data for GPIO " + std::to_string(ID) + ".\n";
 			return false;
 	}
+	#endif
 
 	return true;
 }

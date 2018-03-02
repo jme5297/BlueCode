@@ -28,9 +28,7 @@ void ControlMotors()
 	unsigned int curWheelSpeedI = 1;
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-	
-	//prussdrv_pru_disable(PRU_NUM);
-	//prussdrv_exit();	
+
 	prussdrv_init();
 	prussdrv_open(PRU_EVTOUT_0);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
@@ -57,9 +55,9 @@ void ControlMotors()
 		// prussdrv_pru_wait_event (PRU_EVTOUT_0);
 
 		//prussdrv_pru_disable(PRU_NUM);
-    		//prussdrv_exit ();
+    //prussdrv_exit ();
 	}
-	
+
 	#endif
 }
 
@@ -126,10 +124,12 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			SetMotorSpeeds(0.0);
 			break;
 		}
-		
+
+		#ifdef TEST_PWM
 		prussdrv_pru_disable(0);
 		prussdrv_exit();
-		
+		#endif
+
 		return;
 	}
 
