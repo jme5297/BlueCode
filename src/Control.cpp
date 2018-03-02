@@ -31,13 +31,16 @@ void ControlMotors()
 	while(true){
 		curWheelSpeedI = (int)(currentWheelSpeed*100.0);
 		curWheelSpeedI = (curWheelSpeedI == 0) ? 1 : curWheelSpeedI;
+		curWheelSpeedI = (curWheelSpeedI == 100) ? 99 : curWheelSpeedI;
+
+		std::cout << curWheelSpeedI << "\n";
 
 		prussdrv_init ();
 		prussdrv_open (PRU_EVTOUT_0);
 		// Map PRU intrrupts
 		prussdrv_pruintc_init(&pruss_intc_initdata);
 		// write duty cycle on PRU memory
-		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &init_duty_cycle, 4);
+		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &curWheelSpeedI, 4);
 
 		unsigned int sampletimestep = 10;  //delay factor (10 default, 624 for 1600 Hz)
 		// write it into the next word location in memory (i.e. 4-bytes later)
