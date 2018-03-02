@@ -28,30 +28,38 @@ void ControlMotors()
 	unsigned int curWheelSpeedI = 1;
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
+	
+	//prussdrv_pru_disable(PRU_NUM);
+	//prussdrv_exit();	
+	prussdrv_init();
+	prussdrv_open(PRU_EVTOUT_0);
+	prussdrv_pruintc_init(&pruss_intc_initdata);
+	unsigned int initVal = 1;
+	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &initVal, 4);
+	unsigned int sampletimestep = 10;  //delay factor (10 default, 624 for 1600 Hz)
+	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &sampletimestep, 4);
+	prussdrv_exec_program (PRU_NUM, "./pwm_test.bin");
 
 	while(true){
 		curWheelSpeedI = (int)(currentWheelSpeed*100.0);
-		if(curWheelSpeedI == 0) { continue; }
+		//if(curWheelSpeedI == 0) { continue; }
 		//curWheelSpeedI = (curWheelSpeedI == 100) ? 99 : curWheelSpeedI;
 
-		prussdrv_init ();
-		prussdrv_open (PRU_EVTOUT_0);
+		// prussdrv_init ();
+		// prussdrv_open (PRU_EVTOUT_0);
 		// Map PRU intrrupts
-		prussdrv_pruintc_init(&pruss_intc_initdata);
 		// write duty cycle on PRU memory
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &curWheelSpeedI, 4);
 
-		unsigned int sampletimestep = 10;  //delay factor (10 default, 624 for 1600 Hz)
 		// write it into the next word location in memory (i.e. 4-bytes later)
-		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &sampletimestep, 4);
 		// Load and execute binary on PRU
-		prussdrv_exec_program (PRU_NUM, "./pwm_test.bin");
 		// Wait for event completion from PRU
-		int n = prussdrv_pru_wait_event (PRU_EVTOUT_0);
+		// prussdrv_pru_wait_event (PRU_EVTOUT_0);
 
-		prussdrv_pru_disable(PRU_NUM);
-    		prussdrv_exit ();
+		//prussdrv_pru_disable(PRU_NUM);
+    		//prussdrv_exit ();
 	}
+	
 	#endif
 }
 
@@ -118,6 +126,10 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			SetMotorSpeeds(0.0);
 			break;
 		}
+		
+		prussdrv_pru_disable(0);
+		prussdrv_exit();
+		
 		return;
 	}
 

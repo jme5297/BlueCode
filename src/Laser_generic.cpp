@@ -57,13 +57,12 @@ bool Laser::ReadLaser(){
 		#ifdef SIM
 			Vehicle* v = PlantModel::GetVehicle();
 			bool val = false;
-			switch(ID){
-				case Parser::GetLaser_Left():
-					val = v->lasers[0].val;
-					break;
-				case Parser::GetLaser_Right():
-					val = v->lasers[1].val;
-					break;
+			int id1 = Parser::GetLaser_Left();
+			int id2 = Parser::GetLaser_Right();
+			if(ID == id1){
+				val = v->lasers[0].val;
+			}else{
+				val = v->lasers[1].val;
 			}
 			return val;
 		#endif
