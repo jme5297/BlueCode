@@ -42,6 +42,9 @@ namespace Control{
 		// Controls
 		void PayloadDrop(Guider* g, SensorHub* sh);
 
+		// Motor Controls
+		void InitializeMotorControl();
+
 	protected:
 		// For track system
 		double motorLSpeed;

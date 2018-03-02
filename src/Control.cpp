@@ -1,4 +1,5 @@
 #include <Control.h>
+#include <thread>
 
 #ifdef SIM
 using namespace Plant;
@@ -8,10 +9,28 @@ using namespace Guidance;
 using namespace Control;
 using namespace sensors;
 
+int cmCounter;
+int runCounter;
+
+void ControlMotors()
+{
+	while(true){
+		std::cout << cmCounter << " , " << runCounter << "\n";
+		usleep(100);
+		cmCounter++;
+	}
+}
+
 /// @todo This should not be hard-coded if a generalized model is desired.
 Controller::Controller() {
 	currentVehicleMode = Parser::GetControlMode();
 	currentWheelSpeed = 0.0;
+}
+
+void Controller::InitializeMotorControl(){
+	std::cout << "Creating a thread for motor control...\n";
+	std::thread runMotors(ControlMotors);
+	runMotors.detach();
 }
 
 /// @todo Determine if all of these switches are necessary.
@@ -113,6 +132,9 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		break;
 	}
 
+	// increase the run counter.
+	runCounter++;
+	cmCounter = 0;
 	return;
 }
 

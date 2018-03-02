@@ -229,6 +229,10 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 	std::ofstream output;
 	output.open((name).c_str());
 
+
+	// Initialize the motor control.
+	myController->InitializeMotorControl();
+
 	//-----------------------------------------
 	//                     Main Logic loop
 	//-----------------------------------------
