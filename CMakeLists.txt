@@ -68,6 +68,12 @@ if(${DEBUG})
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
+# Compile against threading.
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package( Threads REQUIRED )
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
+
 # Attempt to use an attached camera
 if(${USE_CAMERA})
   message(STATUS "Camera usage requested. Checking for OpenCV...")
@@ -106,5 +112,6 @@ endif()
 add_executable(BlueCode WIN32 ${source_files})
 target_link_libraries( BlueCode ${IRRLICHT_LIBRARY} 
 	#${OpenCV_LIBS} 
+	${CMAKE_THREAD_LIBS_INIT}
 	${V4L2_LIBRARIES}
 	${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )
