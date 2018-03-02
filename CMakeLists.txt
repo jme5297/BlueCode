@@ -4,6 +4,7 @@ project(BlueCode)
 # Compile against c++ 11
 set(CMAKE_CXX_STANDARD 11)
 
+set(TEST_PWM false CACHE BOOL "Test PWM code.")
 set(USE_LASER false CACHE BOOL "Compile with laser logic included.")
 set(SIM false CACHE BOOL "Compile with a plant model and a simulated vehicle")
 set(USE_IRRLICHT false CACHE BOOL "Compile with a plant model and a simulated vehicle")
@@ -69,10 +70,14 @@ if(${DEBUG})
 endif()
 
 # Compile against threading.
-set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-find_package( Threads REQUIRED )
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
+if(${TEST_PWM})
+  message(STATUS "Compiling #TEST_PWM packages.")
+  add_definitions(-D TEST_PWM)
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package( Threads REQUIRED )
+  set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-lpthread -lprussdrv")
+endif()
 
 # Attempt to use an attached camera
 if(${USE_CAMERA})
@@ -83,7 +88,7 @@ if(${USE_CAMERA})
 #  find_package( OpenCV )
 #  if(OpenCV_FOUND)
 #    add_definitions(-D USE_CAMERA)
-#    if (MSVC_IDE) 
+#    if (MSVC_IDE)
 #      message(STATUS "Running on windows. Copying over OpenCV DLL's...")
 #      file(GLOB OCV_DEBUG "${OpenCV_DIR}/bin/Debug/*.dll" )
 #      file(GLOB OCV_RELEASE "${OpenCV_DIR}/bin/Release/*.dll*" )
@@ -110,8 +115,8 @@ if(NOT ${SIM})
 endif()
 
 add_executable(BlueCode WIN32 ${source_files})
-target_link_libraries( BlueCode ${IRRLICHT_LIBRARY} 
-	#${OpenCV_LIBS} 
+target_link_libraries( BlueCode ${IRRLICHT_LIBRARY}
+	#${OpenCV_LIBS}
 	${CMAKE_THREAD_LIBS_INIT}
 	${V4L2_LIBRARIES}
 	${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )

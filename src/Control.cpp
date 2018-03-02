@@ -1,5 +1,11 @@
 #include <Control.h>
+
+#ifdef TEST_PWM
 #include <thread>
+#include <prussdrv.h>
+#include <pruss_intc_mapping.h>
+#define PRU_NUM   0
+#endif
 
 #ifdef SIM
 using namespace Plant;
@@ -20,10 +26,7 @@ void ControlMotors()
 {
 	unsigned int curWheelSpeedI = 0;
 	while(true){
-		curWheelSpeedI = (int)(currentWheelSpeed*100.0);
-		std::cout << "Motor Count: " << motorCount << " , Wheel Speed: " << curWheelSpeedI << " , Run Count: " << runCount << "\n";
-		motorCount++;
-		usleep(100);
+
 	}
 }
 
@@ -34,9 +37,11 @@ Controller::Controller() {
 }
 
 void Controller::InitializeMotorControl(){
+	#ifdef TEST_PWM
 	std::cout << "Creating a thread for motor control...\n";
 	std::thread runMotors(ControlMotors);
 	runMotors.detach();
+	#endif
 }
 
 /// @todo Determine if all of these switches are necessary.
