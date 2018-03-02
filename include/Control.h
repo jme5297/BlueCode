@@ -54,7 +54,8 @@ namespace Control{
 		double wheelSpeedN;
 		double wheelSteeringN;
 
-		double currentWheelSpeed;
+		// This is now a static variable in Control.cpp.
+		// double currentWheelSpeed;
 
 		VehicleMode currentVehicleMode;
 		GuidanceManeuver currentGuidanceManeuver;

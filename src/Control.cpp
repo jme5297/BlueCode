@@ -9,15 +9,21 @@ using namespace Guidance;
 using namespace Control;
 using namespace sensors;
 
-int cmCounter;
-int runCounter;
+// Static variable for current wheel speed (in double form)
+double currentWheelSpeed;
+
+// Debugging variables
+int motorCount;
+int runCount;
 
 void ControlMotors()
 {
+	unsigned int curWheelSpeedI = 0;
 	while(true){
-		std::cout << cmCounter << " , " << runCounter << "\n";
+		curWheelSpeedI = (int)(currentWheelSpeed*100.0);
+		std::cout << "Motor Count: " << motorCount << " , Wheel Speed: " << curWheelSpeedI << " , Run Count: " << runCount << "\n";
+		motorCount++;
 		usleep(100);
-		cmCounter++;
 	}
 }
 
@@ -35,6 +41,9 @@ void Controller::InitializeMotorControl(){
 
 /// @todo Determine if all of these switches are necessary.
 void Controller::Run(Guider* g, SensorHub* sh) {
+
+	runCount++;
+	motorCount = 0;
 
 	// Update the speeds.
 	if(!g->GetCurrentGuidanceManeuver().hasFixedSpeed){
@@ -132,9 +141,6 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		break;
 	}
 
-	// increase the run counter.
-	runCounter++;
-	cmCounter = 0;
 	return;
 }
 
