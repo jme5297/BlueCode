@@ -30,8 +30,8 @@ void ControlMotors()
 
 	while(true){
 		curWheelSpeedI = (int)(currentWheelSpeed*100.0);
-		curWheelSpeedI = (curWheelSpeedI == 0) ? 1 : curWheelSpeedI;
-		curWheelSpeedI = (curWheelSpeedI == 100) ? 99 : curWheelSpeedI;
+		if(curWheelSpeedI == 0) { continue; }
+		//curWheelSpeedI = (curWheelSpeedI == 100) ? 99 : curWheelSpeedI;
 
 		prussdrv_init ();
 		prussdrv_open (PRU_EVTOUT_0);
@@ -49,7 +49,7 @@ void ControlMotors()
 		int n = prussdrv_pru_wait_event (PRU_EVTOUT_0);
 
 		prussdrv_pru_disable(PRU_NUM);
-    prussdrv_exit ();
+    		prussdrv_exit ();
 	}
 }
 
