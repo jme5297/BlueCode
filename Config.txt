@@ -84,6 +84,12 @@ MaxCameraAttempts = 3
 # What vehicle control type should be used? Can be Wheel or Track.
 ControlMode = Wheel
 
+#   SENSORS
+# -----------------
+# GPIO numbers of the left and right lasers.
+Laser_Left = 60
+Laser_Right = 61
+
 # ----------------------------------------------------------------------------
 #                                              Configuration for the simulator
 # ----------------------------------------------------------------------------

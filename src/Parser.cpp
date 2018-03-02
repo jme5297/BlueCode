@@ -27,6 +27,8 @@ double Parser::PayloadServoTime;
 double Parser::MaxTurnSteering;
 int Parser::MaxCameraAttempts;
 VehicleMode Parser::ControlMode;
+int Parser::Laser_Left;
+int Parser::Laser_Right;
 std::vector<pLas> Parser::Lasers;
 
 // Simulation
@@ -203,6 +205,18 @@ void Parser::ReadInputs(std::string file)
 			else {
 				ControlMode = VehicleMode::Track;
 			}
+			continue;
+		}
+		else if (s.find("Laser_Left") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> Laser_Left;
+			continue;
+		}
+		else if (s.find("Laser_Right") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> Laser_Right;
 			continue;
 		}
 		//----------------------------------------

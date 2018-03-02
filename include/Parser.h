@@ -101,6 +101,8 @@ public:
 	static int GetMaxCameraAttempts() { return MaxCameraAttempts; }
 	static double GetPayloadServoTime() { return PayloadServoTime; }
 	static VehicleMode GetControlMode() { return ControlMode; }
+	static int GetLaser_Left() { return Laser_Left; }
+	static int GetLaser_Right() { return Laser_Right; }
 
 	static double GetTimeDelta() { return TimeDelta; }
 	static double GetSimDelta() { return SimDelta; }
@@ -141,6 +143,8 @@ protected:
 	static int MaxCameraAttempts;
 	static double PayloadServoTime;
 	static VehicleMode ControlMode;
+	static int Laser_Left;
+	static int Laser_Right;
 
 	static double TimeDelta;
 	static double SimDelta;

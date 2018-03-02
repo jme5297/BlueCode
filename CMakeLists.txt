@@ -81,27 +81,12 @@ endif()
 
 # Attempt to use an attached camera
 if(${USE_CAMERA})
-  message(STATUS "Camera usage requested. Checking for OpenCV...")
-  FIND_PACKAGE(V4L2)
+  message(STATUS "Camera usage requested. Checking for V4L2...")
+  FIND_PACKAGE(V4L2 REQUIRED)
   add_definitions(-D USE_CAMERA)
-
-#  find_package( OpenCV )
-#  if(OpenCV_FOUND)
-#    add_definitions(-D USE_CAMERA)
-#    if (MSVC_IDE)
-#      message(STATUS "Running on windows. Copying over OpenCV DLL's...")
-#      file(GLOB OCV_DEBUG "${OpenCV_DIR}/bin/Debug/*.dll" )
-#      file(GLOB OCV_RELEASE "${OpenCV_DIR}/bin/Release/*.dll*" )
-#      file(COPY ${OCV_DEBUG} DESTINATION ${PROJECT_BINARY_DIR}/Debug)
-#      file(COPY ${OCV_RELEASE} DESTINATION ${PROJECT_BINARY_DIR}/Release)
-#    endif()
-#  else()
-#    message(WARNING "OpenCV not found. Disabling camera usage.")
-#  endif(OpenCV_FOUND)
 endif()
 
 # Bring in all of my headers
-#include_directories( ${OpenCV_INCLUDE_DIRS} )
 include_directories(include)
 include_directories( ${V4L2_INCLUDE_DIRS} )
 
@@ -116,8 +101,10 @@ endif()
 
 add_executable(BlueCode WIN32 ${source_files})
 target_link_libraries( BlueCode ${IRRLICHT_LIBRARY}
-	#${OpenCV_LIBS}
 	${CMAKE_THREAD_LIBS_INIT}
-  -lprussdrv
 	${V4L2_LIBRARIES}
 	${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )
+
+if(${TEST_PWM})
+  target_link_libraries( BlueCode -lprussdrv )
+endif()

@@ -24,6 +24,7 @@ int runCount;
 
 void ControlMotors()
 {
+	#ifdef TEST_PWM
 	unsigned int curWheelSpeedI = 1;
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
@@ -51,6 +52,7 @@ void ControlMotors()
 		prussdrv_pru_disable(PRU_NUM);
     		prussdrv_exit ();
 	}
+	#endif
 }
 
 /// @todo This should not be hard-coded if a generalized model is desired.

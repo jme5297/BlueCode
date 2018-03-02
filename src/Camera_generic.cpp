@@ -29,6 +29,32 @@ Camera::~Camera(){
 }
 bool Camera::Init(){
 
+  #ifdef USE_CAMERA
+  // Actual code goes here to take Camera image
+  struct v4l2_format              fmt;
+  struct v4l2_buffer              buf;
+  struct v4l2_requestbuffers      req;
+  enum v4l2_buf_type              type;
+  fd_set                          fds;
+  struct timeval                  tv;
+  int                             r, fd = -1;
+  unsigned int                    i, n_buffers;
+  char                            *dev_name = "/dev/video0";
+  char                            out_name[256];
+  FILE                            *fout;
+  struct buffer                   *buffers;
+  int                             p;
+
+  fd = v4l2_open(dev_name, O_RDWR | O_NONBLOCK, 0);
+  if (fd < 0) {
+      perror("INIT ERROR: Can't open Camera.");
+      exit(EXIT_FAILURE);
+      return false;
+  }else{
+    v4l2_close(fd);
+  }
+  #endif
+
 	return true;
 }
 bool Camera::Reset(){

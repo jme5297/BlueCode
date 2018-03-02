@@ -16,6 +16,15 @@ Laser::~Laser(){
 }
 bool Laser::Init(){
 
+	ifstream laser;
+	string laserLoc = "/sys/class/gpio/gpio" + std::to_string(ID) + "/value";
+	laser.open(laserLoc);
+
+	if (!laser.is_open()) {
+			cout << "INIT ERROR: Unable to read the laser data for GPIO " + std::to_string(ID) + ".\n";
+			return false;
+	}
+
 	return true;
 }
 bool Laser::Reset(){
@@ -23,11 +32,16 @@ bool Laser::Reset(){
 	return true;
 }
 bool Laser::ReadLaser(){
+
 	#ifdef USE_LASER
+
 		// ACTUAL laser information here
 		int digit = -1;
 	  ifstream laser;
-	  laser.open("/sys/class/gpio/gpio60/value");
+
+		string laserLoc = "/sys/class/gpio/gpio" + std::to_string(ID) + "/value";
+	  laser.open(laserLoc);
+
 	  if (laser.is_open()) {
 	      while (laser.good() ){ laser >> digit; }
 	  }else{
@@ -37,11 +51,24 @@ bool Laser::ReadLaser(){
 	  if (digit == 0) { return true; }
 		else if (digit == 1){ return false; }
 		return false;
+
 	#else
+
 		#ifdef SIM
 			Vehicle* v = PlantModel::GetVehicle();
-			return v->lasers[ID].val;
+			bool val = false;
+			switch(ID){
+				case Parser::GetLaser_Left():
+					val = v->lasers[0].val;
+					break;
+				case Parser::GetLaser_Right():
+					val = v->lasers[1].val;
+					break;
+			}
+			return val;
 		#endif
 		return false;
+
 	#endif
+
 }

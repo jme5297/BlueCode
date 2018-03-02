@@ -9,9 +9,9 @@ SensorHub::SensorHub() {
 	gps0 = GPS();
 
 	// Initialize two lasers.
-	lasers = { 
-		Laser(0), // Laser ID #0 represents the left laser.
-		Laser(1)  // Laser ID #1 represents the right laser.
+	lasers = {
+		Laser(Parser::GetLaser_Left()), // Laser 0 represents the left laser.
+		Laser(Parser::GetLaser_Right())  // Laser 1 represents the right laser.
 	};
 }
 

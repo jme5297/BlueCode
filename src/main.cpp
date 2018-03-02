@@ -85,14 +85,14 @@ int main(int argc, char* argv[]) {
 	srand(time(0));
 #endif
 
+	// Read all of the inputs in the configuration file.
+	Parser::ReadInputs("../Config.txt");
+
 	// Create all of the main structures to be passed to the respective subroutines.
 	Navigator NAV; Navigator* myNavigator = &NAV;
 	Guider GUID; Guider* myGuider = &GUID;
 	SensorHub SH; SensorHub* mySensorHub = &SH;
 	Controller CTRL; Controller* myController = &CTRL;
-
-	// Read all of the inputs in the configuration file.
-	Parser::ReadInputs("../Config.txt");
 
 	// Initialize all sensors, test connectivity, and construct a Nav Plan->
 	bool setup = ProgramSetup(mySensorHub, myNavigator, myGuider, myController);
