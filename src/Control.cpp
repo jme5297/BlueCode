@@ -49,6 +49,9 @@ void ControlMotors()
 		prussdrv_exec_program (PRU_NUM, "./pwm_test.bin");
 		// Wait for event completion from PRU
 		int n = prussdrv_pru_wait_event (PRU_EVTOUT_0);
+		
+		prussdrv_pru_disable(PRU_NUM);
+    prussdrv_exit ();
 	}
 }
 
