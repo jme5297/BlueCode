@@ -118,5 +118,6 @@ add_executable(BlueCode WIN32 ${source_files})
 target_link_libraries( BlueCode ${IRRLICHT_LIBRARY}
 	#${OpenCV_LIBS}
 	${CMAKE_THREAD_LIBS_INIT}
+  -lprussdrv
 	${V4L2_LIBRARIES}
 	${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )
