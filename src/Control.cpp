@@ -33,8 +33,6 @@ void ControlMotors()
 		curWheelSpeedI = (curWheelSpeedI == 0) ? 1 : curWheelSpeedI;
 		curWheelSpeedI = (curWheelSpeedI == 100) ? 99 : curWheelSpeedI;
 
-		std::cout << curWheelSpeedI << "\n";
-
 		prussdrv_init ();
 		prussdrv_open (PRU_EVTOUT_0);
 		// Map PRU intrrupts
@@ -49,7 +47,7 @@ void ControlMotors()
 		prussdrv_exec_program (PRU_NUM, "./pwm_test.bin");
 		// Wait for event completion from PRU
 		int n = prussdrv_pru_wait_event (PRU_EVTOUT_0);
-		
+
 		prussdrv_pru_disable(PRU_NUM);
     prussdrv_exit ();
 	}
