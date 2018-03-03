@@ -69,7 +69,7 @@ Controller::Controller() {
 
 void Controller::InitializeMotorControl(){
 	#ifdef TEST_PWM
-	std::cout << "Creating a thread for motor control...\n";
+	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Creating a thread for motor control...\n";
 	std::thread runMotors(ControlMotors);
 	runMotors.detach();
 	#endif
@@ -92,19 +92,25 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
 			switch (g->GetCurrentGuidanceManeuver().state) {
 				case ManeuverState::Calibrate:
+					std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to calibrate.\n";
 					TimeModule::AddMilestone("Calibration_" + std::to_string(g->GetGuidanceManeuverIndex()));
 					break;
 				case ManeuverState::Turn:
+					std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to turn.\n";
 					TimeModule::AddMilestone("Turn_" + std::to_string(g->GetGuidanceManeuverIndex()));
+					break;
 				case ManeuverState::Maintain:
+					std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to maintain.\n";
 					TimeModule::AddMilestone("Maintain_" + std::to_string(g->GetGuidanceManeuverIndex()));
 					break;
 				case ManeuverState::AvoidDiverge:
+				  std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to avoid-diverge.\n";
 					TimeModule::AddMilestone("Avoid_" + std::to_string(g->GetGuidanceManeuverIndex()));
 					break;
 				case ManeuverState::AvoidConverge:
 					break;
 				case ManeuverState::PayloadDrop:
+					std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to drop payload.\n";
 					TimeModule::AddMilestone("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex()));
 					break;
 			}
@@ -114,7 +120,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 
 	// If the NAV plan is complete, then stop the vehicle and return->
 	if (g->IsNavPlanComplete()) {
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Nav Plan complete. Stopping vehicle.\n";
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Nav Plan complete. Stopping vehicle.\n";
 		switch (currentVehicleMode) {
 		case VehicleMode::Wheel:
 			SetWheelSpeed(0.0);
@@ -163,7 +169,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		if(g->coordinateIndex == g->totalCoordinates-1){
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
 			g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
-			std::cout << "=== RETURNED TO HOME ===\n";
+			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: WE'RE BACK HOME!\n";
 			return;
 		}
 
@@ -194,7 +200,7 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 	if (!g->GetCurrentGuidanceManeuver().payloadDropComplete) {
 		if (TimeModule::GetElapsedTime("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex())) >= g->GetPayloadServoTime()) {
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
-			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Payload deployed!\n";
+			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Payload deployed!\n";
 			// payloadServo = 0.0
 		}
 		else {
@@ -209,10 +215,10 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 	bool imageTaken = sh->GetCamera()->TakeImage(g->GetCurrentGuidanceManeuver().index);
 	if (imageTaken) {
 		g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Controller received successful image signal!\n";
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Received successful image signal!\n";
 	}
 	else {
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Controller says image taking has failed.\n";
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Image taking has failed.\n";
 	}
 	return;
 }

@@ -1,5 +1,6 @@
 #include <sensors/Camera/Camera_generic.h>
 using namespace sensors;
+using namespace Times;
 
 #ifdef USE_CAMERA
 
@@ -75,7 +76,7 @@ bool Camera::TakeImage(int a){
 	#ifndef USE_CAMERA
 
 	// No camera control for non-camera runs
-	std::cout << "(Fake) Camera image taken!\n";
+	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CMA]: (Fake) Camera image taken!\n";
 	return true;
 
 	#else
@@ -165,7 +166,7 @@ bool Camera::TakeImage(int a){
       tv.tv_sec = 2;
       tv.tv_usec = 0;
 
-      std::cout << "About to select r.\n";
+      //std::cout << "About to select r.\n";
       r = select(fd + 1, &fds, NULL, NULL, &tv);
   } while ((r == -1 && (errno = EINTR)));
 
@@ -199,7 +200,7 @@ bool Camera::TakeImage(int a){
       v4l2_munmap(buffers[i].start, buffers[i].length);
   v4l2_close(fd);
 
-	std::cout << "Camera image taken!\n";
+	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CMA]: Camera image taken!\n";
 
 	#endif
 

@@ -149,10 +149,10 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 #endif
 
 	// Ensure all sensors are connected.
-	std::cout << "Initializing sensor connections... \n";
+	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: Initializing sensor connections... \n";
 	bool initialized = mySensorHub->InitAllSensors();
 	if (!initialized) {
-		std::cout << "ERROR: Not all sensors have initialized. Exiting program.\n";
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: ERROR: Not all sensors have initialized. Exiting program.\n";
 		return false;
 	}
 
@@ -161,12 +161,13 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	myNavigator->Initialize(mySensorHub);
 	myNavigator->AddCoordinates(Parser::GetInputCoordinates());
 	if (!myNavigator->IsPopulated()) {
-		std::cout << "ERROR: Nav Plan not properly populated. Exiting program.\n";
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: ERROR: Nav Plan not properly populated. Exiting program.\n";
 		return false;
 	}
 
 	// If user has specified, optimize the initial nav-plan->
 	if (Parser::GetOptimize()) {
+		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: Requesting Nav-Plan optimizaiton.\n";
 		myNavigator->ConstructNavPlan(0);
 	}
 
@@ -303,7 +304,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 		}
 	}
 
-	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Main operations complete.\n";
+	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: Main operations complete.\n";
 	output.close();
 	return;
 }

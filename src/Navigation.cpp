@@ -96,7 +96,7 @@ void Navigator::ConstructNavPlan(int cInd)
 		allCoordinatePermutations[i].push_back(initialPosition);
 	}
 
-	std::cout << std::to_string(totalPermutations) + " possible permutations.\n";
+	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][NAV]: Found " << allCoordinatePermutations.size() << " path options.\n";
 
 	// Iterate to find the smallest distance from the permutations.
 	int shortestDistanceIndex = -1;
@@ -108,11 +108,10 @@ void Navigator::ConstructNavPlan(int cInd)
 		{
 			shortestDistance = dist;
 			shortestDistanceIndex = i;
-			std::cout << "Permutation " + std::to_string(i) + " is the shortest so far at " + std::to_string(shortestDistance) + ".\n";
 		}
 	}
 
-	std::cout << "Permutation " + std::to_string(shortestDistanceIndex) + " is the shortest!\n";
+	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][NAV]: Path " + std::to_string(shortestDistanceIndex) + " is the shortest!\n";
 
 	// Clear the current plan->
 	std::vector<Coordinate> tmpCoords = activeNavPlan.coordinates;
