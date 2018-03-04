@@ -19,6 +19,12 @@ TimeModule::TimeModule(){
   #endif
 }
 
+void TimeModule::Log(string agent, string message){
+  std::cout <<
+    "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][" <<
+    agent << "]: " << message << "\n";
+}
+
 #ifdef DEBUG
 void TimeModule::SetTimeSimDelta(double d){
   simDelta = d;

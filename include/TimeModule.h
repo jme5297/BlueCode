@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include <iostream>
 
 namespace Times{
 
@@ -20,6 +21,7 @@ namespace Times{
     static double GetElapsedTime(string str);
     static double GetProccessDelta(string str);
     static double GetLastProccessDelta(string str);
+    static void Log(string, string);
     #ifdef DEBUG
     static void SetTimeSimDelta(double d);
     static void Run();
