@@ -92,25 +92,25 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
 			switch (g->GetCurrentGuidanceManeuver().state) {
 				case ManeuverState::Calibrate:
-					std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to calibrate.\n";
+					TimeModule::Log("CTL", "Speed fixed. Ready to calibrate.");
 					TimeModule::AddMilestone("Calibration_" + std::to_string(g->GetGuidanceManeuverIndex()));
 					break;
 				case ManeuverState::Turn:
-					std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to turn.\n";
+					TimeModule::Log("CTL", "Speed fixed. Ready to turn.");
 					TimeModule::AddMilestone("Turn_" + std::to_string(g->GetGuidanceManeuverIndex()));
 					break;
 				case ManeuverState::Maintain:
-					std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to maintain.\n";
+					TimeModule::Log("CTL", "Speed fixed. Ready to maintain.");
 					TimeModule::AddMilestone("Maintain_" + std::to_string(g->GetGuidanceManeuverIndex()));
 					break;
 				case ManeuverState::AvoidDiverge:
-				  std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to avoid-diverge.\n";
+				  TimeModule::Log("CTL", "Speed fixed. Ready to avoid-diverge.");
 					TimeModule::AddMilestone("Avoid_" + std::to_string(g->GetGuidanceManeuverIndex()));
 					break;
 				case ManeuverState::AvoidConverge:
 					break;
 				case ManeuverState::PayloadDrop:
-					std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Speed fixed. Ready to drop payload.\n";
+					TimeModule::Log("CTL", "Speed fixed. Ready to drop payload.");
 					TimeModule::AddMilestone("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex()));
 					break;
 			}

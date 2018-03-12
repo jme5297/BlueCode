@@ -200,7 +200,7 @@ bool Camera::TakeImage(int a){
       v4l2_munmap(buffers[i].start, buffers[i].length);
   v4l2_close(fd);
 
-	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CMA]: Camera image taken!\n";
+	TimeModule::Log("CMA", ": Camera image taken!");
 
 	#endif
 
