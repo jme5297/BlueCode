@@ -12,7 +12,7 @@ Coding base for AERSP 440's Blue Team (a.k.a. the winning team)
 A simple physics plant model has been included in this project that will allow for vehicle testing and new code testing. The simulation portion of this project also comes with a pre-packaged version of a lightweight 3D C++ engine called Irrlicht. You can run the simulation with or without the use of Irrlicht. If the simulation is ran without Irrlicht, then there will be no obstacle detection and no laser sensor readings. Prerequisites for Irrlicht are below.
 * **Linux**:
   * `sudo apt-get -y install build-essential xserver-xorg-dev x11proto-xf86vidmode-dev libxxf86vm-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libxext-dev libxcursor-dev`
-  
+
 ### Camera Testing & OpenCV
 Camera Testing is not a necessity for the simulation, but it is a feature that can be enabled if OpenCV is installed and configured on your machine.
 * **Windows**:
@@ -52,6 +52,8 @@ To run CMake for this project, you may either run the CMake GUI application, or 
 | `DEBUG` | Compiles with debugging symbols. Also uses a counter loop for time rather than std::chrono. | `false` |
 | `USE_IRRLICHT` | Render the simulation in 3D, and calculate obstacles & laser ranges. <br> Note: `SIM` is required. | `false` |
 | `USE_CAMERA` | Use whatever camera is attached to the device to take images. <br> Note: requires OpenCV. | `false` |
+| `USE_LASER` | Real laser sensor data sound be read from GPIO ports. | `false` |
+| `TEST__PWM` | PWM signals should be sent to the PRU units to test motor control. | `false` |
 
 # Build
 * **Windows**
