@@ -14,6 +14,9 @@ A simple physics plant model has been included in this project that will allow f
   * `sudo apt-get -y install build-essential xserver-xorg-dev x11proto-xf86vidmode-dev libxxf86vm-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libxext-dev libxcursor-dev`
 
 ### Camera Testing & OpenCV
+
+[ NOTE: Camera testing is now deprecated as the functionality requires a specific library to the BeagleBone. ]
+
 Camera Testing is not a necessity for the simulation, but it is a feature that can be enabled if OpenCV is installed and configured on your machine.
 * **Windows**:
   * https://docs.opencv.org/2.4/doc/tutorials/introduction/windows_install/windows_install.html
