@@ -76,6 +76,18 @@ Navigator InutNavPlanCoordinates();
  */
 void PrintNavPlanInfo(Navigator* n, SensorHub* sh);
 
+// Create all of the main structures to be passed to the respective subroutines.
+Navigator NAV; Navigator* myNavigator = &NAV;
+Guider GUID; Guider* myGuider = &GUID;
+SensorHub SH; SensorHub* mySensorHub = &SH;
+Controller CTRL; Controller* myController = &CTRL;
+
+// Handler for premature ctrl-c statements
+void my_handler(int s){
+		myController->EmergencyShutdown();
+    exit(1);
+}
+
 //-----------------------------------------------------------
 //                                           Program Entrance
 //-----------------------------------------------------------
@@ -85,14 +97,14 @@ int main(int argc, char* argv[]) {
 	srand(time(0));
 #endif
 
+	struct sigaction sigIntHandler;
+ 	sigIntHandler.sa_handler = my_handler;
+  sigemptyset(&sigIntHandler.sa_mask);
+  sigIntHandler.sa_flags = 0;
+  sigaction(SIGINT, &sigIntHandler, NULL);
+
 	// Read all of the inputs in the configuration file.
 	Parser::ReadInputs("../Config.txt");
-
-	// Create all of the main structures to be passed to the respective subroutines.
-	Navigator NAV; Navigator* myNavigator = &NAV;
-	Guider GUID; Guider* myGuider = &GUID;
-	SensorHub SH; SensorHub* mySensorHub = &SH;
-	Controller CTRL; Controller* myController = &CTRL;
 
 	// Initialize all sensors, test connectivity, and construct a Nav Plan->
 	bool setup = ProgramSetup(mySensorHub, myNavigator, myGuider, myController);

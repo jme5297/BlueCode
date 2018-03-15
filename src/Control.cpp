@@ -25,25 +25,20 @@ int runCount;
 
 void ControlMotors()
 {
-	#ifdef TEST_PWM
 	unsigned int curWheelSpeedI = 1;
+
+	#ifdef TEST_PWM
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-
-	prussdrv_init();
-	prussdrv_open(PRU_EVTOUT_0);
-	prussdrv_pruintc_init(&pruss_intc_initdata);
-	unsigned int initVal = 1;
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &initVal, 4);
-	unsigned int sampletimestep = 10;  //delay factor (10 default, 624 for 1600 Hz)
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &sampletimestep, 4);
-	prussdrv_exec_program (PRU_NUM, "./pwm_test.bin");
+  prussdrv_init ();
+  prussdrv_open (PRU_EVTOUT_0);
+  prussdrv_pruintc_init(&pruss_intc_initdata);
+  prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
 
 	while(true){
 		curWheelSpeedI = (int)(currentWheelSpeed*100.0);
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &curWheelSpeedI, 4);
 	}
-
 	#endif
 }
 
@@ -52,28 +47,18 @@ void ControlSteering()
 	unsigned int curWheelSteeringI = 1;
 
 	#ifdef TEST_PWM
-	unsigned int curWheelSteeringI = 1;
 	// Initialize structure used by prussdrv_pruintc_intc
-	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-	prussdrv_init();
-	prussdrv_open(PRU_EVTOUT_0);
-	prussdrv_pruintc_init(&pruss_intc_initdata);
-	unsigned int initVal = 1;
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &initVal, 4);
-	unsigned int sampletimestep = 10;  //delay factor (10 default, 624 for 1600 Hz)
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &sampletimestep, 4);
-	prussdrv_exec_program (PRU_NUM, "./pwm_test.bin");
+	ttpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
+  prussdrv_init ();
+  prussdrv_open (PRU_EVTOUT_0);
+  prussdrv_pruintc_init(&pruss_intc_initdata);
+  prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
+
 	while(true){
 		curWheelSteeringI = (int)(currentWheelSteering*100.0);
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &curWheelSpeedI, 4);
 	}
 	#endif
-
-	while(true){
-		curWheelSteeringI = (int)(currentWheelSteering*100.0);
-		// std::cout << curWheelSteeringI << "\n";
-		usleep(1000);
-	}
 }
 
 /// @todo This should not be hard-coded if a generalized model is desired.
@@ -84,15 +69,33 @@ Controller::Controller() {
 }
 
 void Controller::InitializeMotorControl(){
-	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Creating a thread for motor control...\n";
+	TimeModule::Log("CTL", "Creating a thread for motor control...");
 	std::thread runMotors(ControlMotors);
 	runMotors.detach();
 }
 
 void Controller::InitializeSteeringControl(){
-	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Creating a thread for steering control...\n";
+	TimeModule::Log("CTL", "Creating a thread for steering control...");
 	std::thread runMotors(ControlSteering);
 	runMotors.detach();
+}
+
+void Controller::EmergencyShutdown(){
+
+	std::cout << "===EMERGENCY! DECELERATING!===\n";
+	currentWheelSteering = 0.0;
+	while(currentWheelSpeed > 0.0){
+		currentWheelSpeed -= 0.5*Parser::GetRefresh_GUID();
+		if(currentWheelSpeed < 0.0){ currentWheelSpeed = 0.0; }
+		usleep(10000);
+	}
+	std::cout << "===Deceleration complete.===\n";
+
+	#ifdef TEST_PWM
+	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
+	prussdrv_pru_disable(PRU_NUM);
+	prussdrv_exit ();
+	#endif
 }
 
 /// @todo Determine if all of these switches are necessary.
@@ -156,8 +159,9 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		currentWheelSpeed = 0.0;
 
 		#ifdef TEST_PWM
-		prussdrv_pru_disable(0);
-		prussdrv_exit();
+		tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
+   	prussdrv_pru_disable(PRU_NUM);
+   	prussdrv_exit ();
 		#endif
 
 		return;

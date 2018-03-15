@@ -34,6 +34,7 @@ namespace Control{
 		// Motor Controls
 		void InitializeMotorControl();
 		void InitializeSteeringControl();
+		void EmergencyShutdown();
 
 	protected:
 		// For track system

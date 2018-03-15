@@ -10,6 +10,10 @@
 #include <ctime>
 #include <cmath>
 #include <thread>
+#include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 
 namespace Control {
 	/*!
