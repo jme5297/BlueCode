@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <thread>
 
 namespace Control {
 	/*!

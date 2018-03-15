@@ -1,7 +1,6 @@
 #include <Control.h>
 
 #ifdef TEST_PWM
-#include <thread>
 #include <prussdrv.h>
 #include <pruss_intc_mapping.h>
 #define PRU_NUM   0
@@ -17,6 +16,8 @@ using namespace sensors;
 
 // Static variable for current wheel speed (in double form)
 double currentWheelSpeed;
+double currentWheelSteering;
+double currentPayloadServo;
 
 // Debugging variables
 int motorCount;
@@ -40,39 +41,58 @@ void ControlMotors()
 
 	while(true){
 		curWheelSpeedI = (int)(currentWheelSpeed*100.0);
-		//if(curWheelSpeedI == 0) { continue; }
-		//curWheelSpeedI = (curWheelSpeedI == 100) ? 99 : curWheelSpeedI;
-
-		// prussdrv_init ();
-		// prussdrv_open (PRU_EVTOUT_0);
-		// Map PRU intrrupts
-		// write duty cycle on PRU memory
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &curWheelSpeedI, 4);
-
-		// write it into the next word location in memory (i.e. 4-bytes later)
-		// Load and execute binary on PRU
-		// Wait for event completion from PRU
-		// prussdrv_pru_wait_event (PRU_EVTOUT_0);
-
-		//prussdrv_pru_disable(PRU_NUM);
-    //prussdrv_exit ();
 	}
 
 	#endif
+}
+
+void ControlSteering()
+{
+	unsigned int curWheelSteeringI = 1;
+
+	#ifdef TEST_PWM
+	unsigned int curWheelSteeringI = 1;
+	// Initialize structure used by prussdrv_pruintc_intc
+	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
+	prussdrv_init();
+	prussdrv_open(PRU_EVTOUT_0);
+	prussdrv_pruintc_init(&pruss_intc_initdata);
+	unsigned int initVal = 1;
+	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &initVal, 4);
+	unsigned int sampletimestep = 10;  //delay factor (10 default, 624 for 1600 Hz)
+	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &sampletimestep, 4);
+	prussdrv_exec_program (PRU_NUM, "./pwm_test.bin");
+	while(true){
+		curWheelSteeringI = (int)(currentWheelSteering*100.0);
+		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &curWheelSpeedI, 4);
+	}
+	#endif
+
+	while(true){
+		curWheelSteeringI = (int)(currentWheelSteering*100.0);
+		// std::cout << curWheelSteeringI << "\n";
+		usleep(1000);
+	}
 }
 
 /// @todo This should not be hard-coded if a generalized model is desired.
 Controller::Controller() {
 	currentVehicleMode = Parser::GetControlMode();
 	currentWheelSpeed = 0.0;
+	currentWheelSteering = 0.5;
 }
 
 void Controller::InitializeMotorControl(){
-	#ifdef TEST_PWM
 	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Creating a thread for motor control...\n";
 	std::thread runMotors(ControlMotors);
 	runMotors.detach();
-	#endif
+}
+
+void Controller::InitializeSteeringControl(){
+	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Creating a thread for steering control...\n";
+	std::thread runMotors(ControlSteering);
+	runMotors.detach();
 }
 
 /// @todo Determine if all of these switches are necessary.
@@ -86,10 +106,10 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		if(!(fabs(currentWheelSpeed - g->GetCurrentGuidanceManeuver().speed) <= 2.0 * 0.005)){
 			double sign = (g->GetCurrentGuidanceManeuver().speed - currentWheelSpeed) / fabs(currentWheelSpeed - g->GetCurrentGuidanceManeuver().speed);
 			currentWheelSpeed += sign*g->GetCurrentGuidanceManeuver().speedRate;
-			SetWheelSpeed(currentWheelSpeed);
-			SetWheelSteering(0.0);
+			currentWheelSteering = 0.5;
 		}else{
 			g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
+			currentWheelSteering = ((double)(g->GetCurrentGuidanceManeuver().turnDirection))/2.0+0.5;
 			switch (g->GetCurrentGuidanceManeuver().state) {
 				case ManeuverState::Calibrate:
 					TimeModule::Log("CTL", "Speed fixed. Ready to calibrate.");
@@ -115,25 +135,24 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 					break;
 			}
 		}
+
+		#ifdef SIM
+		PlantModel::GetVehicle()->wheelSpeedN = currentWheelSpeed;
+		PlantModel::GetVehicle()->wheelSteeringN = (currentWheelSteering-0.5)*2.0;
+		#endif
+
 		return;
 	}
+
+	#ifdef SIM
+	PlantModel::GetVehicle()->wheelSpeedN = currentWheelSpeed;
+	PlantModel::GetVehicle()->wheelSteeringN = (currentWheelSteering-0.5)*2.0;
+	#endif
 
 	// If the NAV plan is complete, then stop the vehicle and return->
 	if (g->IsNavPlanComplete()) {
 
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Nav Plan complete. Stopping vehicle.\n";
-
-		/*
-		switch (currentVehicleMode) {
-		case VehicleMode::Wheel:
-			SetWheelSpeed(0.0);
-			SetWheelSteering(0.0);
-			break;
-		case VehicleMode::Track:
-			SetMotorSpeeds(0.0);
-			break;
-		}
-		*/
 		currentWheelSpeed = 0.0;
 
 		#ifdef TEST_PWM
@@ -146,63 +165,28 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 
 	// If the buffer is empty, then don't run anything.
 	if (g->GetGuidanceManeuverBuffer().empty() || g->GetCurrentGuidanceManeuver().done) {
-
-		currentWheelSpeed = 0.0;
-		/*
-		switch (currentVehicleMode) {
-		case VehicleMode::Wheel:
-			SetWheelSpeed(0.0);
-			SetWheelSteering(0.0);
-			break;
-		case VehicleMode::Track:
-			SetMotorSpeeds(0.0);
-			break;
-		}
-		return;
-		*/
+		// currentWheelSpeed = 0.0;
 	}
 
 	// If the current maneuver is a paylod drop, run payload drop functions.
 	if (g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop) {
-		/*
-		switch (currentVehicleMode) {
-		case VehicleMode::Wheel:
-			SetWheelSpeed(0.0);
-			SetWheelSteering(0.0);
-			break;
-		case VehicleMode::Track:
-			SetMotorSpeeds(0.0);
-			break;
-		}
-		*/
 		// Failsafe to ensure that the vehicle is not moving during a payload drop
 		currentWheelSpeed = 0.0;
-
+		currentWheelSteering = 0.0;
 		// If we're on our last leg (return-to-home), then no need to drop payload.
-		if(g->coordinateIndex == g->totalCoordinates-1){
+		if(g->coordinateIndex == g->totalCoordinates-1 && g->GetCurrentGuidanceManeuver().done != true){
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
 			g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
-			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: WE'RE BACK HOME!\n";
+			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: WE'RE BACK HOME! Sending fake signals back to GDE.\n";
 			return;
 		}
 
-		PayloadDrop(g, sh);
+		if(g->GetCurrentGuidanceManeuver().done != true){
+			PayloadDrop(g, sh);
+		}
+
 		return;
 	}
-
-	// Lastly, perform normal operations if none of the above were triggered.
-	/*
-	switch (currentVehicleMode) {
-	case VehicleMode::Wheel:
-		SetWheelSpeed(g->GetCurrentGuidanceManeuver().speed);
-		SetWheelSteering((double)g->GetCurrentGuidanceManeuver().turnDirection * maxTurnSteering);
-		break;
-	case VehicleMode::Track:
-		// Note, this functionality is not built yet.
-		SetMotorSpeeds(g->GetCurrentGuidanceManeuver().speed);
-		break;
-	}
-	*/
 
 	return;
 }
@@ -221,7 +205,6 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 		else {
 			// Functionality goes here for controlling the payload drop mechanism.
 			// payloadServo = 1.0
-
 			return;
 		}
 	}
@@ -238,73 +221,7 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 	return;
 }
 
-void Controller::SetWheelSpeed(double s) {
-	wheelSpeedN = s;
-
-#ifdef SIM
-	PlantModel::GetVehicle()->wheelSpeedN = s;
-#else
-	// Actual speed control goes here
-#endif
-}
-
-
-void Controller::SetWheelSteering(double s) {
-	wheelSteeringN = s;
-
-#ifdef SIM
-	PlantModel::GetVehicle()->wheelSteeringN = s;
-#else
-	// Actual steering control goes here
-#endif
-}
-
-void Controller::SetMotorSpeeds(double speed) {
-
-	motorLSpeed = speed;
-	motorRSpeed = speed;
-
-#ifdef SIM
-	PlantModel::GetVehicle()->motL.val = speed;
-	PlantModel::GetVehicle()->motR.val = speed;
-#else
-	// Actual motor control goes here
-#endif
-
-	return;
-}
-
-void Controller::SetMotorLSpeed(double speed) {
-
-	motorLSpeed = speed;
-
-#ifdef SIM
-	PlantModel::GetVehicle()->motL.val = speed;
-#else
-	// Actual motor control goes here
-#endif
-
-	return;
-}
-
-void Controller::SetMotorRSpeed(double speed) {
-
-	motorRSpeed = speed;
-
-#ifdef SIM
-	PlantModel::GetVehicle()->motR.val = speed;
-#else
-	// Actual motor control goes here
-#endif
-
-	return;
-}
-
 void Controller::SetCurrentVehicleMode(VehicleMode vm) { currentVehicleMode = vm; }
 VehicleMode Controller::GetCurrentVehicleMode() { return currentVehicleMode; }
-double Controller::GetMotorLSpeed() { return motorLSpeed; }
-double Controller::GetMotorRSpeed() { return motorRSpeed; }
-double Controller::GetWheelSpeed() { return wheelSpeedN; }
-double Controller::GetWheelSteering() { return wheelSteeringN; }
 void Controller::SetMaxTurnSteering(double d) { maxTurnSteering = d; }
 // void Controller::SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());

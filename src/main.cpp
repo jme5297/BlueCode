@@ -231,8 +231,9 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 	output.open((name).c_str());
 
 
-	// Initialize the motor control.
+	// Initialize the motor, steering, and payload control.
 	myController->InitializeMotorControl();
+	myController->InitializeSteeringControl();
 
 	//-----------------------------------------
 	//                     Main Logic loop
