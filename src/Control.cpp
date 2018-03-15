@@ -30,18 +30,18 @@ void ControlMotors()
 	#ifdef TEST_PWM
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-  prussdrv_init ();
-  prussdrv_open (PRU_EVTOUT_0);
-  prussdrv_pruintc_init(&pruss_intc_initdata);
-  prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
-	int delay_period = 624;
-  int ping_val = 1;
-  int duty_cycle = 0;
-  int mode = 1;
-  prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &ping_val, 4);
-  prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &duty_cycle, 4);
-  prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 2, &delay_period, 4);
-  prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
+  	prussdrv_init ();
+  	prussdrv_open (PRU_EVTOUT_0);
+  	prussdrv_pruintc_init(&pruss_intc_initdata);
+  	prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
+	unsigned int delay_period = 624;
+  	unsigned int ping_val = 1;
+  	unsigned int duty_cycle = 0;
+  	unsigned int mode = 1;
+ 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &ping_val, 4);
+  	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &duty_cycle, 4);
+  	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 2, &delay_period, 4);
+  	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
 
 	while(true){
 		curWheelSpeedI = (int)(currentWheelSpeed*100.0);
@@ -57,10 +57,10 @@ void ControlSteering()
 	#ifdef TEST_PWM
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-  prussdrv_init ();
-  prussdrv_open (PRU_EVTOUT_0);
-  prussdrv_pruintc_init(&pruss_intc_initdata);
-  prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
+  	prussdrv_init ();
+  	prussdrv_open (PRU_EVTOUT_0);
+  	prussdrv_pruintc_init(&pruss_intc_initdata);
+  	prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
 
 	while(true){
 		curWheelSteeringI = (int)(currentWheelSteering*100.0);
