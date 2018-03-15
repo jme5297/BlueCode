@@ -120,7 +120,10 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 
 	// If the NAV plan is complete, then stop the vehicle and return->
 	if (g->IsNavPlanComplete()) {
+
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Nav Plan complete. Stopping vehicle.\n";
+
+		/*
 		switch (currentVehicleMode) {
 		case VehicleMode::Wheel:
 			SetWheelSpeed(0.0);
@@ -130,6 +133,8 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			SetMotorSpeeds(0.0);
 			break;
 		}
+		*/
+		currentWheelSpeed = 0.0;
 
 		#ifdef TEST_PWM
 		prussdrv_pru_disable(0);
@@ -141,6 +146,9 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 
 	// If the buffer is empty, then don't run anything.
 	if (g->GetGuidanceManeuverBuffer().empty() || g->GetCurrentGuidanceManeuver().done) {
+
+		currentWheelSpeed = 0.0;
+		/*
 		switch (currentVehicleMode) {
 		case VehicleMode::Wheel:
 			SetWheelSpeed(0.0);
@@ -151,10 +159,12 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			break;
 		}
 		return;
+		*/
 	}
 
 	// If the current maneuver is a paylod drop, run payload drop functions.
 	if (g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop) {
+		/*
 		switch (currentVehicleMode) {
 		case VehicleMode::Wheel:
 			SetWheelSpeed(0.0);
@@ -164,6 +174,9 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			SetMotorSpeeds(0.0);
 			break;
 		}
+		*/
+		// Failsafe to ensure that the vehicle is not moving during a payload drop
+		currentWheelSpeed = 0.0;
 
 		// If we're on our last leg (return-to-home), then no need to drop payload.
 		if(g->coordinateIndex == g->totalCoordinates-1){
@@ -178,6 +191,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	}
 
 	// Lastly, perform normal operations if none of the above were triggered.
+	/*
 	switch (currentVehicleMode) {
 	case VehicleMode::Wheel:
 		SetWheelSpeed(g->GetCurrentGuidanceManeuver().speed);
@@ -188,6 +202,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		SetMotorSpeeds(g->GetCurrentGuidanceManeuver().speed);
 		break;
 	}
+	*/
 
 	return;
 }
