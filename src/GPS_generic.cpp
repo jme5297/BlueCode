@@ -7,22 +7,22 @@ using namespace Times;
 using namespace Plant;
 #endif
 
-GPS::GPS(){
+GPS::GPS() {
 
 }
-GPS::~GPS(){
+GPS::~GPS() {
 
 }
-bool GPS::Init(){
+bool GPS::Init() {
 
-	#ifdef SIM
+#ifdef SIM
 	PlantModel::GetVehicle()->InitializeGPS();
 	currentGPSCoordinates = PlantModel::GetVehicle()->gps.coords;
 	lastCoordinates = currentGPSCoordinates;
 	TimeModule::InitProccessCounter("GPS", Parser::GetRefresh_GPS());
 	vehicleHeading = 0.0;
 	return PlantModel::GetVehicle()->gps.initialized;
-	#else
+#else
 	// Actual GPS initialization code goes here
 
 	// THIS IS TEMPORARY
@@ -33,15 +33,15 @@ bool GPS::Init(){
 	lastCoordinates = c;
 	vehicleHeading = Parser::GetInitialHeading();
 
-	#endif
+#endif
 
 	return true;
 }
-void GPS::Run(){
+void GPS::Run() {
 
 	double PI = 3.14159265;
 
-	#ifdef SIM
+#ifdef SIM
 	if (TimeModule::ProccessUpdate("GPS")) {
 		// Calculate GPS.
 		Coordinate c = PlantModel::GetVehicle()->gps.coords;
@@ -59,19 +59,19 @@ void GPS::Run(){
 		vehicleHeading = head + (-0.5 + ((double)rand() / (RAND_MAX))) * Parser::GetGPSHeadingUncertainty();
 		lastCoordinates = PlantModel::GetVehicle()->gps.coords;
 	}
-	#else
+#else
 
-	#endif
+#endif
 }
-bool GPS::Reset(){
+bool GPS::Reset() {
 
 	return true;
 }
-Coordinate GPS::GetCurrentGPSCoordinates(){
+Coordinate GPS::GetCurrentGPSCoordinates() {
 
 	return currentGPSCoordinates;
 }
-double GPS::GetGPSGroundCourse(){
+double GPS::GetGPSGroundCourse() {
 
 	return vehicleHeading;
 }

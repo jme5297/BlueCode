@@ -14,20 +14,20 @@
 #include <fstream>
 #include <stdlib.h>
 
-namespace sensors{
-  // Main class for Laser capabilities
-  class Laser{
+namespace sensors {
+	// Main class for Laser capabilities
+	class Laser {
 
-  public:
-    Laser(int);
-    ~Laser();
-    bool Init();
-    bool Reset();
-    bool ReadLaser();  ///< Read value coming from a specific laser.
+	public:
+		Laser(int);
+		~Laser();
+		bool Init();
+		bool Reset();
+		bool ReadLaser();  ///< Read value coming from a specific laser.
 
 
-  protected:
-    int ID;
+	protected:
+		int ID;
 
-  };
+	};
 }

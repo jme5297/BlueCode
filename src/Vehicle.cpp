@@ -3,7 +3,7 @@
 using namespace Plant;
 
 Vehicle::Vehicle() {
-	
+
 }
 void Vehicle::Initialize() {
 	vehicleType = Parser::GetVehicleTypeSim();

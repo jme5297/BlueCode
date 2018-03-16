@@ -6,12 +6,12 @@
 #include <PlantModel/PlantModel.h>
 #endif
 
-namespace sensors{
+namespace sensors {
 
 	using namespace Times;
 
 	// Main class for GPS capabilities
-	class GPS{
+	class GPS {
 	public:
 		GPS();
 		~GPS();

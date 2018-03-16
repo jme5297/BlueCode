@@ -26,13 +26,13 @@ int runCount;
 void ControlMotors()
 {
 
-	#ifdef TEST_PWM
+#ifdef TEST_PWM
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-  prussdrv_init ();
-  prussdrv_open (PRU_EVTOUT_0);
+	prussdrv_init();
+	prussdrv_open(PRU_EVTOUT_0);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
-	prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
+	prussdrv_exec_program(PRU_NUM, "./pwm_final.bin");
 	unsigned int delay_period = 624;
 	unsigned int ping_val = 1;
 	unsigned int duty_cycle = 1;
@@ -42,28 +42,28 @@ void ControlMotors()
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 2, &delay_period, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
 
-  unsigned int curWheelSpeedI = 1;
-	while(true){
+	unsigned int curWheelSpeedI = 1;
+	while (true) {
 		curWheelSpeedI = static_cast<unsigned int>(currentWheelSpeed*100.0);
-		if(curWheelSpeedI == 0){curWheelSpeedI = 1;}
-		if(curWheelSpeedI == 100){curWheelSpeedI = 99;}
+		if (curWheelSpeedI == 0) { curWheelSpeedI = 1; }
+		if (curWheelSpeedI == 100) { curWheelSpeedI = 99; }
 		first = false;
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &curWheelSpeedI, 4);
 		usleep(10000);
 	}
-	#endif
+#endif
 }
 
 void ControlSteering()
 {
 
-	#ifdef TEST_PWM
+#ifdef TEST_PWM
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-  prussdrv_init ();
-  prussdrv_open (PRU_EVTOUT_1);
+	prussdrv_init();
+	prussdrv_open(PRU_EVTOUT_1);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
-	prussdrv_exec_program (1, "./pwm_final_pru2.bin");
+	prussdrv_exec_program(1, "./pwm_final_pru2.bin");
 	unsigned int delay_period = 624;
 	unsigned int ping_val = 1;
 	unsigned int duty_cycle = 1;
@@ -74,14 +74,14 @@ void ControlSteering()
 	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &mode, 4);
 
 	unsigned int curWheelSteeringI = 1;
-	while(true){
+	while (true) {
 		curWheelSteeringI = (unsigned int)(currentWheelSteering*100.0);
-		if(curWheelSteeringI == 0){curWheelSteeringI = 1;}
-		if(curWheelSteeringI == 100){curWheelSteeringI = 99;}
+		if (curWheelSteeringI == 0) { curWheelSteeringI = 1; }
+		if (curWheelSteeringI == 100) { curWheelSteeringI = 99; }
 		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &curWheelSteeringI, 4);
 		usleep(10000);
 	}
-	#endif
+#endif
 }
 
 /// @todo This should not be hard-coded if a generalized model is desired.
@@ -91,48 +91,50 @@ Controller::Controller() {
 	currentWheelSteering = 0.5;
 }
 
-void Controller::InitializeMotorControl(){
+void Controller::InitializeMotorControl() {
 	TimeModule::Log("CTL", "Creating a thread for motor control...");
 	std::thread runMotors(ControlMotors);
 	runMotors.detach();
 }
 
-void Controller::InitializeSteeringControl(){
+void Controller::InitializeSteeringControl() {
 	TimeModule::Log("CTL", "Creating a thread for steering control...");
 	std::thread runMotors(ControlSteering);
 	runMotors.detach();
 }
 
-void Controller::EmergencyShutdown(){
+void Controller::EmergencyShutdown() {
 
 	std::cout << "===EMERGENCY! DECELERATING!===\n";
 	currentWheelSteering = 0.0;
-	while(currentWheelSpeed > 0.0){
+	while (currentWheelSpeed > 0.0) {
 		currentWheelSpeed -= 0.5*Parser::GetRefresh_GUID();
-		if(currentWheelSpeed < 0.0){ currentWheelSpeed = 0.0; }
+		if (currentWheelSpeed < 0.0) { currentWheelSpeed = 0.0; }
+#ifdef TEST_PWM
 		usleep(10000);
+#endif
 	}
 	std::cout << "===Deceleration complete.===\n";
 
-	#ifdef TEST_PWM
+#ifdef TEST_PWM
 	// Exiting out of the motor
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-  prussdrv_init ();
-  prussdrv_open (PRU_EVTOUT_0);
-  prussdrv_pruintc_init(&pruss_intc_initdata);
-  prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
-  unsigned int mode = 0;
-  prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
+	prussdrv_init();
+	prussdrv_open(PRU_EVTOUT_0);
+	prussdrv_pruintc_init(&pruss_intc_initdata);
+	prussdrv_exec_program(PRU_NUM, "./pwm_final.bin");
+	unsigned int mode = 0;
+	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
 
 	// Exit out of the steering
-  prussdrv_init ();
-  prussdrv_open (PRU_EVTOUT_1);
-  prussdrv_pruintc_init(&pruss_intc_initdata);
-  prussdrv_exec_program (PRU_NUM, "./pwm_final_pru2.bin");
-  unsigned int mode = 0;
-  prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &mode, 4);
+	prussdrv_init();
+	prussdrv_open(PRU_EVTOUT_1);
+	prussdrv_pruintc_init(&pruss_intc_initdata);
+	prussdrv_exec_program(PRU_NUM, "./pwm_final_pru2.bin");
+	unsigned int mode = 0;
+	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &mode, 4);
 
-	#endif
+#endif
 }
 
 /// @todo Determine if all of these switches are necessary.
@@ -142,52 +144,53 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	motorCount = 0;
 
 	// Update the speeds.
-	if(!g->GetCurrentGuidanceManeuver().hasFixedSpeed){
-		if(!(fabs(currentWheelSpeed - g->GetCurrentGuidanceManeuver().speed) <= 2.0 * 0.005)){
+	if (!g->GetCurrentGuidanceManeuver().hasFixedSpeed) {
+		if (!(fabs(currentWheelSpeed - g->GetCurrentGuidanceManeuver().speed) <= 2.0 * 0.005)) {
 			double sign = (g->GetCurrentGuidanceManeuver().speed - currentWheelSpeed) / fabs(currentWheelSpeed - g->GetCurrentGuidanceManeuver().speed);
-			currentWheelSpeed += sign*g->GetCurrentGuidanceManeuver().speedRate;
+			currentWheelSpeed += sign * g->GetCurrentGuidanceManeuver().speedRate;
 			currentWheelSteering = 0.5;
-		}else{
+		}
+		else {
 			g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
-			currentWheelSteering = ((double)(g->GetCurrentGuidanceManeuver().turnDirection))/2.0+0.5;
+			currentWheelSteering = ((double)(g->GetCurrentGuidanceManeuver().turnDirection)) / 2.0 + 0.5;
 			switch (g->GetCurrentGuidanceManeuver().state) {
-				case ManeuverState::Calibrate:
-					TimeModule::Log("CTL", "Speed fixed. Ready to calibrate.");
-					TimeModule::AddMilestone("Calibration_" + std::to_string(g->GetGuidanceManeuverIndex()));
-					break;
-				case ManeuverState::Turn:
-					TimeModule::Log("CTL", "Speed fixed. Ready to turn.");
-					TimeModule::AddMilestone("Turn_" + std::to_string(g->GetGuidanceManeuverIndex()));
-					break;
-				case ManeuverState::Maintain:
-					TimeModule::Log("CTL", "Speed fixed. Ready to maintain.");
-					TimeModule::AddMilestone("Maintain_" + std::to_string(g->GetGuidanceManeuverIndex()));
-					break;
-				case ManeuverState::AvoidDiverge:
-				  TimeModule::Log("CTL", "Speed fixed. Ready to avoid-diverge.");
-					TimeModule::AddMilestone("Avoid_" + std::to_string(g->GetGuidanceManeuverIndex()));
-					break;
-				case ManeuverState::AvoidConverge:
-					break;
-				case ManeuverState::PayloadDrop:
-					TimeModule::Log("CTL", "Speed fixed. Ready to drop payload.");
-					TimeModule::AddMilestone("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex()));
-					break;
+			case ManeuverState::Calibrate:
+				TimeModule::Log("CTL", "Speed fixed. Ready to calibrate.");
+				TimeModule::AddMilestone("Calibration_" + std::to_string(g->GetGuidanceManeuverIndex()));
+				break;
+			case ManeuverState::Turn:
+				TimeModule::Log("CTL", "Speed fixed. Ready to turn.");
+				TimeModule::AddMilestone("Turn_" + std::to_string(g->GetGuidanceManeuverIndex()));
+				break;
+			case ManeuverState::Maintain:
+				TimeModule::Log("CTL", "Speed fixed. Ready to maintain.");
+				TimeModule::AddMilestone("Maintain_" + std::to_string(g->GetGuidanceManeuverIndex()));
+				break;
+			case ManeuverState::AvoidDiverge:
+				TimeModule::Log("CTL", "Speed fixed. Ready to avoid-diverge.");
+				TimeModule::AddMilestone("Avoid_" + std::to_string(g->GetGuidanceManeuverIndex()));
+				break;
+			case ManeuverState::AvoidConverge:
+				break;
+			case ManeuverState::PayloadDrop:
+				TimeModule::Log("CTL", "Speed fixed. Ready to drop payload.");
+				TimeModule::AddMilestone("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex()));
+				break;
 			}
 		}
 
-		#ifdef SIM
+#ifdef SIM
 		PlantModel::GetVehicle()->wheelSpeedN = currentWheelSpeed;
-		PlantModel::GetVehicle()->wheelSteeringN = (currentWheelSteering-0.5)*2.0;
-		#endif
+		PlantModel::GetVehicle()->wheelSteeringN = (currentWheelSteering - 0.5)*2.0;
+#endif
 
 		return;
 	}
 
-	#ifdef SIM
+#ifdef SIM
 	PlantModel::GetVehicle()->wheelSpeedN = currentWheelSpeed;
-	PlantModel::GetVehicle()->wheelSteeringN = (currentWheelSteering-0.5)*2.0;
-	#endif
+	PlantModel::GetVehicle()->wheelSteeringN = (currentWheelSteering - 0.5)*2.0;
+#endif
 
 	// If the NAV plan is complete, then stop the vehicle and return->
 	if (g->IsNavPlanComplete()) {
@@ -195,11 +198,11 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: Nav Plan complete. Stopping vehicle.\n";
 		currentWheelSpeed = 0.0;
 
-		#ifdef TEST_PWM
+#ifdef TEST_PWM
 		tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-   	prussdrv_pru_disable(PRU_NUM);
-   	prussdrv_exit ();
-		#endif
+		prussdrv_pru_disable(PRU_NUM);
+		prussdrv_exit();
+#endif
 
 		return;
 	}
@@ -215,14 +218,14 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		currentWheelSpeed = 0.0;
 		currentWheelSteering = 0.5;
 		// If we're on our last leg (return-to-home), then no need to drop payload.
-		if(g->coordinateIndex == g->totalCoordinates-1 && g->GetCurrentGuidanceManeuver().done != true){
+		if (g->coordinateIndex == g->totalCoordinates - 1 && g->GetCurrentGuidanceManeuver().done != true) {
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
 			g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CTL]: WE'RE BACK HOME! Sending fake signals back to GDE.\n";
 			return;
 		}
 
-		if(g->GetCurrentGuidanceManeuver().done != true){
+		if (g->GetCurrentGuidanceManeuver().done != true) {
 			PayloadDrop(g, sh);
 		}
 

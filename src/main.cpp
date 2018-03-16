@@ -77,15 +77,19 @@ Navigator InutNavPlanCoordinates();
 void PrintNavPlanInfo(Navigator* n, SensorHub* sh);
 
 // Create all of the main structures to be passed to the respective subroutines.
-Navigator NAV; Navigator* myNavigator = &NAV;
-Guider GUID; Guider* myGuider = &GUID;
-SensorHub SH; SensorHub* mySensorHub = &SH;
-Controller CTRL; Controller* myController = &CTRL;
+Navigator NAV;
+Navigator* myNavigator = &NAV;
+Guider gUID;
+Guider* myGuider = &gUID;
+SensorHub SH;
+SensorHub* mySensorHub = &SH;
+Controller CTRL;
+Controller* myController = &CTRL;
 
 // Handler for premature ctrl-c statements
-void my_handler(int s){
-		myController->EmergencyShutdown();
-    exit(1);
+void my_handler(int s) {
+	myController->EmergencyShutdown();
+	exit(1);
 }
 
 //-----------------------------------------------------------
@@ -97,11 +101,13 @@ int main(int argc, char* argv[]) {
 	srand(time(0));
 #endif
 
+#ifndef WIN32
 	struct sigaction sigIntHandler;
- 	sigIntHandler.sa_handler = my_handler;
-  sigemptyset(&sigIntHandler.sa_mask);
-  sigIntHandler.sa_flags = 0;
-  sigaction(SIGINT, &sigIntHandler, NULL);
+	sigIntHandler.sa_handler = my_handler;
+	sigemptyset(&sigIntHandler.sa_mask);
+	sigIntHandler.sa_flags = 0;
+	sigaction(SIGINT, &sigIntHandler, NULL);
+#endif
 
 	// Read all of the inputs in the configuration file.
 	Parser::ReadInputs("../Config.txt");
@@ -203,10 +209,10 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 #ifdef SIM
 	// Initialize is a non-static function.
 	pm.Initialize();
-	#ifdef USE_IRRLICHT
+#ifdef USE_IRRLICHT
 	PlantModel::DrawObstacles(Parser::GetObstacles());
-	PlantModel::DrawPayloadLocations(myNavigator->GetNavPlan().coordinates,myGuider->GetPayloadDropRadius());
-	#endif
+	PlantModel::DrawPayloadLocations(myNavigator->GetNavPlan().coordinates, myGuider->GetPayloadDropRadius());
+#endif
 #endif
 
 	// If debug mode is active, ensure the TimeModule is not running on std::chrono.
@@ -230,7 +236,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 	int ii = 0;
 	std::string name = "data_" + std::to_string(ii) + ".csv";
 	std::ifstream f(name.c_str());
-	while(f.good()){
+	while (f.good()) {
 		ii = ii + 1;
 		name = "data_" + std::to_string(ii) + ".csv";
 		f.close();
@@ -261,12 +267,12 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 #ifdef SIM
 		if (TimeModule::ProccessUpdate("Plant")) {
 
-			#ifdef USE_IRRLICHT
+#ifdef USE_IRRLICHT
 			// Passing GPS coordinates so the simulation can plot true vs. actual.
 			PlantModel::SendGPSData(
 				mySensorHub->GetGPS()->GetCurrentGPSCoordinates(),
 				mySensorHub->GetGPS()->GetGPSGroundCourse());
-			#endif
+#endif
 
 			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"));
 		}
@@ -291,10 +297,10 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 		// If the "Print" process is intialized, then display basic information->
 		double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
 		double lat = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lat;
-		#ifdef SIM
+#ifdef SIM
 		lon = PlantModel::GetVehicle()->gps.coords.lon;
 		lat = PlantModel::GetVehicle()->gps.coords.lat;
-		#endif
+#endif
 
 		if (TimeModule::ProccessUpdate("Print")) {
 			std::cout <<

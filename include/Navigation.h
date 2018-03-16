@@ -15,7 +15,7 @@ namespace Navigation {
 	 * \warning Must populate and construct Nav Plan before normal execution.
 	 * \todo Determine if nav plan construction routines should be moved to the Guider class.
 	 */
-	class Navigator{
+	class Navigator {
 	public:
 
 		/// Initialize all protected parameters in Navigation.
@@ -42,11 +42,11 @@ namespace Navigation {
 		void Run(SensorHub* sh); 		///< Main execution loop for the Navigator.
 
 		// Vehicle State functions.
-		Coordinate GetInitialNavPosition(){ return initialPosition; }
+		Coordinate GetInitialNavPosition() { return initialPosition; }
 		double GetHeading(); 			///< Return vehicle heading.
 		Coordinate GetCoordinates();	///< Return vehicle GPS coordinates.
 		bool IsNavPlanComplete();		///< Check if NavPlan is complete.
-		std::vector<int> GetPathObstructions(){ return isPathObstructed; } ///< Return information about the laser sensor readings.
+		std::vector<int> GetPathObstructions() { return isPathObstructed; } ///< Return information about the laser sensor readings.
 	protected:
 
 		// Utility functions for nav plan construction

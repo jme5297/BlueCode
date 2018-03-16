@@ -21,21 +21,21 @@
 #include <libv4l2.h>
 #endif
 
-namespace sensors{
-    
-    
-    // Main class for handling camera capabilities
-    class Camera{
-    public:
-        Camera();
-        ~Camera();
-        bool Init();
-        bool Reset();
-        bool Enable();
-        bool Disable();
-        bool TakeImage(int a);
-        
-        
-    };
-    
+namespace sensors {
+
+
+	// Main class for handling camera capabilities
+	class Camera {
+	public:
+		Camera();
+		~Camera();
+		bool Init();
+		bool Reset();
+		bool Enable();
+		bool Disable();
+		bool TakeImage(int a);
+
+
+	};
+
 }

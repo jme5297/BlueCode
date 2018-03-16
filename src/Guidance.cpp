@@ -43,7 +43,7 @@ void Guider::Run(Navigator* n) {
 	double PI = 3.14159265;
 
 	// If value for total coordinates has not been taken from NavPlan yet, update this now.
-	if(totalCoordinates != (int)n->GetNavPlan().coordinates.size()){
+	if (totalCoordinates != (int)n->GetNavPlan().coordinates.size()) {
 		totalCoordinates = (int)n->GetNavPlan().coordinates.size();
 	}
 
@@ -76,7 +76,7 @@ void Guider::Run(Navigator* n) {
 	 *    - Queue a vehicle turn maneuver.
 	 */
 
-	// If this is our "first pass", then we need to calibrate.
+	 // If this is our "first pass", then we need to calibrate.
 	if (GuidanceManeuverBuffer.empty())
 	{
 		GuidanceManeuverIndex++;
@@ -138,9 +138,9 @@ void Guider::Run(Navigator* n) {
 	}
 	// If there's obstructions that we didn't previously know about, then take care of this immediately.
 	else if (
-			(n->GetPathObstructions().at(0) || n->GetPathObstructions().at(1)) &&
-			!GetCurrentGuidanceManeuver().hasBeganDiverging &&
-			GuidanceManeuverBuffer[GuidanceManeuverIndex].state != ManeuverState::PayloadDrop) {
+		(n->GetPathObstructions().at(0) || n->GetPathObstructions().at(1)) &&
+		!GetCurrentGuidanceManeuver().hasBeganDiverging &&
+		GuidanceManeuverBuffer[GuidanceManeuverIndex].state != ManeuverState::PayloadDrop) {
 
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 
@@ -172,9 +172,10 @@ void Guider::Run(Navigator* n) {
 
 		// If we're just coming from a payload-drop state, we already know our heading.
 		double usedHeading = 0.0;
-		if(GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop){
+		if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop) {
 			usedHeading = savedHeading;
-		}else{
+		}
+		else {
 			usedHeading = n->GetHeading();
 		}
 		double x1 = sin(usedHeading * PI / 180.0);
@@ -265,7 +266,7 @@ void Guider::Run(Navigator* n) {
 	switch (man->state) {
 	case ManeuverState::Calibrate:
 
-		if(!man->hasFixedSpeed)
+		if (!man->hasFixedSpeed)
 			break;
 
 		// If the total required calibration time has elapsed, then the maneuver is complete.
@@ -273,7 +274,7 @@ void Guider::Run(Navigator* n) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][GDE]: Calibration maneuver complete.\n";
 
-			if(Parser::GetOptimize()){
+			if (Parser::GetOptimize()) {
 				std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][GDE]: Re-optimizing Nav-Plan.\n";
 				n->ConstructNavPlan(coordinateIndex);
 			}
@@ -282,7 +283,7 @@ void Guider::Run(Navigator* n) {
 	case ManeuverState::Turn:
 	{
 
-		if(!man->hasFixedSpeed)
+		if (!man->hasFixedSpeed)
 			break;
 
 		// Use a basic integrator to estimate the amount of time we have been turning.
@@ -298,7 +299,7 @@ void Guider::Run(Navigator* n) {
 	}
 	case ManeuverState::Maintain:
 
-		if(!man->hasFixedSpeed)
+		if (!man->hasFixedSpeed)
 			break;
 
 		// If the off-angle grows too large, then our maintenance maneuver is over, and a turn maneuver will be added next pass.
@@ -319,7 +320,7 @@ void Guider::Run(Navigator* n) {
 			// Vehicle is once again succeptable for obstacle detection.
 			man->hasBeganDiverging = false;
 
-			if(!man->hasFixedSpeed)
+			if (!man->hasFixedSpeed)
 				break;
 
 			man->speed = 1.0;
@@ -331,9 +332,9 @@ void Guider::Run(Navigator* n) {
 			}
 		}
 		// Else, continue the backup turn maneuver.
-		else{
+		else {
 
-			if(!man->hasFixedSpeed)
+			if (!man->hasFixedSpeed)
 				break;
 
 			double dtTurn = TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex));
@@ -357,7 +358,7 @@ void Guider::Run(Navigator* n) {
 
 	case ManeuverState::PayloadDrop:
 
-		if(!man->hasFixedSpeed)
+		if (!man->hasFixedSpeed)
 			break;
 
 		// If the payload-drop complete flag has been triggered, then this guidance maneuver has been completed.

@@ -61,14 +61,14 @@ void PlantModel::Initialize() {
 	initLat = Parser::GetInitialLatitude();
 	initLon = Parser::GetInitialLongitude();
 
-  #ifdef USE_IRRLICHT
+#ifdef USE_IRRLICHT
 
 	// Determine screen resolution and create the main Irrlicht device.
 	device = createDevice(video::EDT_OPENGL, dimension2d<u32>(1280, 720), 16, false, false, false, this);
 	if (!device) { return; }
 	device->setWindowCaption(L"BlueCode Simulator");
 	device->setResizable(true);
-  deviceDropped = false;
+	deviceDropped = false;
 
 	// This is meant for debugging to see what directory Irrlicht starts in->
 	path p = device->getFileSystem()->getWorkingDirectory();
@@ -153,7 +153,7 @@ void PlantModel::Initialize() {
 	error->getMaterial(0).NormalizeNormals = true;
 	error->setScale(vector3df(1.0, 0.001, 1.0));
 
-  #endif
+#endif
 }
 
 #ifdef USE_IRRLICHT
@@ -191,7 +191,7 @@ void PlantModel::DrawObstacles(std::vector<Obstacle> obs)
 		selector->drop();
 	}
 }
-void PlantModel::SendGPSData(Coordinate c, double h){
+void PlantModel::SendGPSData(Coordinate c, double h) {
 	GPScoords = c;
 	GPSheading = h;
 }
@@ -202,7 +202,7 @@ void PlantModel::SendGPSData(Coordinate c, double h){
  */
 void PlantModel::UpdateImage(std::string str)
 {
-	if(!deviceDropped){
+	if (!deviceDropped) {
 		// Pull in the image as a texture.
 		ITexture* recentImage;
 		recentImage = driver->getTexture(str.c_str());
@@ -223,12 +223,12 @@ void PlantModel::UpdateImage(std::string str)
 
 void PlantModel::Cleanup() {
 
-  #ifdef USE_IRRLICHT
-  if(!deviceDropped){
-    device->drop();
-    deviceDropped = true;
-  }
-  #endif
+#ifdef USE_IRRLICHT
+	if (!deviceDropped) {
+		device->drop();
+		deviceDropped = true;
+	}
+#endif
 
 }
 
@@ -268,9 +268,9 @@ void PlantModel::Run(double dt) {
 		}
 		break;
 	}
-	//-------------------------
-	//    WHEEL MODE
-	//-------------------------
+							 //-------------------------
+							 //    WHEEL MODE
+							 //-------------------------
 	case VehicleType::Wheel:
 		// http://www.davdata.nl/math/turning_radius.html
 		// This is the dav-data model for a bicycle, but it should work well enough for us.
@@ -311,11 +311,11 @@ void PlantModel::Run(double dt) {
 	GetVehicle()->gps.coords.lat += dy / latToM;
 
 	// Update the Irrlicht engine.
-  #ifdef USE_IRRLICHT
-  if(!deviceDropped){
-  	UpdateEngine();
-  }
-  #endif
+#ifdef USE_IRRLICHT
+	if (!deviceDropped) {
+		UpdateEngine();
+	}
+#endif
 
 	return;
 }
@@ -407,7 +407,7 @@ void PlantModel::UpdateEngine()
 			);
 		}
 		*/
-		error->setPosition(vehicleModel->getPosition() -vector3df(0, vehicleModel->getPosition().Y * 0.9, 0));
+		error->setPosition(vehicleModel->getPosition() - vector3df(0, vehicleModel->getPosition().Y * 0.9, 0));
 
 		// Check lasers (and draw lines for lasers in 3d space)
 		for (int i = 0; i < veh.lasers.size(); i++) {
@@ -417,7 +417,7 @@ void PlantModel::UpdateEngine()
 			vector3df laserEnd = laserPos + vector3df(sin(PI / 180.0 * head) * veh.lasers[i].detectionDistance, 0.0, cos(PI / 180.0 * head) * veh.lasers[i].detectionDistance);
 			line3d<f32> ray;
 			ray.start = laserPos;
-			ray.end =  laserEnd;
+			ray.end = laserEnd;
 			vector3df intersection;
 			triangle3df hitTriangle;
 			ISceneCollisionManager* collMan = smgr->getSceneCollisionManager();
@@ -448,14 +448,15 @@ void PlantModel::UpdateEngine()
 
 		// Push the scene to the render buffer.
 		driver->endScene();
-	}else{
-    device->drop();
-    deviceDropped = true;
-    // Check lasers (and draw lines for lasers in 3d space)
-    for (int i = 0; i < veh.lasers.size(); i++) {
-      veh.lasers[i].val = false;
-    }
-  }
+	}
+	else {
+		device->drop();
+		deviceDropped = true;
+		// Check lasers (and draw lines for lasers in 3d space)
+		for (int i = 0; i < veh.lasers.size(); i++) {
+			veh.lasers[i].val = false;
+		}
+	}
 }
 
 vector3df PlantModel::getPositionOnSphere(f32 angleH, f32 angleV, f32 radius)

@@ -7,7 +7,7 @@
 #endif
 
 /// Motor control and actuator control classes and members
-namespace Control{
+namespace Control {
 
 	using namespace Guidance;
 	using namespace sensors;
@@ -16,7 +16,7 @@ namespace Control{
 	 * Motor/actuator control routines.
 	 * @todo There needs to be normalization constraints on setting speeds and steering.
 	 */
-	class Controller{
+	class Controller {
 	public:
 		Controller();
 

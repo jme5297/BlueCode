@@ -13,7 +13,9 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef TEST_PWM
 #include <unistd.h>
+#endif
 
 namespace Control {
 	/*!

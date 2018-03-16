@@ -37,7 +37,7 @@ namespace Plant {
 	 * the Irrlicht engine. Note: The plant model is only compiled into the code if the SIM flag
 	 * is defined in the CMake generation.
 	 */
-	class PlantModel : public IEventReceiver{
+	class PlantModel : public IEventReceiver {
 #else
 	class PlantModel {
 #endif
@@ -46,7 +46,7 @@ namespace Plant {
 		/// Used to initialize the plant model and the Irrlicht engine.
 		void Initialize();
 
-		#ifdef USE_IRRLICHT
+#ifdef USE_IRRLICHT
 		static void DrawPayloadLocations(std::vector<Coordinate> coords, double pldist);
 		static void DrawObstacles(std::vector<Obstacle> obs);
 		static void UpdateEngine();         ///< Updates the Irrlicht 3d engine.
@@ -55,7 +55,7 @@ namespace Plant {
 		virtual bool OnEvent(const SEvent &event);
 		/// Updates an image displayed in the upper left of the Irrlicht window.
 		static void UpdateImage(std::string str);
-		#endif
+#endif
 
 		/// Shuts down the plant model and the Irrlicht device that was created.
 		static void Cleanup();
