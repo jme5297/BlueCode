@@ -23,7 +23,7 @@ namespace Plant {
 
 	using namespace sensors;
 
-	#ifdef USE_IRRLICHT
+#ifdef USE_IRRLICHT
 	using namespace irr;
 	using namespace core;
 	using namespace scene;
@@ -38,9 +38,9 @@ namespace Plant {
 	 * is defined in the CMake generation.
 	 */
 	class PlantModel : public IEventReceiver{
-	#else
+#else
 	class PlantModel {
-	#endif
+#endif
 	public:
 
 		/// Used to initialize the plant model and the Irrlicht engine.
@@ -66,7 +66,7 @@ namespace Plant {
 		 * pivot around the centroid. This capability should be built in.
 		 */
 		static void Run(double dt);         ///< Main execution function for the plant model.
-		
+
 		static Coordinate GetGPSCoords();   ///< Get the vehicle's current GPS coordinates.
 		static Vehicle * GetVehicle();      ///< Returns a pointer to the main vehicle object in the simulation.
 		static double GetElapsedSeconds();  ///< Get elapsed seconds since the plant model was initialized.
