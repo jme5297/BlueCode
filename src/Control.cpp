@@ -18,6 +18,8 @@ using namespace sensors;
 double currentWheelSpeed;
 double currentWheelSteering;
 double currentPayloadServo;
+//unsigned int curWheelSpeedI;
+unsigned int curWheelSteeringI;
 
 // Debugging variables
 int motorCount;
@@ -25,34 +27,55 @@ int runCount;
 
 void ControlMotors()
 {
-	unsigned int curWheelSpeedI = 1;
+	//curWheelSpeedI = 10;
 
 	#ifdef TEST_PWM
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
-  prussdrv_init ();
-  prussdrv_open (PRU_EVTOUT_0);
+  	prussdrv_init ();
+  	prussdrv_open (PRU_EVTOUT_0);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
 	prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
 	unsigned int delay_period = 624;
 	unsigned int ping_val = 1;
-	unsigned int duty_cycle = 0;
+	unsigned int duty_cycle = 40;
 	unsigned int mode = 1;
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &ping_val, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &duty_cycle, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 2, &delay_period, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
 
+	//const double middleMan = 0.0;
+        unsigned int curWheelSpeedI = 1;
+	bool first = true;
+	unsigned int ii = 1;
+	unsigned int * ptr = &curWheelSpeedI;
 	while(true){
-		curWheelSpeedI = (int)(currentWheelSpeed*100.0);
-		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &curWheelSpeedI, 4);
+		
+		//middleMan = currentWheelSpeed*100.0;
+		curWheelSpeedI = static_cast<unsigned int>(currentWheelSpeed*100.0);
+		if(curWheelSpeedI == 0){curWheelSpeedI = 1;}
+		//curWheelSpeedI = ii;
+		//ii = ii + 2;
+		//if(ii >= 100){ii = 1;}
+                //if(ii < curWheelSpeedI){ ii = ii + 1; }else if(ii > curWheelSpeedI){ ii = ii - 1;}
+		//curWheelSpeedI = ii;
+		
+		std::cout << curWheelSpeedI << "\n";
+		//if(first)
+		//{
+		first = false;
+		int val = prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, ptr, 4);
+		std::cout << "==" << val << "\n";
+		//}
+		usleep(10000);
 	}
 	#endif
 }
 
 void ControlSteering()
 {
-	unsigned int curWheelSteeringI = 1;
+	curWheelSteeringI = 1;
 
 	#ifdef TEST_PWM
 	// Initialize structure used by prussdrv_pruintc_intc
