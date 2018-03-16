@@ -51,7 +51,7 @@ void ControlMotors()
 	unsigned int ii = 1;
 	unsigned int * ptr = &curWheelSpeedI;
 	while(true){
-		
+
 		//middleMan = currentWheelSpeed*100.0;
 		curWheelSpeedI = static_cast<unsigned int>(currentWheelSpeed*100.0);
 		if(curWheelSpeedI == 0){curWheelSpeedI = 1;}
@@ -60,7 +60,7 @@ void ControlMotors()
 		//if(ii >= 100){ii = 1;}
                 //if(ii < curWheelSpeedI){ ii = ii + 1; }else if(ii > curWheelSpeedI){ ii = ii - 1;}
 		//curWheelSpeedI = ii;
-		
+
 		// std::cout << curWheelSpeedI << "\n";
 		//if(first)
 		//{
@@ -145,6 +145,12 @@ void Controller::EmergencyShutdown(){
   prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
 
 	// Exit out of the steering
+  prussdrv_init ();
+  prussdrv_open (PRU_EVTOUT_1);
+  prussdrv_pruintc_init(&pruss_intc_initdata);
+  prussdrv_exec_program (PRU_NUM, "./pwm_final_pru2.bin");
+  unsigned int mode = 0;
+  prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &mode, 4);
 
 	#endif
 }
