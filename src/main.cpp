@@ -245,7 +245,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 
 	// Initialize the motor, steering, and payload control.
 	myController->InitializeMotorControl();
-	//myController->InitializeSteeringControl();
+	myController->InitializeSteeringControl();
 
 	//-----------------------------------------
 	//                     Main Logic loop

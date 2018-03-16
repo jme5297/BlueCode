@@ -19,7 +19,7 @@ double currentWheelSpeed;
 double currentWheelSteering;
 double currentPayloadServo;
 //unsigned int curWheelSpeedI;
-unsigned int curWheelSteeringI;
+//unsigned int curWheelSteeringI;
 
 // Debugging variables
 int motorCount;
@@ -38,7 +38,7 @@ void ControlMotors()
 	prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
 	unsigned int delay_period = 624;
 	unsigned int ping_val = 1;
-	unsigned int duty_cycle = 40;
+	unsigned int duty_cycle = 1;
 	unsigned int mode = 1;
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &ping_val, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &duty_cycle, 4);
@@ -61,12 +61,12 @@ void ControlMotors()
                 //if(ii < curWheelSpeedI){ ii = ii + 1; }else if(ii > curWheelSpeedI){ ii = ii - 1;}
 		//curWheelSpeedI = ii;
 		
-		std::cout << curWheelSpeedI << "\n";
+		// std::cout << curWheelSpeedI << "\n";
 		//if(first)
 		//{
 		first = false;
 		int val = prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, ptr, 4);
-		std::cout << "==" << val << "\n";
+		//std::cout << "==" << val << "\n";
 		//}
 		usleep(10000);
 	}
@@ -75,27 +75,31 @@ void ControlMotors()
 
 void ControlSteering()
 {
-	curWheelSteeringI = 1;
+	unsigned int curWheelSteeringI = 1;
 
 	#ifdef TEST_PWM
 	// Initialize structure used by prussdrv_pruintc_intc
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
   prussdrv_init ();
-  prussdrv_open (PRU_EVTOUT_0);
+  prussdrv_open (PRU_EVTOUT_1);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
-	prussdrv_exec_program (PRU_NUM, "./pwm_final.bin");
+	prussdrv_exec_program (1, "./pwm_final_pru2.bin");
 	unsigned int delay_period = 624;
 	unsigned int ping_val = 1;
-	unsigned int duty_cycle = 0;
+	unsigned int duty_cycle = 1;
 	unsigned int mode = 1;
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &ping_val, 4);
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &duty_cycle, 4);
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 2, &delay_period, 4);
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
+	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 0, &ping_val, 4);
+	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &duty_cycle, 4);
+	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 2, &delay_period, 4);
+	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &mode, 4);
 
 	while(true){
-		curWheelSteeringI = (int)(currentWheelSteering*100.0);
-		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &curWheelSteeringI, 4);
+		curWheelSteeringI = (unsigned int)(currentWheelSteering*100.0);
+		if(curWheelSteeringI == 0){curWheelSteeringI = 1;}
+		if(curWheelSteeringI == 100){curWheelSteeringI = 99;}
+		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &curWheelSteeringI, 4);
+		//std::cout << curWheelSteeringI << "\n";
+		usleep(10000);
 	}
 	#endif
 }
@@ -223,7 +227,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	if (g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop) {
 		// Failsafe to ensure that the vehicle is not moving during a payload drop
 		currentWheelSpeed = 0.0;
-		currentWheelSteering = 0.0;
+		currentWheelSteering = 0.5;
 		// If we're on our last leg (return-to-home), then no need to drop payload.
 		if(g->coordinateIndex == g->totalCoordinates-1 && g->GetCurrentGuidanceManeuver().done != true){
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
