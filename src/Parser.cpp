@@ -286,6 +286,7 @@ void Parser::ReadInputs(std::string file)
 		else if (s.find("Laser_Right") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
+			std::cout << "Found right laser!!\n";
 			ss >> Laser_Right;
 			continue;
 		}
@@ -310,7 +311,7 @@ void Parser::ReadInputs(std::string file)
 			ss >> TimeDelta;
 			continue;
 		}
-		else if (s.find("SimDelta") != std::string::npos) {
+				else if (s.find("SimDelta") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> SimDelta;
