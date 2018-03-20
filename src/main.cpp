@@ -65,13 +65,6 @@ void CleanupOperations();
  */
 bool TestSensorConnectivity();
 
-// Create all of the main structures to be passed to the respective subroutines.
-Navigator NAV;
-Navigator* myNavigator = &NAV;
-Guider gUID;
-Guider* myGuider = &gUID;
-SensorHub SH;
-SensorHub* mySensorHub = &SH;
 Controller CTRL;
 Controller* myController = &CTRL;
 
@@ -100,6 +93,14 @@ int main(int argc, char* argv[]) {
 
 	// Read all of the inputs in the configuration file.
 	Parser::ReadInputs("../Config.txt");
+
+	// Create all of the main structures to be passed to the respective subroutines.
+	Navigator NAV;
+	Navigator* myNavigator = &NAV;
+	Guider gUID;
+	Guider* myGuider = &gUID;
+	SensorHub SH;
+	SensorHub* mySensorHub = &SH;
 
 	// Initialize all sensors, test connectivity, and construct a Nav Plan->
 	bool setup = ProgramSetup(mySensorHub, myNavigator, myGuider, myController);
