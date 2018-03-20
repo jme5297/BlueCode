@@ -108,10 +108,15 @@ PRU_Steer_Delay = 61
 #                         SENSORS AND PORTS
 # -----------------------------------------
 # GPIO numbers of the left and right lasers.
-Laser_Left = 60
+# P8.12
+Laser_Left = 44
+# P8.26
 Laser_Right = 61
-# GPIO Port used for transistor to switch to payload servo
-TransistorGPIO = 24
+# GPIO Port numbers used for transistor to switch to payload serv
+# P9.23
+GPIO_Steer = 49
+# P9.25
+GPIO_Payload = 117
 
 # ############################################################################
 #                                              Configuration for the simulator

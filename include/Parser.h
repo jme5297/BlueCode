@@ -104,6 +104,8 @@ public:
 	static double GetTransistorGPIO() { return TransistorGPIO; }
 	static int GetLaser_Left() { return Laser_Left; }
 	static int GetLaser_Right() { return Laser_Right; }
+	static int GetGPIO_Steer() { return GPIO_Steer; }
+	static int GetGPIO_Payload() { return GPIO_Payload; }
 
 	// Simulation
 	static double GetTimeDelta() { return TimeDelta; }
@@ -153,9 +155,10 @@ protected:
 	static double PRU_ESC_Delay;
 	static double PRU_Steer_Delay;
 	static double TurnSpeedFactor;
-	static double TransistorGPIO;
 	static int Laser_Left;
 	static int Laser_Right;
+	static int GPIO_Steer;
+	static int GPIO_Payload;
 
 	// Simulation
 	static double TimeDelta;

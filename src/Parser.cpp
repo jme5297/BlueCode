@@ -37,9 +37,10 @@ double Parser::PRU_ESC_Delay;
 double Parser::PRU_Steer_Delay;
 double Parser::MaxTurnSteering;
 int Parser::MaxCameraAttempts;
-double Parser::TransistorGPIO;
 int Parser::Laser_Left;
 int Parser::Laser_Right;
+int Parser::GPIO_Steer;
+int Parser::GPIO_Payload;
 std::vector<pLas> Parser::Lasers;
 
 // Simulation
@@ -276,12 +277,6 @@ void Parser::ReadInputs(std::string file)
 			ss >> Optimize;
 			continue;
 		}
-		else if (s.find("TransistorGPIO") != std::string::npos) {
-			std::string a = s.substr(s.find("=") + 1);
-			std::stringstream ss(a);
-			ss >> TransistorGPIO;
-			continue;
-		}
 		else if (s.find("Laser_Left") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -292,6 +287,18 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> Laser_Right;
+			continue;
+		}
+		else if (s.find("GPIO_Steer") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> GPIO_Steer;
+			continue;
+		}
+		else if (s.find("GPIO_Payload") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> GPIO_Payload;
 			continue;
 		}
 		//----------------------------------------
