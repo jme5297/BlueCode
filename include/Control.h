@@ -21,11 +21,7 @@ namespace Control {
 		Controller();
 
 		void Run(Guider* g, SensorHub* sh);						///< Main execution function for the Controller.
-		void SetCurrentVehicleMode(VehicleMode vm);	///< Set the current vehicle mode.
 		void SetMaxCameraAttempts(int i) { maxCameraAttempts = i; }
-
-		VehicleMode GetCurrentVehicleMode();		///< Get the currently operating vehicle mode.
-
 		void SetMaxTurnSteering(double d);
 
 		// Controls
@@ -37,20 +33,8 @@ namespace Control {
 		void EmergencyShutdown();
 
 	protected:
-		// For track system
-		double motorLSpeed;
-		double motorRSpeed;
 
-		// For wheel system
-		double wheelSpeedN;
-		double wheelSteeringN;
-
-		// This is now a static variable in Control.cpp.
-		// double currentWheelSpeed;
-
-		VehicleMode currentVehicleMode;
 		GuidanceManeuver currentGuidanceManeuver;
-
 		double maxTurnSteering;
 		int maxCameraAttempts;
 

@@ -64,17 +64,6 @@ void CleanupOperations();
  * from the respective serial ports.
  */
 bool TestSensorConnectivity();
-/*!
- * [Deprecated] Old method to provide nav-plan coordinates to the program setup routines. This
- * has been replaced with Config.txt for handling lat/lon target inputs. However, it's left in the
- * code just in-case manual functionality is required to be added again later.
- */
-Navigator InutNavPlanCoordinates();
-/*!
- * Prints Nav Pan information after the nav plan has been constructed. This is to allow the user
- * to see currently constructed/active plan in the event that changes must be made.
- */
-void PrintNavPlanInfo(Navigator* n, SensorHub* sh);
 
 // Create all of the main structures to be passed to the respective subroutines.
 Navigator NAV;
@@ -117,7 +106,7 @@ int main(int argc, char* argv[]) {
 
 	// If failure in setup at any given time, then program cannot continue.
 	if (!setup) {
-		std::cout << "Error setting up program. Exiting program.\n";
+		TimeModule::Log("MNE","Error setting up program. Exiting program.");
 		return 0;
 	}
 
@@ -145,7 +134,6 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	// Set all other configuration parameters that were defined in Config.txt.
 	myGuider->SetPayloadDropRadius(Parser::GetPayloadDropRadius());
 	myGuider->SetOffAngleDeviate(Parser::GetOffAngleDeviate());
-	myGuider->SetOffAngleAccepted(Parser::GetOffAngleAccepted());
 	myGuider->SetCalibrationTime(Parser::GetCalibrationTime());
 	myGuider->SetObstacleDivergenceTime(Parser::GetObstacleDivergenceTime());
 	myGuider->SetPayloadServoTime(Parser::GetPayloadServoTime());
@@ -153,24 +141,22 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	myGuider->SetMaxVehicleSpeed(Parser::GetMaxSpeedMPS());
 	myGuider->SetMinimumMaintainTime(Parser::GetMinimumMaintainTime());
 	myGuider->SetObstacleDivergenceAngle(Parser::GetObstacleDivergenceAngle());
-	myController->SetCurrentVehicleMode(Parser::GetControlMode());
 	myController->SetMaxTurnSteering(Parser::GetMaxTurnSteering());
 	myController->SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());
 
-	// Set additional parameters if running the simulation->
+	// Set additional parameters if running the simulation
 #ifdef SIM
 	mySensorHub->GetGPS()->SetGPSUncertainty(Parser::GetGPSUncertainty());
-	PlantModel::GetVehicle()->vehicleType = Parser::GetVehicleTypeSim();
 	PlantModel::GetVehicle()->heading = Parser::GetInitialHeading();
 	PlantModel::GetVehicle()->gps.coords.lat = Parser::GetInitialLatitude();
 	PlantModel::GetVehicle()->gps.coords.lon = Parser::GetInitialLongitude();
 #endif
 
 	// Ensure all sensors are connected.
-	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: Initializing sensor connections... \n";
+	TimeModule::Log("MNE","Initializing sensor connections... ");
 	bool initialized = mySensorHub->InitAllSensors();
 	if (!initialized) {
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: ERROR: Not all sensors have initialized. Exiting program.\n";
+		TimeModule::Log("MNE","ERROR: Not all sensors have initialized. Exiting program.");
 		return false;
 	}
 
@@ -179,13 +165,13 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	myNavigator->Initialize(mySensorHub);
 	myNavigator->AddCoordinates(Parser::GetInputCoordinates());
 	if (!myNavigator->IsPopulated()) {
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: ERROR: Nav Plan not properly populated. Exiting program.\n";
+		TimeModule::Log("MNE","ERROR: Nav Plan not properly populated. Exiting program.");
 		return false;
 	}
 
-	// If user has specified, optimize the initial nav-plan->
+	// If user has specified, optimize the initial nav-plan
 	if (Parser::GetOptimize()) {
-		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: Requesting Nav-Plan optimizaiton.\n";
+		TimeModule::Log("MNE","Requesting Nav-Plan optimizaiton.");
 		myNavigator->ConstructNavPlan(0);
 	}
 
@@ -294,7 +280,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 
 		// std::cout << TimeModule::GetElapsedTime("BeginMainOpsTime") << std::endl;
 
-		// If the "Print" process is intialized, then display basic information->
+		// If the "Print" process is intialized, then display basic information
 		double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
 		double lat = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lat;
 #ifdef SIM
@@ -323,7 +309,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 		}
 	}
 
-	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][MNE]: Main operations complete.\n";
+	TimeModule::Log("MNE","Main operations complete.");
 	output.close();
 	return;
 }
@@ -341,67 +327,4 @@ bool TestSensorConnectivity() {
 
 
 	return true;
-}
-
-Navigator InutNavPlanCoordinates() {
-
-	// Create a new nav plan to populate
-	Navigator navigator;
-
-	int response;
-	int index = 0;
-	std::cout << "Add waypoint #" + std::to_string(index) + "? (1=y,0=n): ";
-	std::cin >> response;
-
-	while (response >= 1) {
-
-		double c1;
-		double c2;
-
-		std::cout << "Waypoint #" + std::to_string(index) + ", lon: ";
-		std::cin >> c1;
-		std::cout << "Waypoint #" + std::to_string(index) + ", lat: ";
-		std::cin >> c2;
-
-		// Add these two coordinates to the planned nav plan
-		navigator.AddCoordinate(-1, c1, c2);
-
-		index++;
-
-		std::cout << "Add waypoint " + std::to_string(index) + "? (1=y,0=n,-1=redo): ";
-		std::cin >> response;
-	}
-
-	// If an undo is requested, then get recursive!
-	if (response == -1)
-	{
-		navigator = InutNavPlanCoordinates();
-	}
-
-	// Print out a list of coordinates that will be used to a CSV file.
-	std::ofstream pts;
-	pts.open("out/pts.csv");
-	std::vector<Coordinate> coords = navigator.GetWaypoints();
-	for (int i = 0; i < (int)coords.size(); i++) {
-		pts << coords[i].lon << "," << coords[i].lat << "\n";
-	}
-	pts.close();
-
-	return navigator;
-}
-
-void PrintNavPlanInfo(Navigator* n, SensorHub* sh) {
-
-	std::vector<Coordinate> coords = n->GetWaypoints();
-	std::vector<Movement> moves = n->GetMovements();
-	Coordinate myLoc = sh->GetGPS()->GetCurrentGPSCoordinates();
-
-	std::cout << "=======|| Current Nav-Plan ||=======\n";
-	std::cout << "Current location of (" + std::to_string(myLoc.lon) + "," + std::to_string(myLoc.lat) + ").\n";
-
-	for (int i = 0; i < (int)coords.size(); i++) {
-		std::cout << "Proceed on heading " + std::to_string(moves[i].heading) + "deg for " + std::to_string(moves[i].distance) + "u until Waypoint #" + std::to_string(i) + " at (" + std::to_string(coords.at(i).lon) + "," + std::to_string(coords.at(i).lat) + ").\n";
-	}
-
-	return;
 }

@@ -24,10 +24,12 @@ namespace Control {
 	* represents the control maneuvers, whereas the VehicleType represents the plant model being
 	* run. Obviously, these two modes should always be in sync.
 	*/
+	/*
 	enum VehicleMode {
 		Track, 	//!< Vehicle moves along two tracks, one on each side of the vehicle.
 		Wheel 	//!< Vehicle contains four wheels and has both speed/steering control.
 	};
+	*/
 }
 
 namespace sensors {
@@ -55,10 +57,6 @@ namespace Navigation {
 }
 
 namespace Plant {
-	enum VehicleType {
-		Track,
-		Wheel
-	};
 	struct pLas {
 	public:
 		double relativeForward;
@@ -96,7 +94,6 @@ public:
 	static bool GetOptimize() { return Optimize; }
 	static double GetPayloadDropRadius() { return PayloadDropRadius; }
 	static double GetOffAngleDeviate() { return OffAngleDeviate; }
-	static double GetOffAngleAccepted() { return OffAngleAccepted; }
 	static double GetTurnFactorDPS() { return TurnFactorDPS; }
 	static double GetAccFactor() { return AccFactor; }
 	static double GetAccFactorObs() { return AccFactorObs; }
@@ -108,7 +105,9 @@ public:
 	static int GetMaxCameraAttempts() { return MaxCameraAttempts; }
 	static double GetPayloadServoTime() { return PayloadServoTime; }
 	static double GetPayloadDropMovementFactor(){ return PayloadDropMovementFactor; }
-	static VehicleMode GetControlMode() { return ControlMode; }
+	static double GetSteeringStraightDutyCycle(){ return SteeringStraightDutyCycle; }
+	static double GetPayloadServoStartingDutyCycle(){ return PayloadServoStartingDutyCycle; }
+	static double GetTransistorGPIO() { return TransistorGPIO; }
 	static int GetLaser_Left() { return Laser_Left; }
 	static int GetLaser_Right() { return Laser_Right; }
 
@@ -117,7 +116,6 @@ public:
 	static double GetGPSUncertainty() { return GPSUncertainty; }
 	static double GetGPSHeadingUncertainty() { return GPSHeadingUncertainty; }
 	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
-	static VehicleType GetVehicleTypeSim() { return VehicleTypeSim; }
 	static double GetMaxWheelAngleDegrees() { return MaxWheelAngleDegrees; }
 	static double GetVehicleWidth() { return VehicleWidth; }
 	static double GetVehicleHeight() { return VehicleHeight; }
@@ -139,7 +137,6 @@ protected:
 	static bool Optimize;
 	static double PayloadDropRadius;
 	static double OffAngleDeviate;
-	static double OffAngleAccepted;
 	static double TurnFactorDPS;
 	static double AccFactor;
 	static double AccFactorObs;
@@ -151,7 +148,9 @@ protected:
 	static int MaxCameraAttempts;
 	static double PayloadServoTime;
 	static double PayloadDropMovementFactor;
-	static VehicleMode ControlMode;
+	static double SteeringStraightDutyCycle;
+	static double PayloadServoStartingDutyCycle;
+	static double TransistorGPIO;
 	static int Laser_Left;
 	static int Laser_Right;
 
@@ -160,7 +159,6 @@ protected:
 	static double GPSUncertainty;
 	static double GPSHeadingUncertainty;
 	static double MaxSpeedMPS;
-	static VehicleType VehicleTypeSim;
 	static double MaxWheelAngleDegrees;
 	static double VehicleWidth;
 	static double VehicleHeight;

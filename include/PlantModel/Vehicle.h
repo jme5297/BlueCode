@@ -45,7 +45,6 @@ namespace Plant {
 		double heading;   ///< Current vehicle heading. @todo This really shouldn't be required here.
 
 		/// For determining the type of vehicle.
-		VehicleType vehicleType;
 		double wheelSpeedN;     ///< Normalized wheel speed from 0.0 to 1.0;
 		double wheelSteeringN;  ///< Normalized wheel steering direction from -1.0 to 1.0
 								/**

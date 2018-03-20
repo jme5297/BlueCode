@@ -39,10 +39,6 @@ PayloadDropRadius = 10.0
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 10.0
 
-# What's the required off-angle maximum to stop a turn and maintain course again?
-# NOTE: Deprecated from the use of the PID integrator in Guider
-# OffAngleAccepted = 5.0
-
 # Vehicle turn rate at full turning speed (degrees/second)
 TurnFactorDPS = 49.0
 
@@ -72,13 +68,6 @@ ObstacleDivergenceAngle = 45.0
 # Amount of time to travel "parallel" to an obstacle before converging back to target (seconds)
 ObstacleDivergenceTime = 5.0
 
-# Amount of time to hold down Payload servo (seconds)
-# NOTE: This will be deprecated soon.
-PayloadServoTime = 3.0
-
-# Payload dropping mechanism movement per payload (normalized)
-PayloadDropMovementFactor = 0.01
-
 #   CONTROLS
 # -------------
 
@@ -88,14 +77,25 @@ MaxTurnSteering = 1.0
 # Maximum number of times to attempt to take an image before moving to next target.
 MaxCameraAttempts = 3
 
-# What vehicle control type should be used? Can be Wheel or Track.
-ControlMode = Wheel
+# Relative duty cycle increase for each payload drop
+PayloadDropMovementFactor = 0.01
 
-#   SENSORS
-# -----------------
+# Amount of time to hold down Payload servo (seconds)
+PayloadServoTime = 3.0
+
+# Duty cycle for the steering servo that represents straight movement (no turns).
+SteeringStraightDutyCycle = 0.5
+
+# Starting duty cycle of the payload servo
+PayloadServoStartingDutyCycle = 0.05
+
+#   SENSORS AND PORTS
+# -----------------------
 # GPIO numbers of the left and right lasers.
 Laser_Left = 60
 Laser_Right = 61
+# GPIO Port used for transistor to switch to payload servo
+TransistorGPIO = 24
 
 # ----------------------------------------------------------------------------
 #                                              Configuration for the simulator
@@ -112,9 +112,6 @@ GPSUncertainty = 4.0
 
 # Uncertainty of the GPS Heading information (degrees)
 GPSHeadingUncertainty = 15.0
-
-# What type of vehicle to test? Can be either Wheel or Track.
-VehicleTypeSim = Wheel
 
 # How many degrees can the wheel turn at full servo power in one direction?
 MaxWheelAngleDegrees = 45.0

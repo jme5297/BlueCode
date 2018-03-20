@@ -75,7 +75,7 @@ namespace Guidance {
 
 		void SetPayloadDropRadius(double d) { payloadDropRadius = d; }
 		void SetOffAngleDeviate(double d) { offAngleDeviate = d; }
-		void SetOffAngleAccepted(double d) { offAngleAccepted = d; }
+		// void SetOffAngleAccepted(double d) { offAngleAccepted = d; }
 		void SetCalibrationTime(double d) { calibrationTime = d; }
 		void SetMinimumMaintainTime(double d) { minimumMaintainTime = d; }
 		void SetObstacleDivergenceAngle(double d) { obstacleDivergenceAngle = d; }

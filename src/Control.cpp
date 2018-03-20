@@ -35,9 +35,8 @@ void ControlSteering();
  * Constructor for the Controller class
  */
 Controller::Controller() {
-	currentVehicleMode = Parser::GetControlMode();
 	dutyCycle_speed = 0.0;
-	dutyCycle_steer = 0.5;
+	dutyCycle_steer = Parser::GetSteeringStraightDutyCycle();
 	dutyCycle_payload = 0.05;
 	payloadServoActive = false;
 	hasPayloadServoMoved = false;
@@ -64,8 +63,9 @@ void Controller::InitializeSteeringControl() {
 /*!
  * Main Run routine for Controller.
  * The controller first determines if a fixed speed has been acheived. If not,
- * wheel speed value is accelerated by the speed rate set in the Guider. Once
- * a fixed speed has been acheived, Controller will handle special cases (such as
+ * wheel speed value is accelerated by the speed rate set in the Guider.
+ *
+ * Once a fixed speed has been acheived, Controller will handle special cases (such as
  * NavPlan-complete and Payload Drop scenarios).
  */
 void Controller::Run(Guider* g, SensorHub* sh) {
@@ -75,7 +75,9 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		if (!(fabs(dutyCycle_speed - g->GetCurrentGuidanceManeuver().speed) <= 2.0 * 0.005)) {
 			double sign = (g->GetCurrentGuidanceManeuver().speed - dutyCycle_speed) / fabs(dutyCycle_speed - g->GetCurrentGuidanceManeuver().speed);
 			dutyCycle_speed += sign * g->GetCurrentGuidanceManeuver().speedRate;
-			dutyCycle_steer = 0.5;
+
+			// If we're accelerating, make sure we are NOT turning.
+			dutyCycle_steer = Parser::GetSteeringStraightDutyCycle();
 		}
 		else {
 			g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
@@ -157,7 +159,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	if (g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop) {
 		// Failsafe to ensure that the vehicle is not moving during a payload drop
 		dutyCycle_speed = 0.0;
-		dutyCycle_steer = 0.5;
+		dutyCycle_steer = Parser::GetSteeringStraightDutyCycle();
 		// If we're on our last leg (return-to-home), then no need to drop payload.
 		if (g->coordinateIndex == g->totalCoordinates - 1 && g->GetCurrentGuidanceManeuver().done != true) {
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
@@ -361,7 +363,5 @@ void Controller::EmergencyShutdown() {
 #endif
 }
 
-void Controller::SetCurrentVehicleMode(VehicleMode vm) { currentVehicleMode = vm; }
-VehicleMode Controller::GetCurrentVehicleMode() { return currentVehicleMode; }
 void Controller::SetMaxTurnSteering(double d) { maxTurnSteering = d; }
 // void Controller::SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());

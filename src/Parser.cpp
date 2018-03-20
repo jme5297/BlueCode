@@ -14,7 +14,6 @@ std::ifstream Parser::configFile;
 bool Parser::Optimize;
 double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
-double Parser::OffAngleAccepted;
 double Parser::TurnFactorDPS;
 double Parser::AccFactor;
 double Parser::AccFactorObs;
@@ -25,9 +24,10 @@ double Parser::ObstacleDivergenceAngle;
 double Parser::ObstacleDivergenceTime;
 double Parser::PayloadServoTime;
 double Parser::PayloadDropMovementFactor;
+double Parser::SteeringStraightDutyCycle;
 double Parser::MaxTurnSteering;
 int Parser::MaxCameraAttempts;
-VehicleMode Parser::ControlMode;
+double Parser::TransistorGPIO;
 int Parser::Laser_Left;
 int Parser::Laser_Right;
 std::vector<pLas> Parser::Lasers;
@@ -37,7 +37,6 @@ double Parser::TimeDelta;
 double Parser::SimDelta;
 double Parser::GPSUncertainty;
 double Parser::GPSHeadingUncertainty;
-VehicleType Parser::VehicleTypeSim;
 double Parser::MaxWheelAngleDegrees;
 double Parser::VehicleWidth;
 double Parser::VehicleHeight;
@@ -129,12 +128,14 @@ void Parser::ReadInputs(std::string file)
 			ss >> OffAngleDeviate;
 			continue;
 		}
+		/*
 		else if (s.find("OffAngleAccepted") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> OffAngleAccepted;
 			continue;
 		}
+		*/
 		else if (s.find("TurnFactorDPS") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -189,6 +190,12 @@ void Parser::ReadInputs(std::string file)
 			ss >> PayloadDropMovementFactor;
 			continue;
 		}
+		else if (s.find("SteeringStraightDutyCycle") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> SteeringStraightDutyCycle;
+			continue;
+		}
 		else if (s.find("MaxTurnSteering") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -201,17 +208,10 @@ void Parser::ReadInputs(std::string file)
 			ss >> Optimize;
 			continue;
 		}
-		else if (s.find("ControlMode") != std::string::npos) {
+		else if (s.find("TransistorGPIO") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			std::string b;
-			ss >> b;
-			if (b == "Wheel") {
-				ControlMode = VehicleMode::Wheel;
-			}
-			else {
-				ControlMode = VehicleMode::Track;
-			}
+			ss >> TransistorGPIO;
 			continue;
 		}
 		else if (s.find("Laser_Left") != std::string::npos) {
@@ -257,19 +257,6 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> MaxSpeedMPS;
-			continue;
-		}
-		else if (s.find("VehicleTypeSim") != std::string::npos) {
-			std::string a = s.substr(s.find("=") + 1);
-			std::stringstream ss(a);
-			std::string b;
-			ss >> b;
-			if (b == "Wheel") {
-				VehicleTypeSim = VehicleType::Wheel;
-			}
-			else {
-				VehicleTypeSim = VehicleType::Track;
-			}
 			continue;
 		}
 		else if (s.find("MaxWheelAngleDegrees") != std::string::npos) {

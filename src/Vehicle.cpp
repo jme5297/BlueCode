@@ -6,7 +6,6 @@ Vehicle::Vehicle() {
 
 }
 void Vehicle::Initialize() {
-	vehicleType = Parser::GetVehicleTypeSim();
 	width = Parser::GetVehicleWidth();
 	length = Parser::GetVehicleLength();
 	height = Parser::GetVehicleHeight();
