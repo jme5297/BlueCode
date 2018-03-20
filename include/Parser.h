@@ -81,6 +81,8 @@ public:
 	static double GetTurnFactorDPS() { return TurnFactorDPS; }
 	static double GetAccFactor() { return AccFactor; }
 	static double GetAccFactorObs() { return AccFactorObs; }
+	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
+	static double GetTurnSpeedFactor(){ return TurnSpeedFactor; }
 	static double GetCalibrationTime() { return CalibrationTime; }
 	static double GetMinimumMaintainTime() { return MinimumMaintainTime; }
 	static double GetObstacleDivergenceAngle() { return ObstacleDivergenceAngle; }
@@ -88,18 +90,26 @@ public:
 	static double GetMaxTurnSteering() { return MaxTurnSteering; }
 	static int GetMaxCameraAttempts() { return MaxCameraAttempts; }
 	static double GetPayloadServoTime() { return PayloadServoTime; }
-	static double GetPayloadDropMovementFactor(){ return PayloadDropMovementFactor; }
-	static double GetSteeringStraightDutyCycle(){ return SteeringStraightDutyCycle; }
-	static double GetPayloadServoStartingDutyCycle(){ return PayloadServoStartingDutyCycle; }
+	static double GetDC_ESC_Fwd(){ return DC_ESC_Fwd; }
+	static double GetDC_ESC_Zero(){ return DC_ESC_Zero; }
+	static double GetDC_ESC_Back(){ return DC_ESC_Back; }
+	static double GetDC_Steer_Left() { return DC_Steer_Left; }
+	static double GetDC_Steer_Straight() { return DC_Steer_Straight; }
+	static double GetDC_Steer_Right() { return DC_Steer_Right; }
+	static double GetDC_Payload_Start() { return DC_Payload_Start; }
+	static double GetDC_Payload_Delta() { return DC_Payload_Delta; }
+	static double GetPRU_Sample_Rate() { return PRU_Sample_Rate; }
+	static double GetPRU_ESC_Delay() { return PRU_ESC_Delay; }
+	static double GetPRU_Steer_Delay() { return PRU_Steer_Delay; }
 	static double GetTransistorGPIO() { return TransistorGPIO; }
 	static int GetLaser_Left() { return Laser_Left; }
 	static int GetLaser_Right() { return Laser_Right; }
 
+	// Simulation
 	static double GetTimeDelta() { return TimeDelta; }
 	static double GetSimDelta() { return SimDelta; }
 	static double GetGPSUncertainty() { return GPSUncertainty; }
 	static double GetGPSHeadingUncertainty() { return GPSHeadingUncertainty; }
-	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
 	static double GetMaxWheelAngleDegrees() { return MaxWheelAngleDegrees; }
 	static double GetVehicleWidth() { return VehicleWidth; }
 	static double GetVehicleHeight() { return VehicleHeight; }
@@ -131,13 +141,23 @@ protected:
 	static double MaxTurnSteering;
 	static int MaxCameraAttempts;
 	static double PayloadServoTime;
-	static double PayloadDropMovementFactor;
-	static double SteeringStraightDutyCycle;
-	static double PayloadServoStartingDutyCycle;
+	static double DC_ESC_Fwd;
+	static double DC_ESC_Zero;
+	static double DC_ESC_Back;
+	static double DC_Steer_Left;
+	static double DC_Steer_Straight;
+	static double DC_Steer_Right;
+	static double DC_Payload_Start;
+	static double DC_Payload_Delta;
+	static double PRU_Sample_Rate;
+	static double PRU_ESC_Delay;
+	static double PRU_Steer_Delay;
+	static double TurnSpeedFactor;
 	static double TransistorGPIO;
 	static int Laser_Left;
 	static int Laser_Right;
 
+	// Simulation
 	static double TimeDelta;
 	static double SimDelta;
 	static double GPSUncertainty;

@@ -61,8 +61,11 @@ AccFactorObs = 2.0;
 # Note: This value is also used in the SIM mode.
 MaxSpeedMPS = 2.0
 
+# Factor to multiply speed by for turning
+TurnSpeedFactor = 0.25
+
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
-CalibrationTime = 7.0
+CalibrationTime = 4.0
 
 # Minimum amount of time required to stay straight in a maintain mode (seconds)
 MinimumMaintainTime = 4.0
@@ -83,17 +86,23 @@ MaxTurnSteering = 1.0
 # Maximum number of times to attempt to take an image before moving to next target.
 MaxCameraAttempts = 3
 
-# Relative duty cycle increase for each payload drop
-PayloadDropMovementFactor = 0.01
-
 # Amount of time to hold down Payload servo (seconds)
 PayloadServoTime = 3.0
 
-# Duty cycle for the steering servo that represents straight movement (no turns).
-SteeringStraightDutyCycle = 0.5
+# PWM Duty Cycle setup values
+DC_ESC_Fwd = 0.7
+DC_ESC_Zero = 0.5
+DC_ESC_Back = 0.3
+DC_Steer_Left = 0.05
+DC_Steer_Straight = 0.075
+DC_Steer_Right = 0.1
+DC_Payload_Start = 0.05
+DC_Payload_Delta = 0.01
 
-# Starting duty cycle of the payload servo
-PayloadServoStartingDutyCycle = 0.05
+# PRU Configuration values
+PRU_Sample_Rate = 1000.0
+PRU_ESC_Delay = 61
+PRU_Steer_Delay = 61
 
 # -----------------------------------------
 #                         SENSORS AND PORTS

@@ -18,13 +18,23 @@ double Parser::TurnFactorDPS;
 double Parser::AccFactor;
 double Parser::AccFactorObs;
 double Parser::MaxSpeedMPS;
+double Parser::TurnSpeedFactor;
 double Parser::CalibrationTime;
 double Parser::MinimumMaintainTime;
 double Parser::ObstacleDivergenceAngle;
 double Parser::ObstacleDivergenceTime;
 double Parser::PayloadServoTime;
-double Parser::PayloadDropMovementFactor;
-double Parser::SteeringStraightDutyCycle;
+double Parser::DC_ESC_Fwd;
+double Parser::DC_ESC_Zero;
+double Parser::DC_ESC_Back;
+double Parser::DC_Steer_Left;
+double Parser::DC_Steer_Straight;
+double Parser::DC_Steer_Right;
+double Parser::DC_Payload_Start;
+double Parser::DC_Payload_Delta;
+double Parser::PRU_Sample_Rate;
+double Parser::PRU_ESC_Delay;
+double Parser::PRU_Steer_Delay;
 double Parser::MaxTurnSteering;
 int Parser::MaxCameraAttempts;
 double Parser::TransistorGPIO;
@@ -128,14 +138,6 @@ void Parser::ReadInputs(std::string file)
 			ss >> OffAngleDeviate;
 			continue;
 		}
-		/*
-		else if (s.find("OffAngleAccepted") != std::string::npos) {
-			std::string a = s.substr(s.find("=") + 1);
-			std::stringstream ss(a);
-			ss >> OffAngleAccepted;
-			continue;
-		}
-		*/
 		else if (s.find("TurnFactorDPS") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -152,6 +154,18 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> AccFactor;
+			continue;
+		}
+		else if (s.find("MaxSpeedMPS") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> MaxSpeedMPS;
+			continue;
+		}
+		else if (s.find("TurnSpeedFactor") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> TurnSpeedFactor;
 			continue;
 		}
 		else if (s.find("CalibrationTime") != std::string::npos) {
@@ -184,16 +198,70 @@ void Parser::ReadInputs(std::string file)
 			ss >> PayloadServoTime;
 			continue;
 		}
-		else if (s.find("PayloadDropMovementFactor") != std::string::npos) {
+		else if (s.find("DC_ESC_Fwd") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			ss >> PayloadDropMovementFactor;
+			ss >> DC_ESC_Fwd;
 			continue;
 		}
-		else if (s.find("SteeringStraightDutyCycle") != std::string::npos) {
+		else if (s.find("DC_ESC_Zero") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			ss >> SteeringStraightDutyCycle;
+			ss >> DC_ESC_Zero;
+			continue;
+		}
+		else if (s.find("DC_ESC_Back") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> DC_ESC_Back;
+			continue;
+		}
+		else if (s.find("DC_Steer_Left") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> DC_Steer_Left;
+			continue;
+		}
+		else if (s.find("DC_Steer_Straight") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> DC_Steer_Straight;
+			continue;
+		}
+		else if (s.find("DC_Steer_Right") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> DC_Steer_Right;
+			continue;
+		}
+		else if (s.find("DC_Payload_Start") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> DC_Payload_Start;
+			continue;
+		}
+		else if (s.find("DC_Payload_Delta") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> DC_Payload_Delta;
+			continue;
+		}
+		else if (s.find("PRU_Sample_Rate") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> PRU_Sample_Rate;
+			continue;
+		}
+		else if (s.find("PRU_ESC_Delay") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> PRU_ESC_Delay;
+			continue;
+		}
+		else if (s.find("PRU_Steer_Delay") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> PRU_Steer_Delay;
 			continue;
 		}
 		else if (s.find("MaxTurnSteering") != std::string::npos) {
@@ -251,12 +319,6 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> GPSHeadingUncertainty;
-			continue;
-		}
-		else if (s.find("MaxSpeedMPS") != std::string::npos) {
-			std::string a = s.substr(s.find("=") + 1);
-			std::stringstream ss(a);
-			ss >> MaxSpeedMPS;
 			continue;
 		}
 		else if (s.find("MaxWheelAngleDegrees") != std::string::npos) {

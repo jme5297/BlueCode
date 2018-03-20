@@ -156,7 +156,7 @@ void Guider::Run(Navigator* n) {
 		gm.currentTurnAngle = 0.0;
 		gm.requestedTurnAngle = obstacleDivergenceAngle;
 		gm.hasBeganDiverging = false;
-		gm.speed = -0.25;
+		gm.speed = -1.0*Parser::GetTurnSpeedFactor();
 		gm.speedRate = Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
 		gm.maintainTime = obstacleDivergenceTime;
 		gm.done = false;
@@ -205,7 +205,7 @@ void Guider::Run(Navigator* n) {
 			}
 			gm.currentTurnAngle = 0.0;
 			gm.requestedTurnAngle = fabs(offAngle);
-			gm.speed = 0.25;
+			gm.speed = 1.0*Parser::GetTurnSpeedFactor();
 			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			//TimeModule::AddMilestone("Turn_" + std::to_string(GuidanceManeuverIndex));
 			gm.done = false;
@@ -323,7 +323,7 @@ void Guider::Run(Navigator* n) {
 
 			man->speed = 1.0;
 			man->turnDirection = 0;
-			man->speedRate = 0.5*Parser::GetRefresh_GUID();
+			man->speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			if (TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex)) >= man->maintainTime) {
 				man->done = true;
 				TimeModule::Log("GDE", "Done maintaining avoid-diverge direction.");
@@ -345,7 +345,7 @@ void Guider::Run(Navigator* n) {
 				man->hasBeganDiverging = false;
 				man->speed = 1.0;
 				man->turnDirection = 0;
-				man->speedRate = 0.5*Parser::GetRefresh_GUID();
+				man->speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			}
 		}
 		break;

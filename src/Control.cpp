@@ -15,6 +15,12 @@ using namespace Control;
 using namespace sensors;
 
 // --------------------
+//    NORMALIZED
+// --------------------
+double norm_speed;
+double norm_steer;
+
+// --------------------
 //     DUTY CYCLES
 // --------------------
 double dutyCycle_speed;  		// Speed - Used for ESC
@@ -35,9 +41,10 @@ void ControlSteering();
  * Constructor for the Controller class
  */
 Controller::Controller() {
-	dutyCycle_speed = 0.0;
-	dutyCycle_steer = Parser::GetSteeringStraightDutyCycle();
-	dutyCycle_payload = 0.05;
+	dutyCycle_speed = Parser::GetDC_ESC_Zero();
+	dutyCycle_steer = Parser::GetDC_Steer_Straight();
+	dutyCycle_payload = Parser::GetDC_Payload_Start();
+	norm_speed = 0.0;
 	payloadServoActive = false;
 	hasPayloadServoMoved = false;
 }
@@ -74,18 +81,25 @@ void Controller::InitializeSteeringControl() {
  */
 void Controller::Run(Guider* g, SensorHub* sh) {
 
-	// Update the speeds.
+	// Update the speeds if the speed is not yet fixed.
 	if (!g->GetCurrentGuidanceManeuver().hasFixedSpeed) {
-		if (!(fabs(dutyCycle_speed - g->GetCurrentGuidanceManeuver().speed) <= 2.0 * 0.005)) {
-			double sign = (g->GetCurrentGuidanceManeuver().speed - dutyCycle_speed) / fabs(dutyCycle_speed - g->GetCurrentGuidanceManeuver().speed);
-			dutyCycle_speed += sign * g->GetCurrentGuidanceManeuver().speedRate;
 
-			// If we're accelerating, make sure we are NOT turning.
-			dutyCycle_steer = Parser::GetSteeringStraightDutyCycle();
+		// If we still need to change speed, then do so now, and make sure we are not turning.
+		if (!(fabs(norm_speed - g->GetCurrentGuidanceManeuver().speed) <= 0.01)) {
+
+			// Update the normalized wheel speed and make sure we're not turning.
+			double sign = (g->GetCurrentGuidanceManeuver().speed - dutyCycle_speed) / fabs(dutyCycle_speed - g->GetCurrentGuidanceManeuver().speed);
+			norm_speed += sign * g->GetCurrentGuidanceManeuver().speedRate;
+			norm_steer = 0.0;
 		}
 		else {
 			g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
-			dutyCycle_steer = ((double)(g->GetCurrentGuidanceManeuver().turnDirection)) / 2.0 + 0.5;
+
+			// Update normalized speed and steering values
+			norm_speed = g->GetCurrentGuidanceManeuver().speed;
+			norm_steer = (double)(g->GetCurrentGuidanceManeuver().turnDirection);
+
+			// Begin timers for each type of maneuver.
 			switch (g->GetCurrentGuidanceManeuver().state) {
 			case ManeuverState::Calibrate:
 				TimeModule::Log("CTL", "Speed fixed. Ready to calibrate.");
@@ -112,24 +126,31 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			}
 		}
 
+		// Update the duty cycles.
+		dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_speed );
+		dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
+
+		// Update the plant values if in sim mode.
 #ifdef SIM
-		PlantModel::GetVehicle()->wheelSpeedN = dutyCycle_speed;
-		PlantModel::GetVehicle()->wheelSteeringN = (dutyCycle_steer - 0.5)*2.0;
+		PlantModel::GetVehicle()->wheelSpeedN = norm_speed;
+		PlantModel::GetVehicle()->wheelSteeringN = norm_steer;
 #endif
 
+		// Don't continue operations until speed has been fixed.
 		return;
 	}
 
+	// Update the plant values if in sim mode (have to do it here as well)
 #ifdef SIM
-	PlantModel::GetVehicle()->wheelSpeedN = dutyCycle_speed;
-	PlantModel::GetVehicle()->wheelSteeringN = (dutyCycle_steer - 0.5)*2.0;
+	PlantModel::GetVehicle()->wheelSpeedN = norm_speed;
+	PlantModel::GetVehicle()->wheelSteeringN = norm_steer;
 #endif
 
 	// If the NAV plan is complete, then stop the vehicle and return.
 	if (g->IsNavPlanComplete()) {
 
 		TimeModule::Log("CTL","Nav Plan complete signal from GDE. Stopping vehicle.");
-		dutyCycle_speed = 0.0;
+		dutyCycle_speed = Parser::GetDC_ESC_Zero();
 
 		// Disable and exit out of the PRU.
 		// NOTE:: Make this a function.
@@ -162,8 +183,8 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	// If the current maneuver is a paylod drop, run payload drop functions.
 	if (g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop) {
 		// Failsafe to ensure that the vehicle is not moving during a payload drop
-		dutyCycle_speed = 0.0;
-		dutyCycle_steer = Parser::GetSteeringStraightDutyCycle();
+		dutyCycle_speed = Parser::GetDC_ESC_Zero();
+		dutyCycle_steer = Parser::GetDC_Steer_Straight();
 		// If we're on our last leg (return-to-home), then no need to drop payload.
 		if (g->coordinateIndex == g->totalCoordinates - 1 && g->GetCurrentGuidanceManeuver().done != true) {
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
@@ -196,7 +217,7 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 
 			// Update the current value for the payload servo. NOTE: this
 			// has to be updated before setting payloadServoActive flag.
-			dutyCycle_payload += Parser::GetPayloadDropMovementFactor();
+			dutyCycle_payload += Parser::GetDC_Payload_Delta();
 			hasPayloadServoMoved = true;
 
 			// Begin writing the payload servo duty cycle value to the PRU memory.
@@ -262,7 +283,6 @@ void ControlMotors()
 	prussdrv_pruintc_init(&pruss_intc_initdata);
 	prussdrv_exec_program(PRU_NUM, "./pwm_final.bin");
 	unsigned int delay_period = 624;
-	unsigned int ping_val = 1;
 	unsigned int duty_cycle = 1;
 	unsigned int mode = 1;
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &ping_val, 4);
@@ -270,11 +290,12 @@ void ControlMotors()
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 2, &delay_period, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
 
-	unsigned int dutyCycle_speed_I = 1;
+	unsigned int dutyCycle_speed_I = static_cast<unsigned int>(Parser::GetDC_ESC_Zero()*Parser::GetPRU_Sample_Rate());
+
 	while (true) {
-		dutyCycle_speed_I = static_cast<unsigned int>(dutyCycle_speed*100.0);
+		dutyCycle_speed_I = static_cast<unsigned int>(dutyCycle_speed * Parser::GetPRU_Sample_Rate());
 		if (dutyCycle_speed_I == 0) { dutyCycle_speed_I = 1; }
-		if (dutyCycle_speed_I == 100) { dutyCycle_speed_I = 99; }
+		if (dutyCycle_speed_I == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())) { dutyCycle_speed_I -= 1; }
 		first = false;
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &dutyCycle_speed_I, 4);
 		usleep(10000);
@@ -296,7 +317,6 @@ void ControlSteering()
 	prussdrv_pruintc_init(&pruss_intc_initdata);
 	prussdrv_exec_program(1, "./pwm_final_pru2.bin");
 	unsigned int delay_period = 624;
-	unsigned int ping_val = 1;
 	unsigned int duty_cycle = 1;
 	unsigned int mode = 1;
 	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 0, &ping_val, 4);
@@ -305,21 +325,21 @@ void ControlSteering()
 	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &mode, 4);
 
 	// Check to see if we are controlling either payload or steering.
-	unsigned int dutyCycle_steer_I = 1;
-	unsigned int dutyCycle_payload_I = (unsigned int)(dutyCycle_payload*100.0);
+	unsigned int dutyCycle_steer_I = static_cast<unsigned int>(Parser::GetDC_Steer_Straight()*Parser::GetPRU_Sample_Rate());
+	unsigned int dutyCycle_payload_I = static_cast<unsigned int>(Parser::GetDC_Payload_Start()*Parser::GetPRU_Sample_Rate());
 
 	// Main logic loop
 	while (true) {
 
 		// Steering servo
-		dutyCycle_steer_I = (unsigned int)(dutyCycle_steer*100.0);
+		dutyCycle_steer_I = (unsigned int)(dutyCycle_steer * Parser::GetPRU_Sample_Rate());
 		if (dutyCycle_steer_I == 0) { dutyCycle_steer_I = 1; }
-		if (dutyCycle_steer_I == 100) { dutyCycle_steer_I = 99; }
+		if (dutyCycle_steer_I == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())) { dutyCycle_steer_I -= 1; }
 
 		// Payload servo
-		dutyCycle_payload_I = (unsigned int)(dutyCycle_payload*100.0);
+		dutyCycle_payload_I = (unsigned int)(dutyCycle_payload * Parser::GetPRU_Sample_Rate());
 		if (dutyCycle_payload_I == 0) { dutyCycle_payload_I = 1; }
-		if (dutyCycle_payload_I == 100) { dutyCycle_payload_I = 99; }
+		if (dutyCycle_payload_I == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())) { dutyCycle_payload_I -= 1; }
 
 		// Test to see if payload servo is active to determine which memory we are writing.
 		if(payloadServoActive){
@@ -343,7 +363,7 @@ void Controller::EmergencyShutdown() {
 	std::cout << "===EMERGENCY! DECELERATING!===\n";
 	dutyCycle_steer = 0.0;
 	while (dutyCycle_speed > 0.0) {
-		dutyCycle_speed -= 0.5*Parser::GetRefresh_GUID();
+		dutyCycle_speed -= Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
 		if (dutyCycle_speed < 0.0) { dutyCycle_speed = 0.0; }
 #ifdef TEST_PWM
 		usleep(10000);
