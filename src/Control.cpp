@@ -282,8 +282,8 @@ void ControlMotors()
 	prussdrv_open(PRU_EVTOUT_0);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
 	prussdrv_exec_program(PRU_NUM, "./pwm_final.bin");
-	unsigned int delay_period = 624;
-	unsigned int duty_cycle = 1;
+	unsigned int delay_period = static_cast<unsigned int>(Parser::GetPRU_ESC_Delay());
+	unsigned int duty_cycle = static_cast<unsigned int>(Parser::GetDC_ESC_Zero());
 	unsigned int mode = 1;
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &ping_val, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &duty_cycle, 4);
@@ -316,8 +316,8 @@ void ControlSteering()
 	prussdrv_open(PRU_EVTOUT_1);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
 	prussdrv_exec_program(1, "./pwm_final_pru2.bin");
-	unsigned int delay_period = 624;
-	unsigned int duty_cycle = 1;
+	unsigned int delay_period = static_cast<unsigned int>(Parser::GetPRU_Steer_Delay());
+	unsigned int duty_cycle = static_cast<unsigned int>(Parser::GetDC_Steer_Straight());
 	unsigned int mode = 1;
 	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 0, &ping_val, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &duty_cycle, 4);

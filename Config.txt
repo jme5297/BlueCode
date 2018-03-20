@@ -100,7 +100,7 @@ DC_Payload_Start = 0.05
 DC_Payload_Delta = 0.01
 
 # PRU Configuration values
-PRU_Sample_Rate = 1000.0
+PRU_Sample_Rate = 1000
 PRU_ESC_Delay = 61
 PRU_Steer_Delay = 61
 
