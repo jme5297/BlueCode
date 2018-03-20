@@ -90,14 +90,14 @@ MaxCameraAttempts = 3
 PayloadServoTime = 3.0
 
 # PWM Duty Cycle setup values
-DC_ESC_Fwd = 0.7
+DC_ESC_Fwd = 1.0
 DC_ESC_Zero = 0.5
-DC_ESC_Back = 0.3
-DC_Steer_Left = 0.05
-DC_Steer_Straight = 0.075
-DC_Steer_Right = 0.1
-DC_Payload_Start = 0.05
-DC_Payload_Delta = 0.01
+DC_ESC_Back = 0.0
+DC_Steer_Left = 0.0
+DC_Steer_Straight = 0.375
+DC_Steer_Right = 0.75
+DC_Payload_Start = 1.0
+DC_Payload_Delta = 0.0
 
 # PRU Configuration values
 PRU_Sample_Rate = 1000

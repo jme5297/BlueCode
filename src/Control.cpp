@@ -1,58 +1,51 @@
 #include <Control.h>
 
-#ifdef TEST_PWM
-#include <prussdrv.h>
-#include <pruss_intc_mapping.h>
-#define PRU_NUM   0
+#ifdef TEST_PWM 
+#include <prussdrv.h> 
+#include <pruss_intc_mapping.h> 
+#define PRU_NUM 0 
 #endif
 
 #ifdef SIM
 using namespace Plant;
 #endif
 
-using namespace Guidance;
-using namespace Control;
+using namespace Guidance; 
+using namespace Control; 
 using namespace sensors;
 
-// --------------------
-//    NORMALIZED
-// --------------------
-double norm_speed;
+// -------------------- 
+// NORMALIZED 
+// -------------------- 
+double norm_speed; 
 double norm_steer;
 
-// --------------------
-//     DUTY CYCLES
-// --------------------
-double dutyCycle_speed;  		// Speed - Used for ESC
-double dutyCycle_steer;			// Steer - Used for vehicle wheel servo
-double dutyCycle_payload;		// Payload - Used for payload servo
+// -------------------- 
+// DUTY CYCLES 
+// -------------------- 
+double dutyCycle_speed; // Speed - Used for ESC 
+double dutyCycle_steer; // Steer - Used for vehicle wheel servo 
+double dutyCycle_payload; // Payload - Used for payload servo
 
-// Is the payload servo currently active?
+// Is the payload servo currently active? 
 bool payloadServoActive;
 
-// Has the payload servo moved for this specific payload drop?
+// Has the payload servo moved for this specific payload drop? 
 bool hasPayloadServoMoved;
 
-// Prototypes for PRU running threads
-void ControlMotors();
-void ControlSteering();
-
+// Prototypes for PRU running threads 
+void ControlMotors(); 
+void ControlSteering(); 
 /*!
- * Constructor for the Controller class
- */
-Controller::Controller() {
-	dutyCycle_speed = Parser::GetDC_ESC_Zero();
-	dutyCycle_steer = Parser::GetDC_Steer_Straight();
-	dutyCycle_payload = Parser::GetDC_Payload_Start();
-	norm_speed = 0.0;
-	payloadServoActive = false;
-	hasPayloadServoMoved = false;
-}
+ */ 
+Controller::Controller() {}
 
 /*!
  * Begin a thread for the ESC PRU
- */
+ */ 
 void Controller::InitializeMotorControl() {
+	dutyCycle_speed = Parser::GetDC_ESC_Zero();
+	norm_speed = 0.0;
 #ifdef TEST_PWM
 	TimeModule::Log("CTL", "Creating a thread for motor control...");
 	std::thread runMotors(ControlMotors);
@@ -64,6 +57,10 @@ void Controller::InitializeMotorControl() {
  * Begin a thread for the Steering and Payload PRU.
  */
 void Controller::InitializeSteeringControl() {
+	dutyCycle_steer = Parser::GetDC_Steer_Straight();
+	dutyCycle_payload = Parser::GetDC_Payload_Start();
+	payloadServoActive = false;
+	hasPayloadServoMoved = false;
 #ifdef TEST_PWM
 	TimeModule::Log("CTL", "Creating a thread for steering control...");
 	std::thread runMotors(ControlSteering);
@@ -85,10 +82,10 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	if (!g->GetCurrentGuidanceManeuver().hasFixedSpeed) {
 
 		// If we still need to change speed, then do so now, and make sure we are not turning.
-		if (!(fabs(norm_speed - g->GetCurrentGuidanceManeuver().speed) <= 0.01)) {
+		if (!(fabs(norm_speed - g->GetCurrentGuidanceManeuver().speed) <= 2.0 * g->GetCurrentGuidanceManeuver().speedRate)) {
 
 			// Update the normalized wheel speed and make sure we're not turning.
-			double sign = (g->GetCurrentGuidanceManeuver().speed - dutyCycle_speed) / fabs(dutyCycle_speed - g->GetCurrentGuidanceManeuver().speed);
+			double sign = (g->GetCurrentGuidanceManeuver().speed - norm_speed) / fabs(norm_speed - g->GetCurrentGuidanceManeuver().speed);
 			norm_speed += sign * g->GetCurrentGuidanceManeuver().speedRate;
 			norm_steer = 0.0;
 		}
@@ -160,15 +157,15 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		prussdrv_init();
 		prussdrv_open(PRU_EVTOUT_0);
 		prussdrv_pruintc_init(&pruss_intc_initdata);
-		prussdrv_exec_program(PRU_NUM, "./pwm_final.bin");
+		prussdrv_exec_program(PRU_NUM, "./pru1.bin");
 		unsigned int mode = 0;
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
 		// Exit out of the steering
 		prussdrv_init();
 		prussdrv_open(PRU_EVTOUT_1);
 		prussdrv_pruintc_init(&pruss_intc_initdata);
-		prussdrv_exec_program(PRU_NUM, "./pwm_final_pru2.bin");
-		unsigned int mode = 0;
+		prussdrv_exec_program(PRU_NUM, "./pru2.bin");
+		//unsigned int mode = 0;
 		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &mode, 4);
 #endif
 
@@ -281,12 +278,12 @@ void ControlMotors()
 	prussdrv_init();
 	prussdrv_open(PRU_EVTOUT_0);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
-	prussdrv_exec_program(PRU_NUM, "./pwm_final.bin");
+	prussdrv_exec_program(PRU_NUM, "./pru1.bin");
 	unsigned int delay_period = static_cast<unsigned int>(Parser::GetPRU_ESC_Delay());
-	unsigned int duty_cycle = static_cast<unsigned int>(Parser::GetDC_ESC_Zero());
+	unsigned int duty_cycle = static_cast<unsigned int>(Parser::GetDC_ESC_Zero()*Parser::GetPRU_Sample_Rate());
 	unsigned int mode = 1;
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &ping_val, 4);
-	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &duty_cycle, 4);
+	//prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 0, &ping_val, 4);
+	//prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &duty_cycle, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 2, &delay_period, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
 
@@ -296,7 +293,8 @@ void ControlMotors()
 		dutyCycle_speed_I = static_cast<unsigned int>(dutyCycle_speed * Parser::GetPRU_Sample_Rate());
 		if (dutyCycle_speed_I == 0) { dutyCycle_speed_I = 1; }
 		if (dutyCycle_speed_I == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())) { dutyCycle_speed_I -= 1; }
-		first = false;
+		//std::cout << dutyCycle_speed_I << "\n";
+		//first = false;
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &dutyCycle_speed_I, 4);
 		usleep(10000);
 	}
@@ -315,12 +313,12 @@ void ControlSteering()
 	prussdrv_init();
 	prussdrv_open(PRU_EVTOUT_1);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
-	prussdrv_exec_program(1, "./pwm_final_pru2.bin");
+	prussdrv_exec_program(1, "./pru2.bin");
 	unsigned int delay_period = static_cast<unsigned int>(Parser::GetPRU_Steer_Delay());
-	unsigned int duty_cycle = static_cast<unsigned int>(Parser::GetDC_Steer_Straight());
+	unsigned int duty_cycle = static_cast<unsigned int>(Parser::GetDC_Steer_Straight()*Parser::GetPRU_Sample_Rate());
 	unsigned int mode = 1;
-	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 0, &ping_val, 4);
-	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &duty_cycle, 4);
+	//prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 0, &ping_val, 4);
+	//prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &duty_cycle, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 2, &delay_period, 4);
 	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &mode, 4);
 
@@ -341,6 +339,7 @@ void ControlSteering()
 		if (dutyCycle_payload_I == 0) { dutyCycle_payload_I = 1; }
 		if (dutyCycle_payload_I == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())) { dutyCycle_payload_I -= 1; }
 
+		// std::cout << dutyCycle_steer << "\n";
 		// Test to see if payload servo is active to determine which memory we are writing.
 		if(payloadServoActive){
 			prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dutyCycle_payload_I, 4);
@@ -361,12 +360,13 @@ void ControlSteering()
 void Controller::EmergencyShutdown() {
 
 	std::cout << "===EMERGENCY! DECELERATING!===\n";
-	dutyCycle_steer = 0.0;
-	while (dutyCycle_speed > 0.0) {
-		dutyCycle_speed -= Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
-		if (dutyCycle_speed < 0.0) { dutyCycle_speed = 0.0; }
+	dutyCycle_steer = Parser::GetDC_Steer_Straight();
+	while (fabs(norm_speed) > 2.0*Parser::GetAccFactorObs()*Parser::GetRefresh_GUID()) {
+		norm_speed -= norm_speed / fabs(norm_speed) * Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
+		dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_speed );
+		//if (dutyCycle_speed < 0.0) { dutyCycle_speed = 0.0; }
 #ifdef TEST_PWM
-		usleep(10000);
+		usleep(100000);
 #endif
 	}
 	std::cout << "===Deceleration complete.===\n";
@@ -377,7 +377,7 @@ void Controller::EmergencyShutdown() {
 	prussdrv_init();
 	prussdrv_open(PRU_EVTOUT_0);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
-	prussdrv_exec_program(PRU_NUM, "./pwm_final.bin");
+	prussdrv_exec_program(PRU_NUM, "./pru1.bin");
 	unsigned int mode = 0;
 	prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &mode, 4);
 
@@ -385,8 +385,8 @@ void Controller::EmergencyShutdown() {
 	prussdrv_init();
 	prussdrv_open(PRU_EVTOUT_1);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
-	prussdrv_exec_program(PRU_NUM, "./pwm_final_pru2.bin");
-	unsigned int mode = 0;
+	prussdrv_exec_program(PRU_NUM, "./pru2.bin");
+	//unsigned int mode = 0;
 	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &mode, 4);
 
 #endif
