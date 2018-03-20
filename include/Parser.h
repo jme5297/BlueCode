@@ -17,21 +17,6 @@
 #include <unistd.h>
 #endif
 
-namespace Control {
-	/*!
-	* Represents which type of vehicle the controller is operating.
-	* \note This should not be confused with VehicleType defined in the Vehicle class. This
-	* represents the control maneuvers, whereas the VehicleType represents the plant model being
-	* run. Obviously, these two modes should always be in sync.
-	*/
-	/*
-	enum VehicleMode {
-		Track, 	//!< Vehicle moves along two tracks, one on each side of the vehicle.
-		Wheel 	//!< Vehicle contains four wheels and has both speed/steering control.
-	};
-	*/
-}
-
 namespace sensors {
 	struct Coordinate {
 	public:
