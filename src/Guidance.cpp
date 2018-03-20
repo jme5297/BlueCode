@@ -92,7 +92,6 @@ void Guider::Run(Navigator* n) {
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][GDE]: Requesting calibration.\n";
 	}
 	// if we've just dropped off a payload successfully, then we need to calibrate.
-	/*
 	else if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop &&
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done == true)
 	{
@@ -108,7 +107,6 @@ void Guider::Run(Navigator* n) {
 		RequestGuidanceManeuver(gm);
 		std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "]: Calibrating...\n";
 	}
-	*/
 	// If we're within payload dropping distance, and if we haven't yet queued a payload drop,
 	// then request a new payload drop.
 	else if (n->DistanceBetweenCoordinates(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]) <= (payloadDropRadius - Parser::GetGPSUncertainty())

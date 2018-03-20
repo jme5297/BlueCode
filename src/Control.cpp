@@ -244,6 +244,9 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 	return;
 }
 
+/*!
+ * Main thread for controlling the ESC PRU.
+ */
 void ControlMotors()
 {
 
@@ -275,6 +278,9 @@ void ControlMotors()
 #endif
 }
 
+/*!
+ * Main thread for controlling the Steering and Payload servos.
+ */
 void ControlSteering()
 {
 
@@ -314,7 +320,6 @@ void ControlSteering()
 		// Test to see if payload servo is active to determine which memory we are writing.
 		if(payloadServoActive){
 			prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dutyCycle_payload_I, 4);
-			std::cout << dutyCycle_payload_I << "\n";
 		}
 		else {
 			prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dutyCycle_steer_I, 4);

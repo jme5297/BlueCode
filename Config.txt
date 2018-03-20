@@ -1,21 +1,10 @@
-# Main configuration file.
+# ############################################################################
+#                                                                Mission Setup
+# ############################################################################
 
-# ----------------------------------------------------------------------------
-#                                 Configuration for actual performance of BBB.
-# ----------------------------------------------------------------------------
-
-#      GNC
-# ---------------
-# Refresh rates for main routines (in seconds)
-# Note: OUT represents writing output to a .csv file.
-Refresh_NAV   = 0.01
-Refresh_GUID  = 0.01
-Refresh_CTRL  = 0.01
-Refresh_OUT   = 0.1
-Refresh_GPS   = 1.0
-
-#   NAVIGATION
-# ---------------
+# ------------------------------------
+#                          COORDINATES
+# ------------------------------------
 
 # Coordinates to target
 # Format: [ lon, lat ]
@@ -30,8 +19,24 @@ END_COORDINATES
 # Should the Nav Plan be optimized?
 Optimize = 1
 
-#   GUIDANCE
-# -------------
+# ############################################################################
+#                                                                Configuration
+# ############################################################################
+
+# ------------------------------------
+#                                RATES
+# ------------------------------------
+# Refresh rates for main routines (in seconds)
+# Note: OUT represents writing output to a .csv file.
+Refresh_NAV   = 0.01
+Refresh_GUID  = 0.01
+Refresh_CTRL  = 0.01
+Refresh_OUT   = 0.1
+Refresh_GPS   = 1.0
+
+# ------------------------------------
+#                             GUIDANCE
+# ------------------------------------
 
 # Acceptable payload drop radius from target (meters)
 PayloadDropRadius = 10.0
@@ -68,8 +73,9 @@ ObstacleDivergenceAngle = 45.0
 # Amount of time to travel "parallel" to an obstacle before converging back to target (seconds)
 ObstacleDivergenceTime = 5.0
 
-#   CONTROLS
-# -------------
+# ------------------------------------
+#                             CONTROLS
+# ------------------------------------
 
 # Normalized maximum turning steering value
 MaxTurnSteering = 1.0
@@ -89,17 +95,18 @@ SteeringStraightDutyCycle = 0.5
 # Starting duty cycle of the payload servo
 PayloadServoStartingDutyCycle = 0.05
 
-#   SENSORS AND PORTS
-# -----------------------
+# -----------------------------------------
+#                         SENSORS AND PORTS
+# -----------------------------------------
 # GPIO numbers of the left and right lasers.
 Laser_Left = 60
 Laser_Right = 61
 # GPIO Port used for transistor to switch to payload servo
 TransistorGPIO = 24
 
-# ----------------------------------------------------------------------------
+# ############################################################################
 #                                              Configuration for the simulator
-# ----------------------------------------------------------------------------
+# ############################################################################
 
 # Time delta in debug mode from one main loop to the next?
 TimeDelta = 0.01
