@@ -46,18 +46,22 @@ Controller::Controller() {
  * Begin a thread for the ESC PRU
  */
 void Controller::InitializeMotorControl() {
+#ifdef TEST_PWM
 	TimeModule::Log("CTL", "Creating a thread for motor control...");
 	std::thread runMotors(ControlMotors);
 	runMotors.detach();
+#endif
 }
 
 /*!
  * Begin a thread for the Steering and Payload PRU.
  */
 void Controller::InitializeSteeringControl() {
+#ifdef TEST_PWM
 	TimeModule::Log("CTL", "Creating a thread for steering control...");
 	std::thread runMotors(ControlSteering);
 	runMotors.detach();
+#endif
 }
 
 /*!
