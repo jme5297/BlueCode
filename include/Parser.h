@@ -107,6 +107,7 @@ public:
 	static double GetMaxTurnSteering() { return MaxTurnSteering; }
 	static int GetMaxCameraAttempts() { return MaxCameraAttempts; }
 	static double GetPayloadServoTime() { return PayloadServoTime; }
+	static double GetPayloadDropMovementFactor(){ return PayloadDropMovementFactor; }
 	static VehicleMode GetControlMode() { return ControlMode; }
 	static int GetLaser_Left() { return Laser_Left; }
 	static int GetLaser_Right() { return Laser_Right; }
@@ -149,6 +150,7 @@ protected:
 	static double MaxTurnSteering;
 	static int MaxCameraAttempts;
 	static double PayloadServoTime;
+	static double PayloadDropMovementFactor;
 	static VehicleMode ControlMode;
 	static int Laser_Left;
 	static int Laser_Right;

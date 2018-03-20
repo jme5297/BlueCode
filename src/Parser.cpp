@@ -24,6 +24,7 @@ double Parser::MinimumMaintainTime;
 double Parser::ObstacleDivergenceAngle;
 double Parser::ObstacleDivergenceTime;
 double Parser::PayloadServoTime;
+double Parser::PayloadDropMovementFactor;
 double Parser::MaxTurnSteering;
 int Parser::MaxCameraAttempts;
 VehicleMode Parser::ControlMode;
@@ -180,6 +181,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> PayloadServoTime;
+			continue;
+		}
+		else if (s.find("PayloadDropMovementFactor") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> PayloadDropMovementFactor;
 			continue;
 		}
 		else if (s.find("MaxTurnSteering") != std::string::npos) {

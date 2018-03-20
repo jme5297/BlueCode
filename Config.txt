@@ -33,44 +33,51 @@ Optimize = 1
 #   GUIDANCE
 # -------------
 
-# What's the acceptable payload drop radius from target (in meters)?
+# Acceptable payload drop radius from target (meters)
 PayloadDropRadius = 10.0
 
-# What's the acceptable tolerance off-angle maximum to continue on heading?
+# Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 10.0
 
 # What's the required off-angle maximum to stop a turn and maintain course again?
-OffAngleAccepted = 5.0
+# NOTE: Deprecated from the use of the PID integrator in Guider
+# OffAngleAccepted = 5.0
 
-# How many degrees per second will the vehicle turn at full turn speed?
+# Vehicle turn rate at full turning speed (degrees/second)
 TurnFactorDPS = 49.0
 
-# Acceleration factor for normal operations.
+# Acceleration factor for normal operations
 # A factor of 1 represents: 1 * (max speed MPS) m/s^2.
 # A factor of 2 represents: 2 * (max speed MPS) m/s^2.
 AccFactor = 0.5;
 
-# Acceleration factor for emergency (obstacle avoidance) operations.
+# Acceleration factor for emergency (obstacle avoidance) operations
+# A factor of 1 represents: 1 * (max speed MPS) m/s^2.
+# A factor of 2 represents: 2 * (max speed MPS) m/s^2.
 AccFactorObs = 2.0;
 
-# Maximum speed of the vehicle (meters/second)?
+# Maximum speed of the vehicle (meters/second)
 # Note: This value is also used in the SIM mode.
 MaxSpeedMPS = 2.0
 
-# Minimum amount of time (seconds) to travel straight after stopping to calibrate GPS?
+# Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 7.0
 
-# Minimum amount of time required to stay straight in a maintain mode?
+# Minimum amount of time required to stay straight in a maintain mode (seconds)
 MinimumMaintainTime = 4.0
 
-# Angle to turn away from obstacle to diverge?
+# Angle to sweep away backwards from obstacle to diverge (degrees)
 ObstacleDivergenceAngle = 45.0
 
-# Amount of time to travel parallel to an obstacle before converging back to target?
+# Amount of time to travel "parallel" to an obstacle before converging back to target (seconds)
 ObstacleDivergenceTime = 5.0
 
-# Amount of time to hold down Payload servo (seconds)?
+# Amount of time to hold down Payload servo (seconds)
+# NOTE: This will be deprecated soon.
 PayloadServoTime = 3.0
+
+# Payload dropping mechanism movement per payload (normalized)
+PayloadDropMovementFactor = 0.01
 
 #   CONTROLS
 # -------------
