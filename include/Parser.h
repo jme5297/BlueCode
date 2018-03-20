@@ -101,7 +101,6 @@ public:
 	static double GetPRU_Sample_Rate() { return PRU_Sample_Rate; }
 	static double GetPRU_ESC_Delay() { return PRU_ESC_Delay; }
 	static double GetPRU_Steer_Delay() { return PRU_Steer_Delay; }
-	static double GetTransistorGPIO() { return TransistorGPIO; }
 	static int GetLaser_Left() { return Laser_Left; }
 	static int GetLaser_Right() { return Laser_Right; }
 	static int GetGPIO_Steer() { return GPIO_Steer; }
