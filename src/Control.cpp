@@ -1,48 +1,53 @@
 #include <Control.h>
 
-#ifdef TEST_PWM 
-#include <prussdrv.h> 
-#include <pruss_intc_mapping.h> 
-#define PRU_NUM 0 
+#ifdef TEST_PWM
+#include <prussdrv.h>
+#include <pruss_intc_mapping.h>
+#define PRU_NUM 0
 #endif
 
 #ifdef SIM
 using namespace Plant;
 #endif
 
-using namespace Guidance; 
-using namespace Control; 
+using namespace Guidance;
+using namespace Control;
 using namespace sensors;
 
-// -------------------- 
-// NORMALIZED 
-// -------------------- 
-double norm_speed; 
+// --------------------
+// NORMALIZED
+// --------------------
+double norm_speed;
 double norm_steer;
 
-// -------------------- 
-// DUTY CYCLES 
-// -------------------- 
-double dutyCycle_speed; // Speed - Used for ESC 
-double dutyCycle_steer; // Steer - Used for vehicle wheel servo 
+// --------------------
+// DUTY CYCLES
+// --------------------
+double dutyCycle_speed; // Speed - Used for ESC
+double dutyCycle_steer; // Steer - Used for vehicle wheel servo
 double dutyCycle_payload; // Payload - Used for payload servo
 
-// Is the payload servo currently active? 
+// Is the payload servo currently active?
 bool payloadServoActive;
 
-// Has the payload servo moved for this specific payload drop? 
+// Has the payload servo moved for this specific payload drop?
 bool hasPayloadServoMoved;
 
-// Prototypes for PRU running threads 
-void ControlMotors(); 
-void ControlSteering(); 
+// Values for transistor
+std::ofstream tReader;
+std::string gpio_steer;
+std::string gpio_payload;
+
+// Prototypes for PRU running threads
+void ControlMotors();
+void ControlSteering();
 /*!
- */ 
+ */
 Controller::Controller() {}
 
 /*!
  * Begin a thread for the ESC PRU
- */ 
+ */
 void Controller::InitializeMotorControl() {
 	dutyCycle_speed = Parser::GetDC_ESC_Zero();
 	norm_speed = 0.0;
@@ -59,9 +64,21 @@ void Controller::InitializeMotorControl() {
 void Controller::InitializeSteeringControl() {
 	dutyCycle_steer = Parser::GetDC_Steer_Straight();
 	dutyCycle_payload = Parser::GetDC_Payload_Start();
+	gpio_steer = "/sys/class/gpio/gpio" + std::to_string(Parser::GetGPIO_Steer()) + "/value";
+	gpio_payload = "/sys/class/gpio/gpio" + std::to_string(Parser::GetGPIO_Payload()) + "/value";
 	payloadServoActive = false;
 	hasPayloadServoMoved = false;
+
 #ifdef TEST_PWM
+
+	// Make sure the payload transistor power is off
+	tReader.open(gpio_payload);
+	tReader << 0;
+	tReader.close();
+	tReader.open(gpio_steer);
+	tReader << 1;
+	tReader.close();
+
 	TimeModule::Log("CTL", "Creating a thread for steering control...");
 	std::thread runMotors(ControlSteering);
 	runMotors.detach();
@@ -215,13 +232,24 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 			// Update the current value for the payload servo. NOTE: this
 			// has to be updated before setting payloadServoActive flag.
 			dutyCycle_payload += Parser::GetDC_Payload_Delta();
-			hasPayloadServoMoved = true;
+
+#ifdef TEST_PWM
+			// Switch off the transistor for the steering servo.
+			tReader.open(gpio_steer);
+			tReader << 0;
+			tReader.close();
+#endif
 
 			// Begin writing the payload servo duty cycle value to the PRU memory.
 			payloadServoActive = true;
+			hasPayloadServoMoved = true;
 
+#ifdef TEST_PWM
 			// Switch on the transistor for the payload servo.
-			// ----------
+			tReader.open(gpio_payload);
+			tReader << 1;
+			tReader.close();
+#endif
 
 			TimeModule::Log("CTL", "Payload Servo Active. Allowing a grace period.");
 		}
@@ -230,12 +258,23 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 		if (TimeModule::GetElapsedTime("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex())) >= g->GetPayloadServoTime()) {
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
 
+#ifdef TEST_PWM
 			// Switch off the transister for the payload servo.
-			// ---------
+			tReader.open(gpio_payload);
+			tReader << 0;
+			tReader.close();
+#endif
 
 			// Disable writing the payload duty cycle to the PRU memory.
-			hasPayloadServoMoved = false;
 			payloadServoActive = false;
+			hasPayloadServoMoved = false;
+
+#ifdef TEST_PWM
+			// Switch on the transistor for the steering servo.
+			tReader.open(gpio_steer);
+			tReader << 1;
+			tReader.close();
+#endif
 
 			TimeModule::Log("CTL", "Grace period complete. Payload servo disabled.");
 			TimeModule::Log("CTL", "Allowing steering servo to fix itself.");
