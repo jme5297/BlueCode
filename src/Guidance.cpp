@@ -149,9 +149,11 @@ void Guider::Run(Navigator* n) {
 		gm.state = ManeuverState::AvoidDiverge;
 		if (n->GetPathObstructions().at(0)) {
 			gm.turnDirection = -1;
+			TimeModule::Log("GDE", "Requesting obstacle diverge. Sweep to the left, diverge to the right.");
 		}
 		else {
 			gm.turnDirection = 1;
+			TimeModule::Log("GDE", "Requesting obstacle diverge. Sweep to the right, diverge to the left.");
 		}
 		gm.currentTurnAngle = 0.0;
 		gm.requestedTurnAngle = obstacleDivergenceAngle;
@@ -161,8 +163,6 @@ void Guider::Run(Navigator* n) {
 		gm.maintainTime = obstacleDivergenceTime;
 		gm.done = false;
 		RequestGuidanceManeuver(gm);
-
-		TimeModule::Log("GDE", "Requesting obstacle diverge.");
 	}
 	// If we're not within payload dropping range, and have just completed either a calibration,
 	// course maintain, or a turn, then see if we need to either turn or maintain course.
