@@ -369,12 +369,12 @@ void ControlSteering()
 	while (true) {
 
 		// Steering servo
-		dutyCycle_steer_I = (unsigned int)(dutyCycle_steer * Parser::GetPRU_Sample_Rate());
+		dutyCycle_steer_I = static_cast<unsigned int>(dutyCycle_steer * Parser::GetPRU_Sample_Rate());
 		if (dutyCycle_steer_I == 0) { dutyCycle_steer_I = 1; }
 		if (dutyCycle_steer_I == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())) { dutyCycle_steer_I -= 1; }
 
 		// Payload servo
-		dutyCycle_payload_I = (unsigned int)(dutyCycle_payload * Parser::GetPRU_Sample_Rate());
+		dutyCycle_payload_I = static_cast<unsigned int>(dutyCycle_payload * Parser::GetPRU_Sample_Rate());
 		if (dutyCycle_payload_I == 0) { dutyCycle_payload_I = 1; }
 		if (dutyCycle_payload_I == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())) { dutyCycle_payload_I -= 1; }
 

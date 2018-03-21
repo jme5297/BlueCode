@@ -94,10 +94,10 @@ DC_ESC_Fwd = 0.99
 DC_ESC_Zero = 0.5
 DC_ESC_Back = 0.01
 DC_Steer_Left = 0.0
-DC_Steer_Straight = 0.375
-DC_Steer_Right = 0.75
-DC_Payload_Start = 1.0
-DC_Payload_Delta = 0.0
+DC_Steer_Straight = 0.5
+DC_Steer_Right = 1.0
+DC_Payload_Start = 0.0
+DC_Payload_Delta = 0.2
 
 # PRU Configuration values
 PRU_Sample_Rate = 1000
