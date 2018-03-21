@@ -101,8 +101,8 @@ DC_Payload_Delta = 0.2
 
 # PRU Configuration values
 PRU_Sample_Rate = 1000
-PRU_ESC_Delay = 61
-PRU_Steer_Delay = 61
+PRU_ESC_Delay = 2000
+PRU_Steer_Delay = 2000
 
 # -----------------------------------------
 #                         SENSORS AND PORTS

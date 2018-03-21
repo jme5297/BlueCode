@@ -39,6 +39,7 @@ std::string gpio_steer;
 std::string gpio_payload;
 
 // Prototypes for PRU running threads
+void DisablePRUs();
 void ControlMotors();
 void ControlSteering();
 /*!
@@ -362,7 +363,7 @@ void ControlSteering()
 		if (dutyCycle_payload_I == 0) { dutyCycle_payload_I = 1; }
 		if (dutyCycle_payload_I == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())) { dutyCycle_payload_I -= 1; }
 
-		// std::cout << dutyCycle_steer << "\n";
+		//std::cout << dutyCycle_steer_I << "\n";
 		// Test to see if payload servo is active to determine which memory we are writing.
 		if(payloadServoActive){
 			prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dutyCycle_payload_I, 4);
