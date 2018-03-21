@@ -93,9 +93,9 @@ PayloadServoTime = 3.0
 DC_ESC_Fwd = 0.99
 DC_ESC_Zero = 0.5
 DC_ESC_Back = 0.01
-DC_Steer_Left = 0.0
-DC_Steer_Straight = 0.5
-DC_Steer_Right = 1.0
+DC_Steer_Left = 0.087
+DC_Steer_Straight = 0.073
+DC_Steer_Right = 0.056
 DC_Payload_Start = 0.0
 DC_Payload_Delta = 0.2
 
