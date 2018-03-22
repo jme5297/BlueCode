@@ -263,8 +263,8 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 			// Begin writing the payload servo duty cycle value to the PRU memory.
 			payloadServoActive = true;
 			hasPayloadServoMoved = true;
-			std::cout << dutyCycle_payload << "\n";
-			std::cin.get();
+//			std::cout << dutyCycle_payload << "\n";
+//			std::cin.get();
 			WriteDutyCycle(1, dutyCycle_payload);
 //			std::cin.get();
 

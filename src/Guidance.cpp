@@ -129,6 +129,7 @@ void Guider::Run(Navigator* n) {
 		gm.state = ManeuverState::PayloadDrop;
 		gm.done = false;
 		gm.speed = 0.0;
+		gm.turnDirection = 0;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
 		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
