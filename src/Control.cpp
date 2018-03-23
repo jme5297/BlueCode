@@ -65,6 +65,7 @@ void WriteDutyCycle(int pru, double dc){
 		if(dc0 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc0 -= 1; }
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &dc0, 4);
 	}else{
+		std::cout << dc << "\n";
 		dc1 = static_cast<unsigned int>(dc * Parser::GetPRU_Sample_Rate());
 		if(dc1 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc1 -= 1; }
 		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dc1, 4);
@@ -329,7 +330,7 @@ void ControlMotors()
 {
 
 #ifdef TEST_PWM
-	TimeModule::Log("CTL", "Enabling PRU1 (Steering & Payload).")
+	TimeModule::Log("CTL", "Enabling PRU1 (Steering & Payload).");
 	prussdrv_init();
 	prussdrv_open(PRU_EVTOUT_0);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
@@ -346,7 +347,7 @@ void ControlMotors()
 void ControlSteering()
 {
 #ifdef TEST_PWM
-	TimeModule::Log("CTL", "Enabling PRU1 (Steering & Payload).")
+	TimeModule::Log("CTL", "Enabling PRU1 (Steering & Payload).");
 	prussdrv_init();
 	prussdrv_open(PRU_EVTOUT_1);
 	prussdrv_pruintc_init(&pruss_intc_initdata);

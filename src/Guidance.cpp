@@ -89,7 +89,7 @@ void Guider::Run(Navigator* n) {
 		gm.currentTurnAngle = 0.0;
 		gm.hasBeganDiverging = false;
 		gm.maintainTime = 0.0;
-		gm.speed = 1.0;
+		gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 		gm.hasFixedSpeed = false;
 		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		gm.done = false;
@@ -112,7 +112,7 @@ void Guider::Run(Navigator* n) {
 		gm.currentTurnAngle = 0.0;
 		gm.hasBeganDiverging = false;
 		gm.maintainTime = 0.0;
-		gm.speed = 1.0;
+		gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 		gm.hasFixedSpeed = false;
 		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		gm.done = false;
@@ -145,7 +145,7 @@ void Guider::Run(Navigator* n) {
 		gm.currentTurnAngle = 0.0;
 		gm.hasBeganDiverging = false;
 		gm.maintainTime = 0.0;
-		gm.speed = 1.0;
+		gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 		gm.hasFixedSpeed = false;
 		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		gm.done = false;
@@ -167,7 +167,7 @@ void Guider::Run(Navigator* n) {
 		// First, request a turn->
 		gm.state = ManeuverState::AvoidDiverge;
 		gm.done = false;
-		gm.speed = -1.0*Parser::GetTurnSpeedFactor();
+		gm.speed = -1.0 * Parser::GetTurnSpeedFactor();
 		if (n->GetPathObstructions().at(0)) {
 			gm.turnDirection = -1;
 			TimeModule::Log("GDE", "Requesting obstacle diverge. Sweep to the left, diverge to the right.");
@@ -228,7 +228,7 @@ void Guider::Run(Navigator* n) {
 			gm.currentTurnAngle = 0.0;
 			gm.hasBeganDiverging = false;
 			gm.maintainTime = 0.0;
-			gm.speed = 1.0*Parser::GetTurnSpeedFactor();
+			gm.speed = 1.0 * Parser::GetTurnSpeedFactor();
 			gm.hasFixedSpeed = false;
 			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			gm.done = false;
@@ -250,7 +250,7 @@ void Guider::Run(Navigator* n) {
 			gm.currentTurnAngle = 0.0;
 			gm.hasBeganDiverging = false;
 			gm.maintainTime = (time < minimumMaintainTime) ? minimumMaintainTime : time;
-			gm.speed = 1.0;
+			gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 			gm.hasFixedSpeed = false;
 			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			gm.done = false;
@@ -351,7 +351,7 @@ void Guider::Run(Navigator* n) {
 			if (!man->hasFixedSpeed)
 				break;
 
-			man->speed = 1.0;
+			man->speed = 1.0 * Parser::GetStraightSpeedFactor();
 			man->turnDirection = 0;
 			man->speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			if (TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex)) >= man->maintainTime) {

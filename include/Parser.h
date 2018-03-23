@@ -76,6 +76,7 @@ public:
 	static double GetRefresh_OUT() { return Refresh_OUT; }
 	static double GetRefresh_GPS() { return Refresh_GPS; }
 	static bool GetOptimize() { return Optimize; }
+	static bool GetWriteToLogFile() { return WriteToLogFile; }
 	static double GetPayloadDropRadius() { return PayloadDropRadius; }
 	static double GetOffAngleDeviate() { return OffAngleDeviate; }
 	static double GetTurnFactorDPS() { return TurnFactorDPS; }
@@ -83,6 +84,7 @@ public:
 	static double GetAccFactorObs() { return AccFactorObs; }
 	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
 	static double GetTurnSpeedFactor(){ return TurnSpeedFactor; }
+	static double GetStraightSpeedFactor(){ return StraightSpeedFactor; }
 	static double GetCalibrationTime() { return CalibrationTime; }
 	static double GetMinimumMaintainTime() { return MinimumMaintainTime; }
 	static double GetObstacleDivergenceAngle() { return ObstacleDivergenceAngle; }
@@ -130,11 +132,14 @@ protected:
 	static std::ifstream configFile;
 	static std::vector<Coordinate> inputCoords;
 	static bool Optimize;
+	static bool WriteToLogFile;
 	static double PayloadDropRadius;
 	static double OffAngleDeviate;
 	static double TurnFactorDPS;
 	static double AccFactor;
 	static double AccFactorObs;
+	static double TurnSpeedFactor;
+	static double StraightSpeedFactor;
 	static double CalibrationTime;
 	static double MinimumMaintainTime;
 	static double ObstacleDivergenceAngle;
@@ -153,7 +158,6 @@ protected:
 	static double PRU_Sample_Rate;
 	static double PRU_ESC_Delay;
 	static double PRU_Steer_Delay;
-	static double TurnSpeedFactor;
 	static int Laser_Left;
 	static int Laser_Right;
 	static int GPIO_Steer;

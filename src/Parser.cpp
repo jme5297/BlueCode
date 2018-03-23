@@ -12,6 +12,7 @@ double Parser::Refresh_GPS;
 std::vector<Coordinate> Parser::inputCoords;
 std::ifstream Parser::configFile;
 bool Parser::Optimize;
+bool Parser::WriteToLogFile;
 double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
 double Parser::TurnFactorDPS;
@@ -19,6 +20,7 @@ double Parser::AccFactor;
 double Parser::AccFactorObs;
 double Parser::MaxSpeedMPS;
 double Parser::TurnSpeedFactor;
+double Parser::StraightSpeedFactor;
 double Parser::CalibrationTime;
 double Parser::MinimumMaintainTime;
 double Parser::ObstacleDivergenceAngle;
@@ -127,6 +129,12 @@ void Parser::ReadInputs(std::string file)
 			ss >> Optimize;
 			continue;
 		}
+		else if (s.find("WriteToLogFile") != std::string::npos) {
+			std::string a  = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> WriteToLogFile;
+			continue;
+		}
 		else if (s.find("PayloadDropRadius") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -167,6 +175,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> TurnSpeedFactor;
+			continue;
+		}
+		else if (s.find("StraightSpeedFactor") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> StraightSpeedFactor;
 			continue;
 		}
 		else if (s.find("CalibrationTime") != std::string::npos) {
@@ -286,7 +300,6 @@ void Parser::ReadInputs(std::string file)
 		else if (s.find("Laser_Right") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			std::cout << "Found right laser!!\n";
 			ss >> Laser_Right;
 			continue;
 		}
