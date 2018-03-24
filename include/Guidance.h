@@ -21,7 +21,6 @@ namespace Guidance {
 									 * - **Track Vehicles**: Different motor speeds.
 									 * - **Wheel Vehicles**: non-zero turning factor. */
 		AvoidDiverge,   ///< Diverge away from an obstacle.
-		AvoidConverge,  ///< Converge back to heading after avoiding an obstacle.
 		PayloadDrop,    ///< Cut all speed and drop payload.
 	};
 
@@ -58,6 +57,9 @@ namespace Guidance {
 										* buffer should be analyzed. */
 		bool payloadDropComplete;	///< Flag that represents if a payload drop has been completed.
 		bool payloadImageTaken;		///< Flag that saves if an image has been taken of the payload.
+		int avoidDirection = 0;
+		int avoidDivergeState = 0;
+		double accelerationTime;
 	};
 
 	/// Main class for Guidance operations.

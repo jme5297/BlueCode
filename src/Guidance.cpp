@@ -95,8 +95,10 @@ void Guider::Run(Navigator* n) {
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
+		gm.accelerationTime = 2.0;
 		RequestGuidanceManeuver(gm);
 		TimeModule::Log("GDE", "Requesting calibration.");
+		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 	}
 	// if we've just dropped off a payload successfully, then we need to calibrate.
 	else if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop &&
@@ -118,8 +120,10 @@ void Guider::Run(Navigator* n) {
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
+		gm.accelerationTime = 2.0;
 		RequestGuidanceManeuver(gm);
 		TimeModule::Log("GDE", "Requesting calibration.");
+		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 	}
 	// If we're within payload dropping distance, and if we haven't yet queued a payload drop,
 	// then request a new payload drop.
@@ -151,8 +155,10 @@ void Guider::Run(Navigator* n) {
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
+		gm.accelerationTime	= 2.0;
 		RequestGuidanceManeuver(gm);
 		TimeModule::Log("GDE", "Requesting payload drop.");
+		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 	}
 	// If there's obstructions that we didn't previously know about, then take care of this immediately.
 	else if (
@@ -167,25 +173,27 @@ void Guider::Run(Navigator* n) {
 		// First, request a turn->
 		gm.state = ManeuverState::AvoidDiverge;
 		gm.done = false;
-//		gm.speed = -1.0 * Parser::GetTurnSpeedFactor();
 		gm.speed = 0.0;
+		gm.turnDirection = 0;
 		if (n->GetPathObstructions().at(0)) {
-			gm.turnDirection = -1;
+			gm.avoidDirection = -1;
 			TimeModule::Log("GDE", "Requesting obstacle diverge. Sweep to the left, diverge to the right.");
 		}
 		else {
-			gm.turnDirection = 1;
+			gm.avoidDirection = 1;
 			TimeModule::Log("GDE", "Requesting obstacle diverge. Sweep to the right, diverge to the left.");
 		}
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
 		gm.currentTurnAngle = 0.0;
 		gm.requestedTurnAngle = obstacleDivergenceAngle;
-		gm.hasBeganDiverging = false;
-//		gm.speedRate = Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
-		gm.speedRate = fabs(gm.speed);
+		gm.hasBeganDiverging = true;
+		gm.avoidDivergeState = 0;
+		gm.speedRate = Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
 		gm.maintainTime = obstacleDivergenceTime;
+		gm.accelerationTime	= 2.0;
 		RequestGuidanceManeuver(gm);
+		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()) + "_" + std::to_string(gm.avoidDivergeState));
 	}
 	// If we're not within payload dropping range, and have just completed either a calibration,
 	// course maintain, or a turn, then see if we need to either turn or maintain course.
@@ -236,7 +244,9 @@ void Guider::Run(Navigator* n) {
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
+			gm.accelerationTime	= 1.0;
 			RequestGuidanceManeuver(gm);
+			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 		}
 		// If our heading is relatively nominal, we will maintain our course.
 		else {
@@ -258,8 +268,10 @@ void Guider::Run(Navigator* n) {
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
+			gm.accelerationTime	= 2.0;
 			RequestGuidanceManeuver(gm);
 			TimeModule::Log("GDE", "Requesting course maintain for " + std::to_string(gm.maintainTime) + " seconds.");
+			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 		}
 	}
 
@@ -341,56 +353,69 @@ void Guider::Run(Navigator* n) {
 
 	case ManeuverState::AvoidDiverge:
 	{
-		// Notify the rest of guidance that we have began diverging.
-		man->hasBeganDiverging = true;
 
-		// If vehicle finished backup turn, start driving straight and maintaining.
-		if (man->currentTurnAngle >= man->requestedTurnAngle) {
-
-			// Vehicle is once again succeptable for obstacle detection.
+		if(man->avoidDivergeState == 3)
+		{
 			man->hasBeganDiverging = false;
 
 			if (!man->hasFixedSpeed)
 				break;
+			if (TimeModule::GetElapsedTime("Diverge_" + std::to_string(GuidanceManeuverIndex)) >= man->maintainTime) {
+				GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
+				TimeModule::Log("GDE", "Avoid-Diverge maneuver complete.");
+			}
 
+		}
+		else if(man->avoidDivergeState == 2)
+		{
+
+			if(!man->hasFixedSpeed)
+				break;
+			man->hasFixedSpeed = false;
 			man->speed = 1.0 * Parser::GetStraightSpeedFactor();
 			man->turnDirection = 0;
-			man->speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
-			if (TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex)) >= man->maintainTime) {
-				man->done = true;
-				TimeModule::Log("GDE", "Done maintaining avoid-diverge direction.");
-			}
+			man->avoidDivergeState = 3;
+			man->accelerationTime = 2.0;
+			TimeModule::Log("GDE", "Received stopping signal again. Time to move forward.");
+			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()) + "_" + std::to_string(man->avoidDivergeState));
+
 		}
-		// Else, continue the backup turn maneuver.
-		else {
+		else if(man->avoidDivergeState == 1)
+		{
 
-
-			if (TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex)) < 2.0) {
-				break;
-			}else{
-
-			if (!man->hasFixedSpeed)
+			if(!man->hasFixedSpeed)
 				break;
 
 			double dtTurn = TimeModule::GetElapsedTime("Avoid_" + std::to_string(GuidanceManeuverIndex));
 			man->currentTurnAngle = turnFactorDPS * dtTurn;
-
-			// If we've hit our target turn angle, get ready for maintain on next loop.
 			if (man->currentTurnAngle >= man->requestedTurnAngle) {
-				TimeModule::Log("GDE", "Done backwards turn for avoid-diverge maneuver.");
 				man->hasFixedSpeed = false;
-				man->hasBeganDiverging = false;
-				man->speed = 1.0 * Parser::GetStraightSpeedFactor();
+				man->speed = 0.0;
 				man->turnDirection = 0;
-				man->speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
+				man->avoidDivergeState = 2;
+				man->accelerationTime = 1.0;
+				TimeModule::Log("GDE", "Turn has been complete. Stopping again.");
+				TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()) + "_" + std::to_string(man->avoidDivergeState));
 			}
+
 		}
+		else
+		{
+
+			if(!man->hasFixedSpeed)
+				break;
+			man->hasFixedSpeed = false;
+			man->speed = -1.0 * Parser::GetTurnSpeedFactor();
+			man->turnDirection = man->avoidDirection;
+			man->avoidDivergeState = 1;
+			man->accelerationTime = 1.0;
+			TimeModule::Log("GDE", "Received stopping signal. Time to back up.");
+			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()) + "_" + std::to_string(man->avoidDivergeState));
+
+		}
+
 		break;
 	}
-	case ManeuverState::AvoidConverge:
-
-		break;
-
 	case ManeuverState::PayloadDrop:
 
 		if (!man->hasFixedSpeed)

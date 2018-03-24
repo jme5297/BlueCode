@@ -51,67 +51,9 @@ std::string gpio_payload;
 void DisablePRUs();
 void ControlMotors();
 void ControlSteering();
+void WriteDutyCycle(int, double);
 
 Controller::Controller() {}
-
-/*!
- * Write a new duty cycle to a specific PRU.
- */
-void WriteDutyCycle(int pru, double dc){
-#ifdef TEST_PWM
-	if(pru == 0){
-		dc0 = static_cast<unsigned int>(dc * Parser::GetPRU_Sample_Rate());
-		if(dc0 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc0 -= 1; }
-		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &dc0, 4);
-	}else{
-//		std::cout << dc << "\n";
-		dc1 = static_cast<unsigned int>(dc * Parser::GetPRU_Sample_Rate());
-		if(dc1 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc1 -= 1; }
-		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dc1, 4);
-	}
-#endif
-}
-
-/*!
- * Begin a thread for the ESC PRU
- */
-void Controller::InitializeMotorControl() {
-	dutyCycle_speed = Parser::GetDC_ESC_Zero();
-	dc0 = static_cast<unsigned int>(dutyCycle_speed * Parser::GetPRU_Sample_Rate());
-	dp0 = static_cast<unsigned int>(Parser::GetPRU_ESC_Delay());
-	norm_speed = 0.0;
-#ifdef TEST_PWM
-	TimeModule::Log("CTL", "Initializing motor control.");
-	ControlMotors();
-#endif
-}
-
-/*!
- * Begin a thread for the Steering and Payload PRU.
- */
-void Controller::InitializeSteeringControl() {
-	dutyCycle_steer = Parser::GetDC_Steer_Straight();
-	dutyCycle_payload = Parser::GetDC_Payload_Start();
-	dc1 = static_cast<unsigned int>(dutyCycle_steer * Parser::GetPRU_Sample_Rate());
-	dp1 = static_cast<unsigned int>(Parser::GetPRU_Steer_Delay());
-	norm_steer = 0.0;
-	gpio_steer = "/sys/class/gpio/gpio" + std::to_string(Parser::GetGPIO_Steer()) + "/value";
-	gpio_payload = "/sys/class/gpio/gpio" + std::to_string(Parser::GetGPIO_Payload()) + "/value";
-	payloadServoActive = false;
-	hasPayloadServoMoved = false;
-
-#ifdef TEST_PWM
-	// Make sure the payload transistor power is off, and steering power is on
-	tReader.open(gpio_payload);
-	tReader << 0;
-	tReader.close();
-	tReader.open(gpio_steer);
-	tReader << 1;
-	tReader.close();
-	TimeModule::Log("CTL", "Initializing steering/payload control.");
-	ControlSteering();
-#endif
-}
 
 /*!
  * Main Run routine for Controller.
@@ -123,60 +65,78 @@ void Controller::InitializeSteeringControl() {
  */
 void Controller::Run(Guider* g, SensorHub* sh) {
 
-	// Update the speeds if the speed is not yet fixed.
+	//
 	if (!g->GetCurrentGuidanceManeuver().hasFixedSpeed) {
 
-		// If we still need to change speed, then do so now, and make sure we are not turning.
-		if (!(fabs(norm_speed - g->GetCurrentGuidanceManeuver().speed) <= 2.0 * g->GetCurrentGuidanceManeuver().speedRate)) {
+		double accelTime = g->GetCurrentGuidanceManeuver().accelerationTime;
+		norm_speed = g->GetCurrentGuidanceManeuver().speed;
+		norm_steer = 0.0;
 
-			// Update the normalized wheel speed and make sure we're not turning.
-			double sign = (g->GetCurrentGuidanceManeuver().speed - norm_speed) / fabs(norm_speed - g->GetCurrentGuidanceManeuver().speed);
-			if(fabs(norm_speed) < fabs(sign * g->GetCurrentGuidanceManeuver().speedRate)){
-				norm_speed = 0.0;
-				norm_steer = 0.0;
-			}else{
-				norm_speed += sign * g->GetCurrentGuidanceManeuver().speedRate;
-				norm_steer = 0.0;
-			}
-			//dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_speed );
-			//dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
-			//WriteDutyCycle(0, dutyCycle_speed);
-			//WriteDutyCycle(1, dutyCycle_steer);
-		}
-		else {
-			g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
-
-			// Update normalized speed and steering values
-			norm_speed = g->GetCurrentGuidanceManeuver().speed;
-			norm_steer = (double)(g->GetCurrentGuidanceManeuver().turnDirection);
-			//dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_speed );
-			//WriteDutyCycle(0, dutyCycle_speed);
-
-			// Begin timers for each type of maneuver.
-			switch (g->GetCurrentGuidanceManeuver().state) {
-			case ManeuverState::Calibrate:
+		// Begin timers for each type of maneuver.
+		switch (g->GetCurrentGuidanceManeuver().state) {
+		case ManeuverState::Calibrate:
+			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex())) >= accelTime)
+			{
+				g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
 				TimeModule::Log("CTL", "Speed fixed. Ready to calibrate.");
 				TimeModule::AddMilestone("Calibration_" + std::to_string(g->GetGuidanceManeuverIndex()));
-				break;
-			case ManeuverState::Turn:
+			}
+			break;
+		case ManeuverState::Turn:
+			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex())) >= accelTime)
+			{
+				g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
+				norm_steer = (double)(g->GetCurrentGuidanceManeuver().turnDirection);
 				TimeModule::Log("CTL", "Speed fixed. Ready to turn.");
 				TimeModule::AddMilestone("Turn_" + std::to_string(g->GetGuidanceManeuverIndex()));
-				break;
-			case ManeuverState::Maintain:
+			}
+			break;
+		case ManeuverState::Maintain:
+			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex())) >= accelTime)
+			{
+				g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
 				TimeModule::Log("CTL", "Speed fixed. Ready to maintain.");
 				TimeModule::AddMilestone("Maintain_" + std::to_string(g->GetGuidanceManeuverIndex()));
-				break;
-			case ManeuverState::AvoidDiverge:
-				TimeModule::Log("CTL", "Speed fixed. Ready to avoid-diverge.");
-				TimeModule::AddMilestone("Avoid_" + std::to_string(g->GetGuidanceManeuverIndex()));
-				break;
-			case ManeuverState::AvoidConverge:
-				break;
-			case ManeuverState::PayloadDrop:
+			}
+			break;
+		case ManeuverState::AvoidDiverge:
+			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex()) + "_" + std::to_string(g->GetCurrentGuidanceManeuver().avoidDivergeState)) >= accelTime)
+			{
+				if(g->GetCurrentGuidanceManeuver().avoidDivergeState == 3)
+				{
+					g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
+					TimeModule::Log("CTL", "Speed fixed. Ready to avoid-maintain.");
+					TimeModule::AddMilestone("Diverge_" + std::to_string(g->GetGuidanceManeuverIndex()));
+				}
+				else if(g->GetCurrentGuidanceManeuver().avoidDivergeState == 2)
+				{
+					g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
+					norm_steer = 0.0;
+					TimeModule::Log("CTL", "We've stopped. Ready to move forwards.");
+				}
+				else if(g->GetCurrentGuidanceManeuver().avoidDivergeState == 1)
+				{
+					g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
+					norm_steer = (double)(g->GetCurrentGuidanceManeuver().turnDirection);
+					TimeModule::Log("CTL", "Speed fixed. Ready to perform backwards turn.");
+					TimeModule::AddMilestone("Avoid_" + std::to_string(g->GetGuidanceManeuverIndex()));
+				}
+				else if(g->GetCurrentGuidanceManeuver().avoidDivergeState == 0)
+				{
+					g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
+					TimeModule::Log("CTL", "We've stopped. Ready to move backwards.");
+				}
+			}
+			break;
+		case ManeuverState::PayloadDrop:
+			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex())) >= accelTime)
+			{
+				g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
+				norm_steer = (double)(g->GetCurrentGuidanceManeuver().turnDirection);
 				TimeModule::Log("CTL", "Speed fixed. Ready to drop payload.");
 				TimeModule::AddMilestone("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex()));
-				break;
 			}
+			break;
 		}
 
 		// Update the duty cycles.
@@ -191,7 +151,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		PlantModel::GetVehicle()->wheelSteeringN = norm_steer;
 #endif
 
-		// Don't continue operations until speed has been fixed.
+		// Don't perform other logic until we're complete.
 		return;
 	}
 
@@ -331,6 +291,65 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 		TimeModule::Log("CTL","Image taking has failed.");
 	}
 	return;
+}
+
+/*!
+ * Write a new duty cycle to a specific PRU.
+ */
+void WriteDutyCycle(int pru, double dc){
+#ifdef TEST_PWM
+	if(pru == 0){
+		dc0 = static_cast<unsigned int>(dc * Parser::GetPRU_Sample_Rate());
+		if(dc0 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc0 -= 1; }
+		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &dc0, 4);
+	}else{
+//		std::cout << dc << "\n";
+		dc1 = static_cast<unsigned int>(dc * Parser::GetPRU_Sample_Rate());
+		if(dc1 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc1 -= 1; }
+		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dc1, 4);
+	}
+#endif
+}
+
+/*!
+ * Begin a thread for the ESC PRU
+ */
+void Controller::InitializeMotorControl() {
+	dutyCycle_speed = Parser::GetDC_ESC_Zero();
+	dc0 = static_cast<unsigned int>(dutyCycle_speed * Parser::GetPRU_Sample_Rate());
+	dp0 = static_cast<unsigned int>(Parser::GetPRU_ESC_Delay());
+	norm_speed = 0.0;
+#ifdef TEST_PWM
+	TimeModule::Log("CTL", "Initializing motor control.");
+	ControlMotors();
+#endif
+}
+
+/*!
+ * Begin a thread for the Steering and Payload PRU.
+ */
+void Controller::InitializeSteeringControl() {
+	dutyCycle_steer = Parser::GetDC_Steer_Straight();
+	dutyCycle_payload = Parser::GetDC_Payload_Start();
+	dc1 = static_cast<unsigned int>(dutyCycle_steer * Parser::GetPRU_Sample_Rate());
+	dp1 = static_cast<unsigned int>(Parser::GetPRU_Steer_Delay());
+	norm_steer = 0.0;
+	gpio_steer = "/sys/class/gpio/gpio" + std::to_string(Parser::GetGPIO_Steer()) + "/value";
+	gpio_payload = "/sys/class/gpio/gpio" + std::to_string(Parser::GetGPIO_Payload()) + "/value";
+	payloadServoActive = false;
+	hasPayloadServoMoved = false;
+
+#ifdef TEST_PWM
+	// Make sure the payload transistor power is off, and steering power is on
+	tReader.open(gpio_payload);
+	tReader << 0;
+	tReader.close();
+	tReader.open(gpio_steer);
+	tReader << 1;
+	tReader.close();
+	TimeModule::Log("CTL", "Initializing steering/payload control.");
+	ControlSteering();
+#endif
 }
 
 /*!

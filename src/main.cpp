@@ -264,18 +264,11 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 			PlantModel::Run(TimeModule::GetLastProccessDelta("Plant"));
 		}
 #endif
-		// Run Navigator.
+
+		// Run GNC.
 		if (TimeModule::ProccessUpdate("Nav")) {
 			myNavigator->Run(mySensorHub);
-		}
-
-		// Run Guider.
-		if (TimeModule::ProccessUpdate("Guid")) {
 			myGuider->Run(myNavigator);
-		}
-
-		// Run Controller.
-		if (TimeModule::ProccessUpdate("Ctrl")) {
 			myController->Run(myGuider, mySensorHub);
 		}
 
