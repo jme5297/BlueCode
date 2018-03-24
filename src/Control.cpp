@@ -5,7 +5,6 @@
 #include <pruss_intc_mapping.h>
 #define PRU_NUM0 0
 #define PRU_NUM1 1
-tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 #endif
 
 #ifdef SIM
@@ -65,7 +64,7 @@ void WriteDutyCycle(int pru, double dc){
 		if(dc0 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc0 -= 1; }
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &dc0, 4);
 	}else{
-		std::cout << dc << "\n";
+//		std::cout << dc << "\n";
 		dc1 = static_cast<unsigned int>(dc * Parser::GetPRU_Sample_Rate());
 		if(dc1 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc1 -= 1; }
 		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dc1, 4);
@@ -132,8 +131,17 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 
 			// Update the normalized wheel speed and make sure we're not turning.
 			double sign = (g->GetCurrentGuidanceManeuver().speed - norm_speed) / fabs(norm_speed - g->GetCurrentGuidanceManeuver().speed);
-			norm_speed += sign * g->GetCurrentGuidanceManeuver().speedRate;
-			norm_steer = 0.0;
+			if(fabs(norm_speed) < fabs(sign * g->GetCurrentGuidanceManeuver().speedRate)){
+				norm_speed = 0.0;
+				norm_steer = 0.0;
+			}else{
+				norm_speed += sign * g->GetCurrentGuidanceManeuver().speedRate;
+				norm_steer = 0.0;
+			}
+			//dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_speed );
+			//dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
+			//WriteDutyCycle(0, dutyCycle_speed);
+			//WriteDutyCycle(1, dutyCycle_steer);
 		}
 		else {
 			g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
@@ -141,6 +149,8 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			// Update normalized speed and steering values
 			norm_speed = g->GetCurrentGuidanceManeuver().speed;
 			norm_steer = (double)(g->GetCurrentGuidanceManeuver().turnDirection);
+			//dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_speed );
+			//WriteDutyCycle(0, dutyCycle_speed);
 
 			// Begin timers for each type of maneuver.
 			switch (g->GetCurrentGuidanceManeuver().state) {
@@ -331,6 +341,7 @@ void ControlMotors()
 
 #ifdef TEST_PWM
 	TimeModule::Log("CTL", "Enabling PRU1 (Steering & Payload).");
+	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 	prussdrv_init();
 	prussdrv_open(PRU_EVTOUT_0);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
@@ -349,6 +360,7 @@ void ControlSteering()
 #ifdef TEST_PWM
 	TimeModule::Log("CTL", "Enabling PRU1 (Steering & Payload).");
 	prussdrv_init();
+	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 	prussdrv_open(PRU_EVTOUT_1);
 	prussdrv_pruintc_init(&pruss_intc_initdata);
 	prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dc1, 4);
