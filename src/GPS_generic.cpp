@@ -118,7 +118,7 @@ void RunGPS(){
 				currentGPSCoordinates = c;
 				vehicleHeading = cog;
 				currentGPSCoordinates = c;
-//				TimeModule::Log("GPS", "GPS Coordinates updated.");
+				std::cout << std::to_string(lat) << ", " << std::to_string(lon) << "\n";
 			}
 		}
 	}
