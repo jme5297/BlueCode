@@ -112,13 +112,14 @@ void RunGPS(){
 				i=0;
 				process();
 				lastCoordinates = currentGPSCoordinates;
-				Coordinate c;
-				c.lat = lat;
-				c.lon = lon;
-				currentGPSCoordinates = c;
-				vehicleHeading = cog;
-				currentGPSCoordinates = c;
-				std::cout << std::to_string(lat) << ", " << std::to_string(lon) << "\n";
+				if(fabs(lon) > 0.01 && fabs(lat) > 0.01){
+					Coordinate c;
+					c.lat = lat;
+					c.lon = lon;
+					currentGPSCoordinates = c;
+					vehicleHeading = cog;
+					std::cout << std::to_string(lat) << ", " << std::to_string(lon) << "\n";
+				}
 			}
 		}
 	}
@@ -144,7 +145,7 @@ void process(){
 		double lon_degs;
 		double lon_mins;
 		lon_nmea = strtod(field,NULL);
-		lon_nmea = lon / 100.0;
+		lon_nmea = lon_nmea / 100.0;
 		lon_mins = lon_nmea - (double)((int)lon_nmea);
 		lon_degs = lon_nmea - lon_mins;
 		lon = -1.0*(lon_degs + lon_mins/0.60);

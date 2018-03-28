@@ -47,6 +47,7 @@ void Navigator::Run(SensorHub* sh)
 }
 Coordinate Navigator::GetCoordinates()
 {
+//	std::cout << "curPosLat: " << curPos.lat << "\n";
 	return curPos;
 }
 // Add a coordinate to the vector list of coordinates of the specific active Nav Plan->

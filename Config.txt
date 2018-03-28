@@ -8,12 +8,16 @@
 
 # Coordinates to target
 # Format: [ lon, lat ]
-BEGIN_COORDINATES
+
+#BEGIN_COORDINATES
 #-77.872357, 40.793278
 #-77.871957, 40.793324
 #-77.872087, 40.793022
 #-77.872616, 40.792841
 #-77.872521, 40.793107
+#END_COORDINATES
+
+BEGIN_COORDINATES
 -77.87252503, 40.79308916
 END_COORDINATES
 
@@ -68,7 +72,7 @@ MaxSpeedMPS = 2.0
 
 # Factor to multiply speed by for turning
 TurnSpeedFactor = 0.15
-StraightSpeedFactor = 0.23
+StraightSpeedFactor = 0.19
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 4.0
