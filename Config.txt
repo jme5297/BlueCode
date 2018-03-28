@@ -48,7 +48,7 @@ PayloadDropRadius = 10.0
 OffAngleDeviate = 10.0
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 25.0
+TurnFactorDPS = 20.0
 
 # Acceleration factor for normal operations
 # A factor of 1 represents: 1 * (max speed MPS) m/s^2.
@@ -66,8 +66,8 @@ AccFactorObs = 2.0;
 MaxSpeedMPS = 2.0
 
 # Factor to multiply speed by for turning
-TurnSpeedFactor = 0.2
-StraightSpeedFactor = 0.3
+TurnSpeedFactor = 0.15
+StraightSpeedFactor = 0.23
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 4.0
