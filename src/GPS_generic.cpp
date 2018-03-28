@@ -128,12 +128,27 @@ void process(){
 	char field[20];
 	data_GR(field, 0);
 	if (strcmp(field, "$GPRMC") == 0){
+
 		data_GR(field, 3);
-		lat = strtod(field,NULL);
-		lat = lat / 100.0;
+		double lat_nmea;
+		double lat_degs;
+		double lat_mins;
+		lat_nmea = strtod(field,NULL);
+		lat_nmea = lat_nmea / 100.0;
+		lat_mins = lat_nmea - (double)((int)lat_nmea);
+		lat_degs = lat_nmea - lat_mins;
+		lat = lat_degs + lat_nmea/0.60;
+
 		data_GR(field, 5);
-		lon = strtod(field,NULL);
-		lon = lon / 100.0 * - 1.0;
+		double lon_nmea;
+		double lon_degs;
+		double lon_mins;
+		lon_nmea = strtod(field,NULL);
+		lon_nmea = lon / 100.0;
+		lon_mins = lon_nmea - (double)((int)lon_nmea);
+		lon_degs = lon_nmea - lon_mins;
+		lon = -1.0*(lon_degs + lon_nmea/0.60);
+
 		data_GR(field, 8);
 		cog =  strtod(field,NULL);
 	}

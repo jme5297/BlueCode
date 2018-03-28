@@ -9,11 +9,12 @@
 # Coordinates to target
 # Format: [ lon, lat ]
 BEGIN_COORDINATES
--77.872357, 40.793278
--77.871957, 40.793324
--77.872087, 40.793022
--77.872616, 40.792841
--77.872521, 40.793107
+#-77.872357, 40.793278
+#-77.871957, 40.793324
+#-77.872087, 40.793022
+#-77.872616, 40.792841
+#-77.872521, 40.793107
+-77.87252503, 40.79308916
 END_COORDINATES
 
 # Should the Nav Plan be optimized?
@@ -48,7 +49,7 @@ PayloadDropRadius = 10.0
 OffAngleDeviate = 10.0
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 20.0
+TurnFactorDPS = 60.0
 
 # Acceleration factor for normal operations
 # A factor of 1 represents: 1 * (max speed MPS) m/s^2.
