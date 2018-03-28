@@ -13,6 +13,8 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <fcntl.h>			//Used for UART
+#include <termios.h>		//Used for UART
 #ifdef TEST_PWM
 #include <unistd.h>
 #endif

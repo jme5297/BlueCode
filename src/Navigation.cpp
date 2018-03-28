@@ -37,7 +37,9 @@ void Navigator::Run(SensorHub* sh)
 
 	// Run the GPS.
 	lastCoordinates = curPos;
+#ifdef SIM
 	sh->GetGPS()->Run();
+#endif
 	curPos = sh->GetGPS()->GetCurrentGPSCoordinates();
 	vehicleHeading = sh->GetGPS()->GetGPSGroundCourse();
 
