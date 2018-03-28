@@ -26,9 +26,9 @@ namespace sensors {
 #endif
 
 	protected:
-		Coordinate currentGPSCoordinates;
-		Coordinate lastCoordinates;
-		double vehicleHeading;
+//		Coordinate currentGPSCoordinates;
+//		Coordinate lastCoordinates;
+//		double vehicleHeading;
 		double gpsUncertainty;
 		double latToM = 111050.0;
 		double lonToM = 84397.0;

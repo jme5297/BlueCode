@@ -1,4 +1,5 @@
 #include <sensors/GPS/GPS_generic.h>
+#include <string.h>
 
 using namespace sensors;
 using namespace Times;
@@ -7,11 +8,16 @@ using namespace Times;
 using namespace Plant;
 #else
 unsigned char rx_buffer[80];
+void RunGPS();
 void process();
 void data_GR(char * buffer, int loc);
 double lat, lon, cog;
 int uart0_filestream = -1;
 #endif
+
+Coordinate lastCoordinates;
+Coordinate currentGPSCoordinates;
+double vehicleHeading;
 
 GPS::GPS() {
 
@@ -112,6 +118,7 @@ void RunGPS(){
 				currentGPSCoordinates = c;
 				vehicleHeading = cog;
 				currentGPSCoordinates = c;
+//				TimeModule::Log("GPS", "GPS Coordinates updated.");
 			}
 		}
 	}
@@ -126,7 +133,7 @@ void process(){
 		lat = lat / 100.0;
 		data_GR(field, 5);
 		lon = strtod(field,NULL);
-		lon = lon / 100.0;
+		lon = lon / 100.0 * - 1.0;
 		data_GR(field, 8);
 		cog =  strtod(field,NULL);
 	}
