@@ -15,6 +15,7 @@ void Navigator::Initialize(SensorHub* sh)
 	curPos = sh->GetGPS()->GetCurrentGPSCoordinates();
 	lastCoordinates = curPos;
 	initialPosition = curPos;
+	std::cout << "init at " << initialPosition.lat << ", " << initialPosition.lon << "\n";
 }
 /**
  *
@@ -82,6 +83,12 @@ void Navigator::AddCoordinate(int index, double c1, double c2)
 // Reorganize Nav Plan for most optimal path.
 void Navigator::ConstructNavPlan(int cInd)
 {
+
+	if(activeNavPlan.coordinates.size() == 1){
+		activeNavPlan.coordinates.push_back(initialPosition);
+		TimeModule::Log("NAV", "No need to optimize, only one point.");
+		return;
+	}
 
 	// This function populates the allCoordinatePermutations vector
 	allCoordinatePermutations.clear();

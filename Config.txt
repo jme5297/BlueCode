@@ -18,11 +18,12 @@
 #END_COORDINATES
 
 BEGIN_COORDINATES
--77.87252503, 40.79308916
+-77.87230567, 40.79389372
+-77.8727055, 40.7942015
 END_COORDINATES
 
 # Should the Nav Plan be optimized?
-Optimize = 1
+Optimize = 0
 
 # Write mission log to a text file?
 WriteToLogFile = 1
@@ -47,13 +48,13 @@ Refresh_GPS   = 1.0
 # ------------------------------------
 
 # Acceptable payload drop radius from target (meters)
-PayloadDropRadius = 10.0
+PayloadDropRadius = 6.5
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 10.0
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 60.0
+TurnFactorDPS = 80.0
 
 # Acceleration factor for normal operations
 # A factor of 1 represents: 1 * (max speed MPS) m/s^2.
@@ -67,12 +68,12 @@ AccFactorObs = 2.0;
 
 # Maximum speed of the vehicle (meters/second)
 # Note: This value is also used in the SIM mode.
-# MaxSpeedMPS = 3.3
-MaxSpeedMPS = 2.0
+MaxSpeedMPS = 4.0
+# MaxSpeedMPS = 2.0
 
 # Factor to multiply speed by for turning
-TurnSpeedFactor = 0.15
-StraightSpeedFactor = 0.19
+TurnSpeedFactor = 0.23
+StraightSpeedFactor = 0.23
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 4.0
@@ -106,9 +107,9 @@ DC_ESC_Back = 0.1
 # DC_ESC_Fwd = 0.12
 # DC_ESC_Zero = 0.071
 # DC_ESC_Back = 0.023
-DC_Steer_Left = 0.087
-DC_Steer_Straight = 0.073
-DC_Steer_Right = 0.056
+DC_Steer_Left = 0.088
+DC_Steer_Straight = 0.074
+DC_Steer_Right = 0.060
 # DC_Steer_Left = 0.12
 # DC_Steer_Straight = 0.071
 # DC_Steer_Right = 0.023
@@ -147,7 +148,7 @@ TimeDelta = 0.00001
 SimDelta = 0.01
 
 # Uncertainty of the GPS (meters)?
-GPSUncertainty = 4.0
+GPSUncertainty = 0.5
 
 # Uncertainty of the GPS Heading information (degrees)
 GPSHeadingUncertainty = 15.0

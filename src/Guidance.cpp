@@ -353,7 +353,7 @@ void Guider::Run(Navigator* n) {
 			break;
 
 		// If the off-angle grows too large, then our maintenance maneuver is over, and a turn maneuver will be added next pass.
-		if (TimeModule::GetElapsedTime("Maintain_" + std::to_string(GuidanceManeuverIndex)) >= man->maintainTime) {
+		if (TimeModule::GetElapsedTime("Maintain_" + std::to_string(GuidanceManeuverIndex)) >= 4.0) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			TimeModule::Log("GDE", "Course maintain maneuver complete.");
 		}
