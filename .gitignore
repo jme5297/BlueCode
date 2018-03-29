@@ -8,7 +8,7 @@ build/
 capture_*.bmp
 
 # Any output files and post process files
-*.csv
+# *.csv
 *.m~
 
 # Prerequisites
