@@ -3,6 +3,8 @@ src/compiling_error.txt
 
 # Main build
 build/
+images/
+output/
 
 .DS_Store
 capture_*.bmp
