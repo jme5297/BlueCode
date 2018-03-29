@@ -201,24 +201,28 @@ void Guider::Run(Navigator* n) {
 
 		// If we're just coming from a payload-drop state, we already know our heading.
 		double usedHeading = 0.0;
-		if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop) {
-			usedHeading = savedHeading;
-		}
-		else {
+		//if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop) {
+		//	usedHeading = savedHeading;
+		//}
+		//else {
 			usedHeading = n->GetHeading();
-		}
+		//}
 		double x1 = sin(usedHeading * PI / 180.0);
 		double y1 = cos(usedHeading * PI / 180.0);
 
 		// Calculate the desired heading to the next coordinate.
 		Movement m;
 		m = n->CalculateMovement(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]);
+		double wpLat = n->GetNavPlan().coordinates[coordinateIndex].lat;
+		double wpLon = n->GetNavPlan().coordinates[coordinateIndex].lon;
 		double x2 = sin(m.heading * PI / 180.0);
 		double y2 = cos(m.heading * PI / 180.0);
 		double offAngle;
 		double dott = x1 * x2 + y1 * y2;      // dot product between [x1, y1] and [x2, y2]
 		double det = x1 * y2 - y1 * x2;      // determinant
 		offAngle = atan2(det, dott) * 180.0 / PI;  // atan2(y, x) or atan2(sin, cos)
+		TimeModule::Log("GDE", "Next waypoint: " + std::to_string(wpLon) + ", " + std::to_string(wpLat));
+		TimeModule::Log("GDE", "Current Heading " + std::to_string(usedHeading) + ", Desired Heading " + std::to_string(m.heading) + ", off angle " + std::to_string(offAngle));
 
 		// If headings are far apart, we need to turn-> CANNOT TURN DIRECTLY AFTER ANOTHER TURn->
 		if (fabs(offAngle) >= offAngleDeviate && GetCurrentGuidanceManeuver().state != ManeuverState::Turn) {
