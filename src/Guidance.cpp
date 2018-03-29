@@ -408,8 +408,8 @@ void Guider::Run(Navigator* n) {
 
 			if(!man->hasFixedSpeed)
 				break;
-			man->hasFixedSpeed = false;
-			man->speed = -1.0 * Parser::GetTurnSpeedFactor();
+			 man->hasFixedSpeed = false;
+			man->speed = -1.5 * Parser::GetTurnSpeedFactor();
 			man->turnDirection = man->avoidDirection;
 			man->avoidDivergeState = 1;
 			man->accelerationTime = 1.0;

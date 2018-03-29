@@ -18,7 +18,9 @@
 #END_COORDINATES
 
 BEGIN_COORDINATES
--77.86376076, 40.79432533
+-77.87225894, 40.79305631
+-77.87260747, 40.79292717
+-77.87195777, 40.79301453
 END_COORDINATES
 
 # -77.8727055, 40.7942015
@@ -55,7 +57,7 @@ PayloadDropRadius = 6.5
 OffAngleDeviate = 20.0
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 90.0
+TurnFactorDPS = 105.0
 
 # Acceleration factor for normal operations
 # A factor of 1 represents: 1 * (max speed MPS) m/s^2.
@@ -72,8 +74,8 @@ TurnFactorDPS = 90.0
 MaxSpeedMPS = 4.0
 
 # Factor to multiply speed by for turning
-TurnSpeedFactor = 0.23
-StraightSpeedFactor = 0.23
+TurnSpeedFactor = 0.21
+StraightSpeedFactor = 0.21
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 4.0
