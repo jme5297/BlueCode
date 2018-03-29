@@ -23,7 +23,7 @@ namespace Navigation {
 
 		// Utility functions
 		bool IsPopulated();										///< Returns if Nav Plan has been populated with coordinates.
-		void AddCoordinate(int index, double c1, double c2);	///< Add a coordinate to the Nav Plan's list of coordinates
+		void AddCoordinate(Coordinate c);	///< Add a coordinate to the Nav Plan's list of coordinates
 		void AddCoordinates(std::vector<Coordinate> coords);	///< Replace the current Nav Plan coordinates with a new vector of coordinates.
 		double CalculateTotalNavPlanDistance(std::vector<Coordinate> coords);	///< Calculate entire distance of a certain Nav Plan
 		double DistanceBetweenCoordinates(Coordinate c1, Coordinate c2);		///< Calculate distane between two coordinates

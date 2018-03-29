@@ -75,7 +75,7 @@ public:
 	static double GetRefresh_CTRL() { return Refresh_CTRL; }
 	static double GetRefresh_OUT() { return Refresh_OUT; }
 	static double GetRefresh_GPS() { return Refresh_GPS; }
-	static bool GetOptimize() { return Optimize; }
+	static int GetOptimize() { return Optimize; }
 	static bool GetWriteToLogFile() { return WriteToLogFile; }
 	static double GetPayloadDropRadius() { return PayloadDropRadius; }
 	static double GetOffAngleDeviate() { return OffAngleDeviate; }
@@ -131,7 +131,7 @@ protected:
 	static double Refresh_GPS;
 	static std::ifstream configFile;
 	static std::vector<Coordinate> inputCoords;
-	static bool Optimize;
+	static int Optimize;
 	static bool WriteToLogFile;
 	static double PayloadDropRadius;
 	static double OffAngleDeviate;

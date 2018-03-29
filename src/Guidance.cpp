@@ -134,11 +134,6 @@ void Guider::Run(Navigator* n) {
 			)
 		) {
 
-		std::cout << " cur: " << n->GetCoordinates().lat << ", " << n->GetCoordinates().lon << "\n";
-		std::cout << " nex: " << n->GetNavPlan().coordinates[coordinateIndex].lat << ", " << n->GetNavPlan().coordinates[coordinateIndex].lon << "\n";
-		double dist = n->DistanceBetweenCoordinates(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]);
-		std::cout << "dist: " << dist << "\n";
-
 		// The state that we were currently in is complete now.
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 		GuidanceManeuverIndex++;
@@ -258,18 +253,15 @@ void Guider::Run(Navigator* n) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			GuidanceManeuverIndex++;
 			GuidanceManeuver gm;
-			double dist = n->DistanceBetweenCoordinates(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]);
-			std::cout << " cur: " << n->GetCoordinates().lat << ", " << n->GetCoordinates().lon << "\n";
-			std::cout << " nex: " << n->GetNavPlan().coordinates[coordinateIndex].lat << ", " << n->GetNavPlan().coordinates[coordinateIndex].lon << "\n";
-			std::cout << " dist: " << dist << "\n";
-			double time = dist / maxVehicleSpeed * 0.5;
+			// double dist = n->DistanceBetweenCoordinates(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]);
+			// double time = dist / maxVehicleSpeed * 0.5;
 
 			gm.state = ManeuverState::Maintain;
 			gm.turnDirection = 0;
 			gm.requestedTurnAngle = 0.0;
 			gm.currentTurnAngle = 0.0;
 			gm.hasBeganDiverging = false;
-			gm.maintainTime = (time < minimumMaintainTime) ? minimumMaintainTime : time;
+			gm.maintainTime = minimumMaintainTime;
 			gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 			gm.hasFixedSpeed = false;
 			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();

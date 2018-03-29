@@ -417,14 +417,13 @@ void Controller::EmergencyShutdown() {
 	std::cout << "===EMERGENCY! DECELERATING!===\n";
 	dutyCycle_steer = Parser::GetDC_Steer_Straight();
 	WriteDutyCycle(1, dutyCycle_steer);
-	while (fabs(norm_speed) > 2.0*Parser::GetAccFactorObs()*Parser::GetRefresh_GUID()) {
-		norm_speed -= norm_speed / fabs(norm_speed) * Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
-		dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_speed );
-		WriteDutyCycle(0, dutyCycle_speed);
+	dutyCycle_speed = Parser::GetDC_ESC_Zero();
+	WriteDutyCycle(0, dutyCycle_speed);
+
 #ifdef TEST_PWM
 		usleep(10000);
 #endif
-	}
+
 	std::cout << "===Deceleration complete.===\n";
 
 	DisablePRUs();

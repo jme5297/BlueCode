@@ -57,12 +57,14 @@ bool GPS::Init() {
 	}
 
 	// THIS IS TEMPORARY
+	/*
 	Coordinate c;
 	c.lat = Parser::GetInitialLatitude();
 	c.lon = Parser::GetInitialLongitude();
 	currentGPSCoordinates = c;
 	lastCoordinates = c;
 	vehicleHeading = Parser::GetInitialHeading();
+  */
 
 	std::thread rungps (RunGPS);
 	TimeModule::Log("GPS", "Initializing GPS thread...");

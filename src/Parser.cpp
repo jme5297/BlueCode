@@ -11,7 +11,7 @@ double Parser::Refresh_OUT;
 double Parser::Refresh_GPS;
 std::vector<Coordinate> Parser::inputCoords;
 std::ifstream Parser::configFile;
-bool Parser::Optimize;
+int Parser::Optimize;
 bool Parser::WriteToLogFile;
 double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
@@ -91,6 +91,7 @@ void Parser::ReadInputs(std::string file)
 				getline(configFile, s);
 				s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
 			}
+			std::cout << "Continuing...\n";
 			continue;
 		}
 		else if (s.find("Refresh_NAV") != std::string::npos) {
@@ -127,6 +128,7 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> Optimize;
+			std::cout << Optimize << "\n\n\n";
 			continue;
 		}
 		else if (s.find("WriteToLogFile") != std::string::npos) {
@@ -288,7 +290,7 @@ void Parser::ReadInputs(std::string file)
 		else if (s.find("MaxCameraAttempts") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			ss >> Optimize;
+			ss >> MaxCameraAttempts;
 			continue;
 		}
 		else if (s.find("Laser_Left") != std::string::npos) {

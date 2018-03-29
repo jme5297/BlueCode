@@ -19,11 +19,12 @@
 
 BEGIN_COORDINATES
 -77.87230567, 40.79389372
--77.8727055, 40.7942015
 END_COORDINATES
 
+# -77.8727055, 40.7942015
+
 # Should the Nav Plan be optimized?
-Optimize = 0
+Optimize = 1
 
 # Write mission log to a text file?
 WriteToLogFile = 1
@@ -51,25 +52,24 @@ Refresh_GPS   = 1.0
 PayloadDropRadius = 6.5
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
-OffAngleDeviate = 10.0
+OffAngleDeviate = 20.0
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 80.0
+TurnFactorDPS = 90.0
 
 # Acceleration factor for normal operations
 # A factor of 1 represents: 1 * (max speed MPS) m/s^2.
 # A factor of 2 represents: 2 * (max speed MPS) m/s^2.
-AccFactor = 0.5;
+# AccFactor = 0.5;
 
 # Acceleration factor for emergency (obstacle avoidance) operations
 # A factor of 1 represents: 1 * (max speed MPS) m/s^2.
 # A factor of 2 represents: 2 * (max speed MPS) m/s^2.
-AccFactorObs = 2.0;
+# AccFactorObs = 2.0;
 
 # Maximum speed of the vehicle (meters/second)
 # Note: This value is also used in the SIM mode.
 MaxSpeedMPS = 4.0
-# MaxSpeedMPS = 2.0
 
 # Factor to multiply speed by for turning
 TurnSpeedFactor = 0.23
@@ -82,7 +82,7 @@ CalibrationTime = 4.0
 MinimumMaintainTime = 4.0
 
 # Angle to sweep away backwards from obstacle to diverge (degrees)
-ObstacleDivergenceAngle = 45.0
+ObstacleDivergenceAngle = 55.0
 
 # Amount of time to travel "parallel" to an obstacle before converging back to target (seconds)
 ObstacleDivergenceTime = 5.0
@@ -104,19 +104,11 @@ PayloadServoTime = 3.0
 DC_ESC_Fwd = 0.2
 DC_ESC_Zero = 0.15
 DC_ESC_Back = 0.1
-# DC_ESC_Fwd = 0.12
-# DC_ESC_Zero = 0.071
-# DC_ESC_Back = 0.023
 DC_Steer_Left = 0.088
 DC_Steer_Straight = 0.074
 DC_Steer_Right = 0.060
-# DC_Steer_Left = 0.12
-# DC_Steer_Straight = 0.071
-# DC_Steer_Right = 0.023
 DC_Payload_Start = 0.023
 DC_Payload_Delta = 0.018
-# DC_Payload_Start = 0.057
-# DC_Payload_Delta = 0.002
 
 # PRU Configuration values
 PRU_Sample_Rate = 1000
@@ -142,7 +134,7 @@ GPIO_Payload = 117
 # ############################################################################
 
 # Time delta in debug mode from one main loop to the next?
-TimeDelta = 0.00001
+TimeDelta = 0.0001
 
 # Sim delta from one Plant/simulation update to the next (seconds)?
 SimDelta = 0.01
@@ -164,15 +156,15 @@ VehicleLength = 0.34
 # Initial location and true heading of vehicle at start of sim.
 InitialLatitude = 40.793065
 InitialLongitude = -77.872306
-InitialHeading = 270
+InitialHeading = 90
 
 # Add some obstacles to the scene
 # Format: lon(deg), lat(deg), length(m), width(m), height(m), z-rotation(deg)
-BEGIN_OBSTACLES
--77.872148,	40.793335,	10,	3,	0.5,	-20
--77.871981, 40.793170,	10,	3,	0.5,	90
--77.872361, 40.792952, 	10,	4,	0.5,	320
-END_OBSTACLES
+#BEGIN_OBSTACLES
+#-77.872148,	40.793335,	10,	3,	0.5,	-20
+#-77.871981, 40.793170,	10,	3,	0.5,	90
+#-77.872361, 40.792952, 	10,	4,	0.5,	320
+#END_OBSTACLES
 
 # Add lasers to the vehicle.
 # Format: local forward(m), local height(m), local right(m), local direction(deg), detection distance (m)

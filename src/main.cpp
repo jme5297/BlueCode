@@ -167,7 +167,7 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
 	std::cout << std::to_string(lon) << " --\n";
 	while(fabs(lon) < 0.001){
-		TimeModule::Log("MNE", "Waiting for calibration..."); 
+		TimeModule::Log("MNE", "Waiting for calibration...");
 		lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
 		usleep(100000);
 	}
@@ -176,16 +176,18 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	// make sure that there was at-least one nav plan coordinate added.
 	myNavigator->Initialize(mySensorHub);
 	myNavigator->AddCoordinates(Parser::GetInputCoordinates());
+	myNavigator->AddCoordinate(myNavigator->GetInitialNavPosition());
+
 	if (!myNavigator->IsPopulated()) {
 		TimeModule::Log("MNE","ERROR: Nav Plan not properly populated. Exiting program.");
 		return false;
 	}
 
 	// If user has specified, optimize the initial nav-plan
-	if (Parser::GetOptimize()) {
-		TimeModule::Log("MNE","Requesting Nav-Plan optimizaiton.");
-		myNavigator->ConstructNavPlan(0);
-	}
+	//if (Parser::GetOptimize()) {
+	//TimeModule::Log("MNE","Requesting Nav-Plan optimizaiton.");
+	myNavigator->ConstructNavPlan(0);
+	//}
 
 	// Come up with nominal Nav-Plan movement and distance info.
 	myNavigator->PopulateMovements(mySensorHub);

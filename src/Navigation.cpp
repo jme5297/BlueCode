@@ -53,27 +53,12 @@ Coordinate Navigator::GetCoordinates()
 }
 // Add a coordinate to the vector list of coordinates of the specific active Nav Plan->
 // NOTE: This must be done before constructing the Nav Plan->
-void Navigator::AddCoordinate(int index, double c1, double c2)
+void Navigator::AddCoordinate(Coordinate c)
 {
-	// Create a coordinate from the two incoming values.
-	Coordinate coord;
-	coord.lon = c1;
-	coord.lat = c2;
-
 	// Retrieve the current coordinates in the active nav plan
 	std::vector<Coordinate> myCoords = activeNavPlan.coordinates;
 
-	// If index is -1, then add to the end of the list. Otherwise, insert
-	// the waypoint at a specific location->
-	if (index == -1)
-	{
-		myCoords.push_back(coord);
-	}
-	else if (index <= (int)myCoords.size() - 1)
-	{
-		std::vector<Coordinate>::iterator it = myCoords.begin();
-		myCoords.insert(it + index, coord);
-	}
+	myCoords.push_back(c);
 
 	// Update the vector of coordinates to the active Nav Plan
 	activeNavPlan.coordinates = myCoords;
@@ -84,9 +69,15 @@ void Navigator::AddCoordinate(int index, double c1, double c2)
 void Navigator::ConstructNavPlan(int cInd)
 {
 
+	// There should ALWAYS be at-least one waypoint, and your initial position.
 	if(activeNavPlan.coordinates.size() == 1){
-		activeNavPlan.coordinates.push_back(initialPosition);
-		TimeModule::Log("NAV", "No need to optimize, only one point.");
+		TimeModule::Log("NAV", "This should NOT be hit. Did you forget to push your initial position to the NavPlan?");
+		return;
+	}
+
+	// If we are not optimizing, then no need to re-run this code.
+	if(!Parser::GetOptimize()){
+		TimeModule::Log("NAV", "No need to optimize");
 		return;
 	}
 
@@ -102,7 +93,7 @@ void Navigator::ConstructNavPlan(int cInd)
 
 	GenerateAllCoordinatePermutations(coordsToGo, 0);
 
-	// Add the initial position back to the end.
+	// Add the initial position back to the permutations.
 	for (int i = 0; i < allCoordinatePermutations.size(); i++) {
 		allCoordinatePermutations[i].push_back(initialPosition);
 	}
@@ -131,7 +122,7 @@ void Navigator::ConstructNavPlan(int cInd)
 	{
 		activeNavPlan.coordinates.push_back(tmpCoords[i]);
 	}
-	// Update the nav plan coordinate order
+	// Update the nav plan coordinate order. At this point, the initial position has already been added back on.
 	for (int i = 0; i < allCoordinatePermutations[shortestDistanceIndex].size(); i++)
 	{
 		activeNavPlan.coordinates.push_back(allCoordinatePermutations[shortestDistanceIndex][i]);
