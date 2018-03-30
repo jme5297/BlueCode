@@ -1,4 +1,4 @@
-# ############################################################################
+## ############################################################################
 #                                                                Mission Setup
 # ############################################################################
 
@@ -10,12 +10,17 @@
 # Format: [ lon, lat ]
 
 BEGIN_COORDINATES
--77.87225894, 40.79305631
--77.87260747, 40.79292717
--77.87195777, 40.79301453
--77.87218904, 40.79319164
--77.87245498, 40.79272066
+-77.87234485, 40.79282497
+-77.87244775, 40.79307088
+-77.87277485, 40.79294618
 END_COORDINATES
+
+#-77.87225894, 40.79305631
+#-77.87260747, 40.79292717
+#-77.87195777, 40.79301453
+#-77.87218904, 40.79319164
+#-77.87245498, 40.79272066
+#END_COORDINATES
 
 # Should the Nav Plan be optimized?
 Optimize = 1
@@ -38,10 +43,10 @@ Refresh_OUT   = 0.1
 # ------------------------------------
 
 # Acceptable payload drop radius from target (meters)
-PayloadDropRadius = 6.5
+PayloadDropRadius = 8.0
 
 # Uncertainty of the GPS (meters)?
-GPSUncertainty = 0.5
+GPSUncertainty = 1.5
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 20.0
@@ -65,16 +70,16 @@ StraightSpeedFactor = 0.21
 BackMultiplier = 1.1
 
 # Intensity of vehicle breaking (between 0.0 and 1.0)
-BreakFactor = 0.6
+BreakFactor = 0.99
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 4.0
 
 # Vehicle should recalibrate after each consecutive payload drop
-ReCalibrate = 1
+ReCalibrate = 0
 
 # Minimum amount of time required to stay straight in a maintain mode (seconds)
-MinimumMaintainTime = 1.0
+MinimumMaintainTime = 2.5
 
 # Angle to sweep away backwards from obstacle to diverge (degrees)
 ObstacleDivergenceAngle = 55.0

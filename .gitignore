@@ -3,16 +3,16 @@ src/compiling_error.txt
 
 # Main build
 build/
-images/
-output/
+# images/
+# output/
 
 .DS_Store
 capture_*.bmp
 
 # Any output files and post process files
-*.csv
+# *.csv
 *.m~
-*.ppm
+# *.ppm
 
 # Prerequisites
 *.d
