@@ -84,6 +84,7 @@ public:
 	static double GetBackMultipier(){ return BackMultiplier; }
 	static double GetBreakFactor(){ return BreakFactor; }
 	static double GetCalibrationTime() { return CalibrationTime; }
+	static int GetReCalibrate(){ return ReCalibrate; }
 	static double GetMinimumMaintainTime() { return MinimumMaintainTime; }
 	static double GetObstacleDivergenceAngle() { return ObstacleDivergenceAngle; }
 	static double GetObstacleDivergenceTime() { return ObstacleDivergenceTime; }
@@ -137,6 +138,7 @@ protected:
 	static double BackMultiplier;
 	static double BreakFactor;
 	static double CalibrationTime;
+	static int ReCalibrate;
 	static double MinimumMaintainTime;
 	static double ObstacleDivergenceAngle;
 	static double ObstacleDivergenceTime;

@@ -102,7 +102,7 @@ void Guider::Run(Navigator* n) {
 	}
 	// if we've just dropped off a payload successfully, then we need to calibrate.
 	else if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop &&
-		GuidanceManeuverBuffer[GuidanceManeuverIndex].done == true)
+		GuidanceManeuverBuffer[GuidanceManeuverIndex].done == true && Parser::GetReCalibrate() == 1)
 	{
 		GuidanceManeuverIndex++;
 
@@ -201,12 +201,12 @@ void Guider::Run(Navigator* n) {
 
 		// If we're just coming from a payload-drop state, we already know our heading.
 		double usedHeading = 0.0;
-		//if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop) {
-		//	usedHeading = savedHeading;
-		//}
-		//else {
+		if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop && Parser::GetReCalibrate() == 0) {
+			usedHeading = savedHeading;
+		}
+		else {
 			usedHeading = n->GetHeading();
-		//}
+		}
 		double x1 = sin(usedHeading * PI / 180.0);
 		double y1 = cos(usedHeading * PI / 180.0);
 
@@ -349,7 +349,7 @@ void Guider::Run(Navigator* n) {
 			break;
 
 		// If the off-angle grows too large, then our maintenance maneuver is over, and a turn maneuver will be added next pass.
-		if (TimeModule::GetElapsedTime("Maintain_" + std::to_string(GuidanceManeuverIndex)) >= 4.0) {
+		if (TimeModule::GetElapsedTime("Maintain_" + std::to_string(GuidanceManeuverIndex)) >= minimumMaintainTime) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			TimeModule::Log("GDE", "Course maintain maneuver complete.");
 		}

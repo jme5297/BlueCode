@@ -70,8 +70,11 @@ BreakFactor = 0.6
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 4.0
 
+# Vehicle should recalibrate after each consecutive payload drop
+ReCalibrate = 1
+
 # Minimum amount of time required to stay straight in a maintain mode (seconds)
-MinimumMaintainTime = 4.0
+MinimumMaintainTime = 1.0
 
 # Angle to sweep away backwards from obstacle to diverge (degrees)
 ObstacleDivergenceAngle = 55.0
@@ -143,7 +146,7 @@ VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.793065
+InitialLatitude = 40.792865
 InitialLongitude = -77.872306
 InitialHeading = 90
 

@@ -20,6 +20,7 @@ double Parser::StraightSpeedFactor;
 double Parser::BackMultiplier;
 double Parser::BreakFactor;
 double Parser::CalibrationTime;
+int Parser::ReCalibrate;
 double Parser::MinimumMaintainTime;
 double Parser::ObstacleDivergenceAngle;
 double Parser::ObstacleDivergenceTime;
@@ -175,6 +176,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> CalibrationTime;
+			continue;
+		}
+		else if (s.find("ReCalibrate") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> ReCalibrate;
 			continue;
 		}
 		else if (s.find("MinimumMaintainTime") != std::string::npos) {
