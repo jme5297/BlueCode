@@ -10,20 +10,12 @@
 # Format: [ lon, lat ]
 
 BEGIN_COORDINATES
--77.872357, 40.793278
--77.871957, 40.793324
--77.872087, 40.793022
--77.872616, 40.792841
--77.872521, 40.793107
+-77.87225894, 40.79305631
+-77.87260747, 40.79292717
+-77.87195777, 40.79301453
+-77.87218904, 40.79319164
+-77.87245498, 40.79272066
 END_COORDINATES
-
-#BEGIN_COORDINATES
-#-77.87225894, 40.79305631
-#-77.87260747, 40.79292717
-#-77.87195777, 40.79301453
-#-77.87218904, 40.79319164
-#-77.87245498, 40.79272066
-#END_COORDINATES
 
 # Should the Nav Plan be optimized?
 Optimize = 1
@@ -59,14 +51,23 @@ OffAngleDeviate = 20.0
 # Vehicle turn rate at full turning speed (degrees/second)
 TurnFactorDPS = 105.0
 
+# =============
+# Speed Factors
+# =============
 # Maximum speed of the vehicle (meters/second)
 MaxSpeedMPS = 4.0
 
-# Factor to multiply speed by for turning
+# Throttle % while turning
 TurnSpeedFactor = 0.21
+
+# Throttle % while moving straight
 StraightSpeedFactor = 0.21
-BackMultiplier = 1.2
-BreakFactor = 0.5
+
+# Multiplier for increasing backwards movement
+BackMultiplier = 1.1
+
+# Intensity of vehicle breaking (between 0.0 and 1.0)
+BreakFactor = 0.6
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 4.0

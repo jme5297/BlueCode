@@ -126,13 +126,13 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 					g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
 #ifdef TEST_PWM
 					// Extra logic to ensure that we are calibrated for backwards movement
-					dutyCycle_speed = 0.142;
-					WriteDutyCycle(0, dutyCycle_speed);
-					TimeModule::Log("CTL", "Calibrate ESC to back...");
-					usleep(1000000);
+//					dutyCycle_speed = 0.142;
+//					WriteDutyCycle(0, dutyCycle_speed);
+					TimeModule::Log("CTL", "Calibrate ESC to zero...");
+//					usleep(1000000);
 					dutyCycle_speed = 0.15;
 					WriteDutyCycle(0, dutyCycle_speed);
-					TimeModule::Log("CTL", "Calibrate ESC to zero...");
+//					TimeModule::Log("CTL", "Calibrate ESC to zero...");
 					usleep(1000000);
 //					dutyCycle_speed = 0.142;
 //					WriteDutyCycle(0, dutyCycle_speed);
