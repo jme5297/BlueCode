@@ -16,11 +16,11 @@ bool Parser::WriteToLogFile;
 double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
 double Parser::TurnFactorDPS;
-double Parser::AccFactor;
-double Parser::AccFactorObs;
 double Parser::MaxSpeedMPS;
 double Parser::TurnSpeedFactor;
 double Parser::StraightSpeedFactor;
+double Parser::BackMultiplier;
+double Parser::BreakFactor;
 double Parser::CalibrationTime;
 double Parser::MinimumMaintainTime;
 double Parser::ObstacleDivergenceAngle;
@@ -155,18 +155,6 @@ void Parser::ReadInputs(std::string file)
 			ss >> TurnFactorDPS;
 			continue;
 		}
-		else if (s.find("AccFactorObs") != std::string::npos) {
-			std::string a = s.substr(s.find("=") + 1);
-			std::stringstream ss(a);
-			ss >> AccFactorObs;
-			continue;
-		}
-		else if (s.find("AccFactor") != std::string::npos) {
-			std::string a = s.substr(s.find("=") + 1);
-			std::stringstream ss(a);
-			ss >> AccFactor;
-			continue;
-		}
 		else if (s.find("MaxSpeedMPS") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -183,6 +171,18 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> StraightSpeedFactor;
+			continue;
+		}
+		else if (s.find("BackMultipier") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> BackMultiplier;
+			continue;
+		}
+		else if (s.find("BreakFactor") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> BreakFactor;
 			continue;
 		}
 		else if (s.find("CalibrationTime") != std::string::npos) {

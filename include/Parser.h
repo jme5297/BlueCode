@@ -80,11 +80,11 @@ public:
 	static double GetPayloadDropRadius() { return PayloadDropRadius; }
 	static double GetOffAngleDeviate() { return OffAngleDeviate; }
 	static double GetTurnFactorDPS() { return TurnFactorDPS; }
-	static double GetAccFactor() { return AccFactor; }
-	static double GetAccFactorObs() { return AccFactorObs; }
 	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
 	static double GetTurnSpeedFactor(){ return TurnSpeedFactor; }
 	static double GetStraightSpeedFactor(){ return StraightSpeedFactor; }
+	static double GetBackMultipier(){ return BackMultiplier; }
+	static double GetBreakFactor(){ return BreakFactor; }
 	static double GetCalibrationTime() { return CalibrationTime; }
 	static double GetMinimumMaintainTime() { return MinimumMaintainTime; }
 	static double GetObstacleDivergenceAngle() { return ObstacleDivergenceAngle; }
@@ -136,10 +136,10 @@ protected:
 	static double PayloadDropRadius;
 	static double OffAngleDeviate;
 	static double TurnFactorDPS;
-	static double AccFactor;
-	static double AccFactorObs;
 	static double TurnSpeedFactor;
 	static double StraightSpeedFactor;
+	static double BackMultiplier;
+	static double BreakFactor;
 	static double CalibrationTime;
 	static double MinimumMaintainTime;
 	static double ObstacleDivergenceAngle;

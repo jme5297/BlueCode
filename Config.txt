@@ -9,23 +9,21 @@
 # Coordinates to target
 # Format: [ lon, lat ]
 
-#BEGIN_COORDINATES
-#-77.872357, 40.793278
-#-77.871957, 40.793324
-#-77.872087, 40.793022
-#-77.872616, 40.792841
-#-77.872521, 40.793107
-#END_COORDINATES
-
 BEGIN_COORDINATES
--77.87225894, 40.79305631
--77.87260747, 40.79292717
--77.87195777, 40.79301453
--77.87218904, 40.79319164
--77.87245498, 40.79272066
+-77.872357, 40.793278
+-77.871957, 40.793324
+-77.872087, 40.793022
+-77.872616, 40.792841
+-77.872521, 40.793107
 END_COORDINATES
 
-# -77.8727055, 40.7942015
+#BEGIN_COORDINATES
+#-77.87225894, 40.79305631
+#-77.87260747, 40.79292717
+#-77.87195777, 40.79301453
+#-77.87218904, 40.79319164
+#-77.87245498, 40.79272066
+#END_COORDINATES
 
 # Should the Nav Plan be optimized?
 Optimize = 1
@@ -61,23 +59,14 @@ OffAngleDeviate = 20.0
 # Vehicle turn rate at full turning speed (degrees/second)
 TurnFactorDPS = 105.0
 
-# Acceleration factor for normal operations
-# A factor of 1 represents: 1 * (max speed MPS) m/s^2.
-# A factor of 2 represents: 2 * (max speed MPS) m/s^2.
-# AccFactor = 0.5;
-
-# Acceleration factor for emergency (obstacle avoidance) operations
-# A factor of 1 represents: 1 * (max speed MPS) m/s^2.
-# A factor of 2 represents: 2 * (max speed MPS) m/s^2.
-# AccFactorObs = 2.0;
-
 # Maximum speed of the vehicle (meters/second)
-# Note: This value is also used in the SIM mode.
 MaxSpeedMPS = 4.0
 
 # Factor to multiply speed by for turning
 TurnSpeedFactor = 0.21
 StraightSpeedFactor = 0.21
+BackMultiplier = 1.2
+BreakFactor = 0.5
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 4.0
@@ -94,9 +83,6 @@ ObstacleDivergenceTime = 5.0
 # ------------------------------------
 #                             CONTROLS
 # ------------------------------------
-
-# Normalized maximum turning steering value
-MaxTurnSteering = 1.0
 
 # Maximum number of times to attempt to take an image before moving to next target.
 MaxCameraAttempts = 3

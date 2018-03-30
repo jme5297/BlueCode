@@ -91,7 +91,7 @@ void Guider::Run(Navigator* n) {
 		gm.maintainTime = 0.0;
 		gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 		gm.hasFixedSpeed = false;
-		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
+//		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
@@ -116,7 +116,7 @@ void Guider::Run(Navigator* n) {
 		gm.maintainTime = 0.0;
 		gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 		gm.hasFixedSpeed = false;
-		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
+//		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
@@ -151,7 +151,7 @@ void Guider::Run(Navigator* n) {
 		gm.maintainTime = 0.0;
 		gm.speed = 0.0;
 		gm.hasFixedSpeed = false;
-		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
+//		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
@@ -173,7 +173,7 @@ void Guider::Run(Navigator* n) {
 		// First, request a turn->
 		gm.state = ManeuverState::AvoidDiverge;
 		gm.done = false;
-		gm.speed = 0.0;
+		gm.speed = -1.0 * Parser::GetBreakFactor();
 		gm.turnDirection = 0;
 		if (n->GetPathObstructions().at(0)) {
 			gm.avoidDirection = -1;
@@ -189,7 +189,7 @@ void Guider::Run(Navigator* n) {
 		gm.requestedTurnAngle = obstacleDivergenceAngle;
 		gm.hasBeganDiverging = true;
 		gm.avoidDivergeState = 0;
-		gm.speedRate = Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
+//		gm.speedRate = Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
 		gm.maintainTime = obstacleDivergenceTime;
 		gm.accelerationTime	= 2.0;
 		RequestGuidanceManeuver(gm);
@@ -244,7 +244,7 @@ void Guider::Run(Navigator* n) {
 			gm.maintainTime = 0.0;
 			gm.speed = 1.0 * Parser::GetTurnSpeedFactor();
 			gm.hasFixedSpeed = false;
-			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
+//			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
@@ -268,7 +268,7 @@ void Guider::Run(Navigator* n) {
 			gm.maintainTime = minimumMaintainTime;
 			gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 			gm.hasFixedSpeed = false;
-			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
+//			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
@@ -408,7 +408,7 @@ void Guider::Run(Navigator* n) {
 
 			if(!man->hasFixedSpeed)
 				break;
-			 man->hasFixedSpeed = false;
+			man->hasFixedSpeed = false;
 			man->speed = -1.5 * Parser::GetTurnSpeedFactor();
 			man->turnDirection = man->avoidDirection;
 			man->avoidDivergeState = 1;
