@@ -272,7 +272,7 @@ void Guider::Run(Navigator* n) {
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
-			gm.accelerationTime	= 2.0;
+			gm.accelerationTime	= 1.0;
 			RequestGuidanceManeuver(gm);
 			TimeModule::Log("GDE", "Requesting course maintain for " + std::to_string(gm.maintainTime) + " seconds.");
 			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));

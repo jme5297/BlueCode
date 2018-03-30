@@ -133,7 +133,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 					dutyCycle_speed = 0.15;
 					WriteDutyCycle(0, dutyCycle_speed);
 //					TimeModule::Log("CTL", "Calibrate ESC to zero...");
-					usleep(1000000);
+					usleep(50000);
 //					dutyCycle_speed = 0.142;
 //					WriteDutyCycle(0, dutyCycle_speed);
 //					TimeModule::Log("CTL", "Calibrate ESC to zero...");
