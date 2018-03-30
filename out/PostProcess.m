@@ -1,7 +1,7 @@
 clear
 clc
 
-dirr = '../build/';
+dirr = '../output/';
 fileList = dir(strcat(dirr,'data*.csv'));
 pts = csvread(strcat(dirr,'pts.csv'));
 
