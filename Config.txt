@@ -9,18 +9,19 @@
 # Coordinates to target
 # Format: [ lon, lat ]
 
-BEGIN_COORDINATES
--77.87234485, 40.79282497
--77.87244775, 40.79307088
--77.87277485, 40.79294618
-END_COORDINATES
+#BEGIN_COORDINATES
+#-77.87234485, 40.79282497
+#-77.87244775, 40.79307088
+#-77.87277485, 40.79294618
+#END_COORDINATES
 
-#-77.87225894, 40.79305631
-#-77.87260747, 40.79292717
-#-77.87195777, 40.79301453
+BEGIN_COORDINATES
+-77.87247174, 40.7921195
+-77.872759, 40.7924849
+#-77.87195777, 40.7930145
 #-77.87218904, 40.79319164
 #-77.87245498, 40.79272066
-#END_COORDINATES
+END_COORDINATES
 
 # Should the Nav Plan be optimized?
 Optimize = 1
@@ -52,7 +53,7 @@ GPSUncertainty = 1.5
 OffAngleDeviate = 20.0
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 105.0
+TurnFactorDPS = 98.0
 
 # =============
 # Speed Factors
@@ -61,10 +62,10 @@ TurnFactorDPS = 105.0
 MaxSpeedMPS = 4.0
 
 # Throttle % while turning
-TurnSpeedFactor = 0.21
+TurnSpeedFactor = 0.28
 
 # Throttle % while moving straight
-StraightSpeedFactor = 0.21
+StraightSpeedFactor = 0.28
 
 # Multiplier for increasing backwards movement
 BackMultiplier = 1.1
@@ -79,13 +80,13 @@ CalibrationTime = 4.0
 ReCalibrate = 0
 
 # Minimum amount of time required to stay straight in a maintain mode (seconds)
-MinimumMaintainTime = 2.5
+MinimumMaintainTime = 2.0
 
 # Angle to sweep away backwards from obstacle to diverge (degrees)
 ObstacleDivergenceAngle = 55.0
 
 # Amount of time to travel "parallel" to an obstacle before converging back to target (seconds)
-ObstacleDivergenceTime = 5.0
+ObstacleDivergenceTime = 3.0
 
 # ------------------------------------
 #                             CONTROLS
@@ -103,9 +104,9 @@ DC_ESC_Zero = 0.15
 DC_ESC_Back = 0.1
 DC_Steer_Left = 0.088
 DC_Steer_Straight = 0.074
-DC_Steer_Right = 0.060
+DC_Steer_Right = 0.058
 DC_Payload_Start = 0.023
-DC_Payload_Delta = 0.018
+DC_Payload_Delta = 0.010
 
 # -----------------------------------------
 #                         SENSORS AND PORTS
