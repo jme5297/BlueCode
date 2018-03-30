@@ -30,13 +30,8 @@ WriteToLogFile = 1
 # ------------------------------------
 #                                RATES
 # ------------------------------------
-# Refresh rates for main routines (in seconds)
-# Note: OUT represents writing output to a .csv file.
-Refresh_NAV   = 0.01
-Refresh_GUID  = 0.01
-Refresh_CTRL  = 0.01
+Refresh_GNC   = 0.01
 Refresh_OUT   = 0.1
-Refresh_GPS   = 1.0
 
 # ------------------------------------
 #                             GUIDANCE
@@ -44,6 +39,9 @@ Refresh_GPS   = 1.0
 
 # Acceptable payload drop radius from target (meters)
 PayloadDropRadius = 6.5
+
+# Uncertainty of the GPS (meters)?
+GPSUncertainty = 0.5
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 20.0
@@ -101,11 +99,6 @@ DC_Steer_Right = 0.060
 DC_Payload_Start = 0.023
 DC_Payload_Delta = 0.018
 
-# PRU Configuration values
-PRU_Sample_Rate = 1000
-PRU_ESC_Delay = 999
-PRU_Steer_Delay = 1999
-
 # -----------------------------------------
 #                         SENSORS AND PORTS
 # -----------------------------------------
@@ -120,6 +113,11 @@ GPIO_Steer = 49
 # P9.25
 GPIO_Payload = 117
 
+# PRU Configuration values
+PRU_Sample_Rate = 1000
+PRU_ESC_Delay = 999
+PRU_Steer_Delay = 1999
+
 # ############################################################################
 #                                              Configuration for the simulator
 # ############################################################################
@@ -130,8 +128,8 @@ TimeDelta = 0.0001
 # Sim delta from one Plant/simulation update to the next (seconds)?
 SimDelta = 0.01
 
-# Uncertainty of the GPS (meters)?
-GPSUncertainty = 0.5
+# How often new GPS model data comes in
+Refresh_GPS   = 1.0
 
 # Uncertainty of the GPS Heading information (degrees)
 GPSHeadingUncertainty = 15.0

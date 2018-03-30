@@ -70,9 +70,7 @@ class Parser {
 public:
 	static void ReadInputs(std::string file);
 	static std::vector<Coordinate> GetInputCoordinates() { return inputCoords; }
-	static double GetRefresh_NAV() { return Refresh_NAV; }
-	static double GetRefresh_GUID() { return Refresh_GUID; }
-	static double GetRefresh_CTRL() { return Refresh_CTRL; }
+	static double GetRefresh_GNC() { return Refresh_GNC; }
 	static double GetRefresh_OUT() { return Refresh_OUT; }
 	static double GetRefresh_GPS() { return Refresh_GPS; }
 	static int GetOptimize() { return Optimize; }
@@ -124,9 +122,7 @@ public:
 	static std::vector<pLas> GetPLasers() { return Lasers; }
 
 protected:
-	static double Refresh_NAV;
-	static double Refresh_GUID;
-	static double Refresh_CTRL;
+	static double Refresh_GNC;
 	static double Refresh_OUT;
 	static double Refresh_GPS;
 	static std::ifstream configFile;

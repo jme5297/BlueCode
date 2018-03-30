@@ -222,9 +222,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 
 	// Set initial process frequencies and log the starting time of the program.
 	TimeModule::AddMilestone("BeginMainOpsTime");
-	TimeModule::InitProccessCounter("Nav", Parser::GetRefresh_NAV());
-	TimeModule::InitProccessCounter("Guid", Parser::GetRefresh_GUID());
-	TimeModule::InitProccessCounter("Ctrl", Parser::GetRefresh_CTRL());
+	TimeModule::InitProccessCounter("GNC", Parser::GetRefresh_GNC());
 	TimeModule::InitProccessCounter("Write", Parser::GetRefresh_OUT());
 	// TimeModule::InitProccessCounter("Print", 1.0);
 
@@ -279,7 +277,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 #endif
 
 		// Run GNC.
-		if (TimeModule::ProccessUpdate("Nav")) {
+		if (TimeModule::ProccessUpdate("GNC")) {
 			myNavigator->Run(mySensorHub);
 			myGuider->Run(myNavigator);
 			myController->Run(myGuider, mySensorHub);

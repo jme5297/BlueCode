@@ -4,9 +4,7 @@ using namespace Plant;
 using namespace sensors;
 
 // General Configuration
-double Parser::Refresh_NAV;
-double Parser::Refresh_GUID;
-double Parser::Refresh_CTRL;
+double Parser::Refresh_GNC;
 double Parser::Refresh_OUT;
 double Parser::Refresh_GPS;
 std::vector<Coordinate> Parser::inputCoords;
@@ -94,22 +92,10 @@ void Parser::ReadInputs(std::string file)
 			std::cout << "Continuing...\n";
 			continue;
 		}
-		else if (s.find("Refresh_NAV") != std::string::npos) {
+		else if (s.find("Refresh_GNC") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			ss >> Refresh_NAV;
-			continue;
-		}
-		else if (s.find("Refresh_GUID") != std::string::npos) {
-			std::string a = s.substr(s.find("=") + 1);
-			std::stringstream ss(a);
-			ss >> Refresh_GUID;
-			continue;
-		}
-		else if (s.find("Refresh_CTRL") != std::string::npos) {
-			std::string a = s.substr(s.find("=") + 1);
-			std::stringstream ss(a);
-			ss >> Refresh_CTRL;
+			ss >> Refresh_GNC;
 			continue;
 		}
 		else if (s.find("Refresh_OUT") != std::string::npos) {
