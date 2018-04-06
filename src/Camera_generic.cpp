@@ -9,7 +9,7 @@ struct buffer {
 	void   *start;
 	size_t length;
 };
-static void xioctl(int fh, int request, void *arg)
+static bool xioctl(int fh, int request, void *arg)
 {
 	int r;
 	do {
@@ -17,8 +17,10 @@ static void xioctl(int fh, int request, void *arg)
 	} while (r == -1 && ((errno == EINTR) || (errno == EAGAIN)));
 	if (r == -1) {
 		fprintf(stderr, "error %d, %s\n", errno, strerror(errno));
-		exit(EXIT_FAILURE);
+//		exit(EXIT_FAILURE);
+		return false;
 	}
+	return true;
 }
 #endif
 
@@ -49,7 +51,7 @@ bool Camera::Init() {
 	fd = v4l2_open(dev_name, O_RDWR | O_NONBLOCK, 0);
 	if (fd < 0) {
 		perror("INIT ERROR: Can't open Camera.");
-		exit(EXIT_FAILURE);
+//		exit(EXIT_FAILURE);
 		return false;
 	}
 	else {
@@ -112,7 +114,8 @@ bool Camera::TakeImage(int a) {
 	xioctl(fd, VIDIOC_S_FMT, &fmt);
 	if (fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_RGB24) {
 		printf("Libv4l didn't accept RGB24 format. Can't proceed.\n");
-		exit(EXIT_FAILURE);
+	//	exit(EXIT_FAILURE);
+		return false;
 	}
 	if ((fmt.fmt.pix.width != 1920) || (fmt.fmt.pix.height != 1080))
 		printf("Warning: driver is sending image at %dx%d\n",
@@ -122,7 +125,8 @@ bool Camera::TakeImage(int a) {
 	req.count = 2;
 	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	req.memory = V4L2_MEMORY_MMAP;
-	xioctl(fd, VIDIOC_REQBUFS, &req);
+	bool b1 = xioctl(fd, VIDIOC_REQBUFS, &req);
+	if(!b1){ return false; }
 
 	buffers = (buffer*)calloc(req.count, sizeof(*buffers));
 
@@ -140,11 +144,12 @@ bool Camera::TakeImage(int a) {
 			PROT_READ | PROT_WRITE, MAP_SHARED,
 			fd, buf.m.offset);
 
-		std::cout << n_buffers << "\n";
+		std::cout << "buffer count: " << n_buffers << "\n";
 		if (MAP_FAILED == buffers[n_buffers].start) {
 			perror("mmap");
 			std::cout << "MAP FAILED ERROR\n";
-			exit(EXIT_FAILURE);
+//			exit(EXIT_FAILURE);
+			return false;
 		}
 	}
 
@@ -153,8 +158,9 @@ bool Camera::TakeImage(int a) {
 		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		buf.memory = V4L2_MEMORY_MMAP;
 		buf.index = i;
-		xioctl(fd, VIDIOC_QBUF, &buf);
-		std::cout << i << "\n";
+		bool b2 = xioctl(fd, VIDIOC_QBUF, &buf);
+		if(!b2) { return false; }
+		std::cout << "buf: " << i << "\n";
 	}
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
@@ -167,28 +173,32 @@ bool Camera::TakeImage(int a) {
 		FD_SET(fd, &fds);
 
 		/* Timeout. */
-		tv.tv_sec = 2;
+		tv.tv_sec = 1;
 		tv.tv_usec = 0;
 
-		std::cout << "About to select r.\n";
+		std::cout << "About to select r, timeout(sec): " << tv.tv_sec << ".\n";
 		r = select(fd + 1, &fds, NULL, NULL, &tv);
 	} while ((r == -1 && (errno = EINTR)));
 
 	if (r == -1) {
 		perror("select");
-		return errno;
+		std::cout << "R IS -1\n";
+//		return errno;
+		return false;
 	}
 
 	CLEAR(buf);
 	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	buf.memory = V4L2_MEMORY_MMAP;
-	xioctl(fd, VIDIOC_DQBUF, &buf);
+	bool b3 = xioctl(fd, VIDIOC_DQBUF, &buf);
+	if(!b3){ return false; }
 
 	sprintf(out_name, "image%d.ppm", a);
 	fout = fopen(out_name, "w");
 	if (!fout) {
 		perror("Cannot open image");
-		exit(EXIT_FAILURE);
+//		exit(EXIT_FAILURE);
+		return false;
 	}
 	fprintf(fout, "P6\n%d %d 255\n",
 		fmt.fmt.pix.width, fmt.fmt.pix.height);
@@ -199,9 +209,12 @@ bool Camera::TakeImage(int a) {
 	/*}*/
 
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	xioctl(fd, VIDIOC_STREAMOFF, &type);
-	for (i = 0; i < n_buffers; ++i)
+	bool b4 = xioctl(fd, VIDIOC_STREAMOFF, &type);
+	if(!b4){ return false; }
+	for (i = 0; i < n_buffers; ++i){
 		v4l2_munmap(buffers[i].start, buffers[i].length);
+		std::cout << "unmap: " << i << "\n";
+	}
 	v4l2_close(fd);
 
 	TimeModule::Log("CMA", ": Camera image taken!");

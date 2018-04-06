@@ -97,7 +97,7 @@ void Guider::Run(Navigator* n) {
 		gm.payloadImageTaken = false;
 		gm.accelerationTime = 2.0;
 		RequestGuidanceManeuver(gm);
-		TimeModule::Log("GDE", "Requesting calibration.");
+		TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting calibration.");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 	}
 	// if we've just dropped off a payload successfully, then we need to calibrate.
@@ -122,7 +122,7 @@ void Guider::Run(Navigator* n) {
 		gm.payloadImageTaken = false;
 		gm.accelerationTime = 2.0;
 		RequestGuidanceManeuver(gm);
-		TimeModule::Log("GDE", "Requesting calibration.");
+		TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting calibration.");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 	}
 	// If we're within payload dropping distance, and if we haven't yet queued a payload drop,
@@ -157,7 +157,7 @@ void Guider::Run(Navigator* n) {
 		gm.payloadImageTaken = false;
 		gm.accelerationTime	= 2.0;
 		RequestGuidanceManeuver(gm);
-		TimeModule::Log("GDE", "Requesting payload drop at maneuver + " + std::to_string(GuidanceManeuverIndex) + ".");
+		TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting payload drop at maneuver.");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 	}
 	// If there's obstructions that we didn't previously know about, then take care of this immediately.
@@ -177,11 +177,11 @@ void Guider::Run(Navigator* n) {
 		gm.turnDirection = 0;
 		if (n->GetPathObstructions().at(0)) {
 			gm.avoidDirection = -1;
-			TimeModule::Log("GDE", "Requesting obstacle diverge. Sweep to the left, diverge to the right.");
+			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting obstacle diverge. Sweep to the left, diverge to the right.");
 		}
 		else {
 			gm.avoidDirection = 1;
-			TimeModule::Log("GDE", "Requesting obstacle diverge. Sweep to the right, diverge to the left.");
+			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting obstacle diverge. Sweep to the right, diverge to the left.");
 		}
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
@@ -221,7 +221,7 @@ void Guider::Run(Navigator* n) {
 		double dott = x1 * x2 + y1 * y2;      // dot product between [x1, y1] and [x2, y2]
 		double det = x1 * y2 - y1 * x2;      // determinant
 		offAngle = atan2(det, dott) * 180.0 / PI;  // atan2(y, x) or atan2(sin, cos)
-		TimeModule::Log("GDE", "Next waypoint: " + std::to_string(wpLon) + ", " + std::to_string(wpLat));
+		TimeModule::Log("GDE", "Next waypoint: " + std::to_string(wpLon) + ", " + std::to_string(wpLat) + ", distance: " + std::to_string(m.distance) + " meters.");
 		TimeModule::Log("GDE", "Current Heading " + std::to_string(usedHeading) + ", Desired Heading " + std::to_string(m.heading) + ", off angle " + std::to_string(offAngle));
 
 		// If headings are far apart, we need to turn-> CANNOT TURN DIRECTLY AFTER ANOTHER TURn->
@@ -232,11 +232,11 @@ void Guider::Run(Navigator* n) {
 			gm.state = ManeuverState::Turn;
 			if (offAngle < 0.0) {
 				gm.turnDirection = 1;
-				TimeModule::Log("GDE", "Requesting right turn of " + std::to_string(fabs(offAngle)) + " degrees.");
+				TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting right turn of " + std::to_string(fabs(offAngle)) + " degrees.");
 			}
 			else {
 				gm.turnDirection = -1;
-				TimeModule::Log("GDE", "Requesting left turn of " + std::to_string(fabs(offAngle)) + " degrees.");
+				TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting left turn of " + std::to_string(fabs(offAngle)) + " degrees.");
 			}
 			gm.requestedTurnAngle = fabs(offAngle);
 			gm.currentTurnAngle = 0.0;
@@ -274,7 +274,7 @@ void Guider::Run(Navigator* n) {
 			gm.payloadImageTaken = false;
 			gm.accelerationTime	= 1.0;
 			RequestGuidanceManeuver(gm);
-			TimeModule::Log("GDE", "Requesting course maintain for " + std::to_string(gm.maintainTime) + " seconds.");
+			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting course maintain.");
 			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 		}
 	}

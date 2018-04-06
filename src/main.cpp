@@ -156,6 +156,7 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	// Ensure all sensors are connected.
 	TimeModule::Log("MNE","Initializing sensor connections... ");
 	bool initialized = mySensorHub->InitAllSensors();
+	std::cout << "BACK\n";
 	if (!initialized) {
 		TimeModule::Log("MNE","ERROR: Not all sensors have initialized. Exiting program.");
 		return false;
@@ -165,7 +166,6 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	TimeModule::Log("MNE", "Awaiting for GPS signal...");
 	usleep(100000);
 	double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
-	std::cout << std::to_string(lon) << " --\n";
 	while(fabs(lon) < 0.001){
 		TimeModule::Log("MNE", "Waiting for calibration...");
 		lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
@@ -174,7 +174,9 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 #endif
 	// Add the waypoints provided from the configuration file, Config.txt, and
 	// make sure that there was at-least one nav plan coordinate added.
+	std::cout << "NAV\n";
 	myNavigator->Initialize(mySensorHub);
+	std::cout << "COORDS\n";
 	myNavigator->AddCoordinates(Parser::GetInputCoordinates());
 	myNavigator->AddCoordinate(myNavigator->GetInitialNavPosition());
 

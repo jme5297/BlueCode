@@ -91,7 +91,6 @@ void Parser::ReadInputs(std::string file)
 				getline(configFile, s);
 				s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
 			}
-			std::cout << "Continuing...\n";
 			continue;
 		}
 		else if (s.find("Refresh_GNC") != std::string::npos) {
@@ -116,7 +115,6 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> Optimize;
-			std::cout << Optimize << "\n\n\n";
 			continue;
 		}
 		else if (s.find("WriteToLogFile") != std::string::npos) {

@@ -298,7 +298,7 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 
 	// Once payload drop is complete, realign the steering servo with a grace period.
 	// Payload drop logic cannot continue until steering servo is fixed again.
-	if (TimeModule::GetElapsedTime("FixSteering_" + std::to_string(g->GetGuidanceManeuverIndex())) >= 2.0) {
+	if (TimeModule::GetElapsedTime("FixSteering_" + std::to_string(g->GetGuidanceManeuverIndex())) >= 0.5) {
 			TimeModule::Log("CTL", "Steering servo fixed back to position.");
 	}else{
 		return;

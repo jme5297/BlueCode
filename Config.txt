@@ -9,19 +9,24 @@
 # Coordinates to target
 # Format: [ lon, lat ]
 
-#BEGIN_COORDINATES
-#-77.87234485, 40.79282497
-#-77.87244775, 40.79307088
-#-77.87277485, 40.79294618
-#END_COORDINATES
-
+# Simulation testing - camera
 BEGIN_COORDINATES
--77.87247174, 40.7921195
--77.872759, 40.7924849
-#-77.87195777, 40.7930145
-#-77.87218904, 40.79319164
-#-77.87245498, 40.79272066
+-77.87307817, 40.79242444
+-77.87307817, 40.79242444
+-77.87307817, 40.79242444
+-77.87307817, 40.79242444
+-77.87307817, 40.79242444
 END_COORDINATES
+
+
+# West of the soccer fields, near the golf course
+#BEGIN_COORDINATES
+#-77.87307817, 40.79242444
+#-77.87333702, 40.79230712
+#-77.87368363, 40.79259134
+#-77.87345385, 40.79276895
+#-77.87319792, 40.79259924
+#END_COORDINATES
 
 # Should the Nav Plan be optimized?
 Optimize = 1
@@ -96,7 +101,7 @@ ObstacleDivergenceTime = 3.0
 MaxCameraAttempts = 3
 
 # Amount of time to hold down Payload servo (seconds)
-PayloadServoTime = 3.0
+PayloadServoTime = 1.0
 
 # PWM Duty Cycle setup values
 DC_ESC_Fwd = 0.2
@@ -105,7 +110,7 @@ DC_ESC_Back = 0.1
 DC_Steer_Left = 0.088
 DC_Steer_Straight = 0.074
 DC_Steer_Right = 0.058
-DC_Payload_Start = 0.023
+DC_Payload_Start = 0.024
 DC_Payload_Delta = 0.010
 
 # -----------------------------------------
@@ -155,8 +160,8 @@ VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.792865
-InitialLongitude = -77.872306
+InitialLatitude = 40.79242444
+InitialLongitude = -77.87307817
 InitialHeading = 90
 
 # Add some obstacles to the scene

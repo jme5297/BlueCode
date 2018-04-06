@@ -15,7 +15,6 @@ void Navigator::Initialize(SensorHub* sh)
 	curPos = sh->GetGPS()->GetCurrentGPSCoordinates();
 	lastCoordinates = curPos;
 	initialPosition = curPos;
-	std::cout << "init at " << initialPosition.lat << ", " << initialPosition.lon << "\n";
 }
 /**
  *
