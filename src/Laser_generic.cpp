@@ -50,7 +50,10 @@ bool Laser::ReadLaser() {
 		cout << "Unable to read the laser data\n";
 		return false;
 	}
-	if (digit == 0) { return true; }
+	if (digit == 0) {
+		if(ID == Parser::GetTemp_Disable_Laser()){ return false; }
+		return true;
+	}
 	else if (digit == 1) { return false; }
 	return false;
 

@@ -104,6 +104,7 @@ public:
 	static double GetPRU_Steer_Delay() { return PRU_Steer_Delay; }
 	static int GetLaser_Left() { return Laser_Left; }
 	static int GetLaser_Right() { return Laser_Right; }
+	static int GetTemp_Disable_Laser(){ return Temp_Disable_Laser; }
 	static int GetGPIO_Steer() { return GPIO_Steer; }
 	static int GetGPIO_Payload() { return GPIO_Payload; }
 
@@ -158,6 +159,7 @@ protected:
 	static double PRU_Steer_Delay;
 	static int Laser_Left;
 	static int Laser_Right;
+	static int Temp_Disable_Laser;
 	static int GPIO_Steer;
 	static int GPIO_Payload;
 

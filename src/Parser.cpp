@@ -40,6 +40,7 @@ double Parser::MaxTurnSteering;
 int Parser::MaxCameraAttempts;
 int Parser::Laser_Left;
 int Parser::Laser_Right;
+int Parser::Temp_Disable_Laser;
 int Parser::GPIO_Steer;
 int Parser::GPIO_Payload;
 std::vector<pLas> Parser::Lasers;
@@ -296,6 +297,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> Laser_Right;
+			continue;
+		}
+		else if (s.find("Temp_Disable_Laser") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> Temp_Disable_Laser;
 			continue;
 		}
 		else if (s.find("GPIO_Steer") != std::string::npos) {

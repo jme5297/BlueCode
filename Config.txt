@@ -116,6 +116,9 @@ DC_Payload_Delta = 0.010
 Laser_Left = 44
 # P8.14
 Laser_Right = 26
+
+Temp_Disable_Laser = 26
+
 # GPIO Port numbers used for transistor to switch to payload servo
 # P9.23
 GPIO_Steer = 49
