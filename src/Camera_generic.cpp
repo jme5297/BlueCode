@@ -90,7 +90,6 @@ bool Camera::TakeImage(int a) {
 	struct v4l2_requestbuffers      req;
 	enum v4l2_buf_type              type;
 	fd_set                          fds;
-	struct timeval                  tv;
 	int                             r, fd = -1;
 	unsigned int                    i, n_buffers;
 	char                            *dev_name = "/dev/video0";
@@ -171,10 +170,11 @@ bool Camera::TakeImage(int a) {
 	do {
 		FD_ZERO(&fds);
 		FD_SET(fd, &fds);
+		struct timeval tv;
 
 		/* Timeout. */
-		tv.tv_sec = 1;
-		tv.tv_usec = 0;
+		tv.tv_sec = 0;
+		tv.tv_usec = 500000;
 
 		std::cout << "About to select r, timeout(sec): " << tv.tv_sec << ".\n";
 		r = select(fd + 1, &fds, NULL, NULL, &tv);
