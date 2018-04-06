@@ -245,11 +245,13 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 			tReader.open(gpio_steer);
 			tReader << 0;
 			tReader.close();
+			usleep(10000);
 #endif
 
 			// Begin writing the payload servo duty cycle value to the PRU memory.
 			hasPayloadServoMoved = true;
 			WriteDutyCycle(1, dutyCycle_payload);
+			usleep(10000);
 
 #ifdef TEST_PWM
 			// Switch on the transistor for the payload servo.
@@ -270,11 +272,13 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 			tReader.open(gpio_payload);
 			tReader << 0;
 			tReader.close();
+			usleep(10000);
 #endif
 
 			// Disable writing the payload duty cycle to the PRU memory.
 			hasPayloadServoMoved = false;
 			WriteDutyCycle(1, dutyCycle_steer);
+			usleep(10000);
 
 #ifdef TEST_PWM
 			// Switch on the transistor for the steering servo.
@@ -440,6 +444,14 @@ void DisablePRUs(){
 		// Exit out of the steering
 		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &modeOff, 4);
 		prussdrv_exec_program(PRU_NUM1, "./pru2.bin");
+
+		tReader.open(gpio_steer);
+		tReader << 0;
+		tReader.close();
+		tReader.open(gpio_payload);
+		tReader << 0;
+		tReader.close();
+
 	#endif
 }
 

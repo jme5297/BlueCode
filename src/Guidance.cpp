@@ -157,7 +157,7 @@ void Guider::Run(Navigator* n) {
 		gm.payloadImageTaken = false;
 		gm.accelerationTime	= 2.0;
 		RequestGuidanceManeuver(gm);
-		TimeModule::Log("GDE", "Requesting payload drop.");
+		TimeModule::Log("GDE", "Requesting payload drop at maneuver + " + std::to_string(GuidanceManeuverIndex) + ".");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 	}
 	// If there's obstructions that we didn't previously know about, then take care of this immediately.
@@ -278,6 +278,8 @@ void Guider::Run(Navigator* n) {
 			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 		}
 	}
+
+	//std::cout << "Maneuver: " << GuidanceManeuverIndex << "\n";
 
 
 	/* ----------- CHECK --------------

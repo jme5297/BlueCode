@@ -140,8 +140,10 @@ bool Camera::TakeImage(int a) {
 			PROT_READ | PROT_WRITE, MAP_SHARED,
 			fd, buf.m.offset);
 
+		std::cout << n_buffers << "\n";
 		if (MAP_FAILED == buffers[n_buffers].start) {
 			perror("mmap");
+			std::cout << "MAP FAILED ERROR\n";
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -152,6 +154,7 @@ bool Camera::TakeImage(int a) {
 		buf.memory = V4L2_MEMORY_MMAP;
 		buf.index = i;
 		xioctl(fd, VIDIOC_QBUF, &buf);
+		std::cout << i << "\n";
 	}
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
@@ -167,7 +170,7 @@ bool Camera::TakeImage(int a) {
 		tv.tv_sec = 2;
 		tv.tv_usec = 0;
 
-		//std::cout << "About to select r.\n";
+		std::cout << "About to select r.\n";
 		r = select(fd + 1, &fds, NULL, NULL, &tv);
 	} while ((r == -1 && (errno = EINTR)));
 
