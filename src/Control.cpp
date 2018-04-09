@@ -305,7 +305,8 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 	}
 
 	// Take an image
-	for(int attempts = 0; attempts < Parser::GetMaxCameraAttempts(); attempts++){
+	int attempts = 0;
+	for(attempts = 0; attempts < Parser::GetMaxCameraAttempts(); attempts++){
 		// Attempt to take an image after the payload has been dropped.
 		bool imageTaken = sh->GetCamera()->TakeImage(g->GetCurrentGuidanceManeuver().index);
 		if (imageTaken) {
@@ -320,6 +321,11 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 #endif
 		}
 	}
+
+	if(attempts == Parser::GetMaxCameraAttempts()){
+		TimeModule::Log("CTL", "I give up!");
+		g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
+	} 
 	return;
 }
 

@@ -51,10 +51,10 @@ Refresh_OUT   = 0.1
 TurnFactorDPS = 98.0
 
 # Throttle % while turning
-TurnSpeedFactor = 0.28
+TurnSpeedFactor = 0.21
 
 # Throttle % while moving straight
-StraightSpeedFactor = 0.28
+StraightSpeedFactor = 0.21
 
 # Multiplier for increasing backwards movement
 BackMultiplier = 1.1
@@ -108,7 +108,7 @@ DC_Steer_Left = 0.088
 DC_Steer_Straight = 0.074
 DC_Steer_Right = 0.058
 DC_Payload_Start = 0.024
-DC_Payload_Delta = 0.010
+DC_Payload_Delta = 0.0105
 
 # -----------------------------------------
 #                         SENSORS AND PORTS
@@ -120,7 +120,7 @@ Laser_Left = 44
 Laser_Right = 26
 
 # Temporarily disable a laser (set to -1 to disable both!)
-Temp_Disable_Laser = 26
+Temp_Disable_Laser = 0
 
 # GPIO Port numbers used for transistor to switch to payload servo
 # P9.23

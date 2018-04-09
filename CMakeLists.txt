@@ -53,8 +53,12 @@ if(${SIM})
     INCLUDE_DIRECTORIES(${IRRLICHT_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
 
   endif(${USE_IRRLICHT})
-
 endif(${SIM})
+
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package( Threads REQUIRED )
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-lpthread")
 
 # Compile laser logic.
 if(${USE_LASER})
@@ -73,10 +77,7 @@ endif()
 if(${TEST_PWM})
   message(STATUS "Compiling #TEST_PWM packages.")
   add_definitions(-D TEST_PWM)
-  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-  find_package( Threads REQUIRED )
-  set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-lpthread -lprussdrv")
+  set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-lprussdrv")
 endif()
 
 # Attempt to use an attached camera

@@ -101,7 +101,8 @@ bool Camera::TakeImage(int a) {
 	fd = v4l2_open(dev_name, O_RDWR | O_NONBLOCK, 0);
 	if (fd < 0) {
 		perror("Cannot open device");
-		exit(EXIT_FAILURE);
+		return false;
+//		exit(EXIT_FAILURE);
 	}
 
 	CLEAR(fmt);
