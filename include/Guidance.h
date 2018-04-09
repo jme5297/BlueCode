@@ -84,7 +84,6 @@ namespace Guidance {
 		void SetObstacleDivergenceTime(double d) { obstacleDivergenceTime = d; }
 		void SetPayloadServoTime(double d) { payloadServoTime = d; }
 		void SetTurnFactorDPS(double d) { turnFactorDPS = d; }
-		void SetMaxVehicleSpeed(double d) { maxVehicleSpeed = d; }
 
 		double GetPayloadDropRadius() { return payloadDropRadius; }
 		double GetPayloadServoTime() { return payloadServoTime; }
@@ -104,7 +103,6 @@ namespace Guidance {
 		double obstacleDivergenceTime;
 		double payloadServoTime;
 		double turnFactorDPS;
-		double maxVehicleSpeed;
 		double savedHeading;
 
 		/*!

@@ -93,6 +93,7 @@ int main(int argc, char* argv[]) {
 
 	// Read all of the inputs in the configuration file.
 	Parser::ReadInputs("../Config.txt");
+	TimeModule::Initialize();
 
 	// Create all of the main structures to be passed to the respective subroutines.
 	Navigator NAV;
@@ -114,12 +115,6 @@ int main(int argc, char* argv[]) {
 	// Begin main operations.
 	MainOperations(mySensorHub, myNavigator, myGuider, myController);
 
-	// Allow user to provide input before closing out of the Irrlicht window.
-#ifdef SIM
-	//std::cout << "Press return to finish...";
-	//std::cin.get();
-#endif
-
 	// Perform any necessary clean-up operations.
 	CleanupOperations();
 
@@ -139,7 +134,6 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	myGuider->SetObstacleDivergenceTime(Parser::GetObstacleDivergenceTime());
 	myGuider->SetPayloadServoTime(Parser::GetPayloadServoTime());
 	myGuider->SetTurnFactorDPS(Parser::GetTurnFactorDPS());
-	myGuider->SetMaxVehicleSpeed(Parser::GetMaxSpeedMPS());
 	myGuider->SetMinimumMaintainTime(Parser::GetMinimumMaintainTime());
 	myGuider->SetObstacleDivergenceAngle(Parser::GetObstacleDivergenceAngle());
 	myController->SetMaxTurnSteering(Parser::GetMaxTurnSteering());
@@ -156,7 +150,6 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	// Ensure all sensors are connected.
 	TimeModule::Log("MNE","Initializing sensor connections... ");
 	bool initialized = mySensorHub->InitAllSensors();
-	std::cout << "BACK\n";
 	if (!initialized) {
 		TimeModule::Log("MNE","ERROR: Not all sensors have initialized. Exiting program.");
 		return false;
@@ -174,9 +167,7 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 #endif
 	// Add the waypoints provided from the configuration file, Config.txt, and
 	// make sure that there was at-least one nav plan coordinate added.
-	std::cout << "NAV\n";
 	myNavigator->Initialize(mySensorHub);
-	std::cout << "COORDS\n";
 	myNavigator->AddCoordinates(Parser::GetInputCoordinates());
 	myNavigator->AddCoordinate(myNavigator->GetInitialNavPosition());
 

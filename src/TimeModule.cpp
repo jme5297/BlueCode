@@ -13,16 +13,47 @@ std::vector< tuple<string, double > > TimeModule::milestones;
 std::vector< tuple<string, double, double, double > > TimeModule::processes;
 #endif
 
+// Output stream
+std::ofstream output;
+std::string name;
+
 TimeModule::TimeModule() {
-#ifdef DEBUG
-	currentSimTime = 0.0;
-#endif
+
+}
+
+void TimeModule::Initialize(){
+	#ifdef DEBUG
+		currentSimTime = 0.0;
+	#endif
+		if(Parser::GetWriteToLogFile()){
+			// Data
+			int ii = 0;
+			name = "mxlog_" + std::to_string(ii) + ".csv";
+			std::ifstream f(name.c_str());
+			while (f.good()) {
+				ii = ii + 1;
+				name = "mxlog_" + std::to_string(ii) + ".csv";
+				f.close();
+				f.open(name.c_str());
+			}
+			f.close();
+		}
 }
 
 void TimeModule::Log(string agent, string message) {
 	std::cout <<
 		"[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][" <<
 		agent << "]: " << message << "\n";
+
+	// Open a file to save the output information the vehicle.
+	if(Parser::GetWriteToLogFile()){
+		output.open((name).c_str(), std::ofstream::app);
+		output <<
+			std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "," <<
+			agent << "," <<
+			message << "\n";
+		output.close();
+	}
 }
 
 #ifdef DEBUG

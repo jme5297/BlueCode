@@ -51,7 +51,10 @@ bool Laser::ReadLaser() {
 		return false;
 	}
 	if (digit == 0) {
-		if(ID == Parser::GetTemp_Disable_Laser()){ return false; }
+		// Make sure that we are not testing a laser that isn't working.
+		if(ID == Parser::GetTemp_Disable_Laser() || Parser::GetTemp_Disable_Laser() == -1){
+			return false;
+		}
 		return true;
 	}
 	else if (digit == 1) { return false; }

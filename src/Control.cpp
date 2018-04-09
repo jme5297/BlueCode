@@ -304,14 +304,21 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 		return;
 	}
 
-	// Attempt to take an image after the payload has been dropped.
-	bool imageTaken = sh->GetCamera()->TakeImage(g->GetCurrentGuidanceManeuver().index);
-	if (imageTaken) {
-		g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
-		TimeModule::Log("CTL","Received successful image signal!");
-	}
-	else {
-		TimeModule::Log("CTL","Image taking has failed.");
+	// Take an image
+	for(int attempts = 0; attempts < Parser::GetMaxCameraAttempts(); attempts++){
+		// Attempt to take an image after the payload has been dropped.
+		bool imageTaken = sh->GetCamera()->TakeImage(g->GetCurrentGuidanceManeuver().index);
+		if (imageTaken) {
+			g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
+			TimeModule::Log("CTL","Received successful image signal after " + std::to_string(attempts+1) + " attempts.");
+			break;
+		}
+		else {
+			TimeModule::Log("CTL","Image taking has failed on attempt " + std::to_string(attempts+1) + ". ");
+#ifdef USE_CAMERA
+			usleep(10000);
+#endif
+		}
 	}
 	return;
 }

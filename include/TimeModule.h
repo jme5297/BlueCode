@@ -1,9 +1,5 @@
 #pragma once
-#include <chrono>
-#include <vector>
-#include <string>
-#include <tuple>
-#include <iostream>
+#include <Parser.h>
 
 namespace Times {
 
@@ -42,6 +38,8 @@ namespace Times {
 		/// Update the current simulation time.
 		static void Run();
 #endif
+
+		static void Initialize();
 
 	protected:
 

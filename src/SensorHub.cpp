@@ -18,21 +18,16 @@ SensorHub::SensorHub() {
 bool SensorHub::InitAllSensors() {
 
 	// Run initialization routines for all Sensor objects.
-	std::cout << "GPS\n";
 	bool gpsi = gps0.Init();
-	std::cout << "CAM\n";
 	bool cami = cam0.Init();
-	std::cout << "LAS\n";
 	bool las0i = lasers[0].Init();
 	bool las1i = lasers[1].Init();
 
-	std::cout << "DONE\n";
 	// If all sensors initialized properly, return true.
 	if (gpsi && cami && las0i && las1i) {
 		return true;
 	}
 
-	std::cout << "BYE\n";
 	return false;
 }
 

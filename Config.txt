@@ -1,4 +1,4 @@
-## ############################################################################
+## ###########################################################################
 #                                                                Mission Setup
 # ############################################################################
 
@@ -18,7 +18,6 @@ BEGIN_COORDINATES
 -77.87307817, 40.79242444
 END_COORDINATES
 
-
 # West of the soccer fields, near the golf course
 #BEGIN_COORDINATES
 #-77.87307817, 40.79242444
@@ -32,7 +31,7 @@ END_COORDINATES
 Optimize = 1
 
 # Write mission log to a text file?
-WriteToLogFile = 1
+WriteToLogFile = 0
 
 # ############################################################################
 #                                                                Configuration
@@ -43,6 +42,25 @@ WriteToLogFile = 1
 # ------------------------------------
 Refresh_GNC   = 0.01
 Refresh_OUT   = 0.1
+
+# ------------------------------------
+#                             DYNAMICS
+# ------------------------------------
+
+# Vehicle turn rate at full turning speed (degrees/second)
+TurnFactorDPS = 98.0
+
+# Throttle % while turning
+TurnSpeedFactor = 0.28
+
+# Throttle % while moving straight
+StraightSpeedFactor = 0.28
+
+# Multiplier for increasing backwards movement
+BackMultiplier = 1.1
+
+# Intensity of vehicle breaking (between 0.0 and 1.0)
+BreakFactor = 0.99
 
 # ------------------------------------
 #                             GUIDANCE
@@ -56,27 +74,6 @@ GPSUncertainty = 1.5
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 20.0
-
-# Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 98.0
-
-# =============
-# Speed Factors
-# =============
-# Maximum speed of the vehicle (meters/second)
-MaxSpeedMPS = 4.0
-
-# Throttle % while turning
-TurnSpeedFactor = 0.28
-
-# Throttle % while moving straight
-StraightSpeedFactor = 0.28
-
-# Multiplier for increasing backwards movement
-BackMultiplier = 1.1
-
-# Intensity of vehicle breaking (between 0.0 and 1.0)
-BreakFactor = 0.99
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
 CalibrationTime = 4.0
@@ -122,6 +119,7 @@ Laser_Left = 44
 # P8.14
 Laser_Right = 26
 
+# Temporarily disable a laser (set to -1 to disable both!)
 Temp_Disable_Laser = 26
 
 # GPIO Port numbers used for transistor to switch to payload servo
@@ -138,6 +136,9 @@ PRU_Steer_Delay = 1999
 # ############################################################################
 #                                              Configuration for the simulator
 # ############################################################################
+
+# Maximum speed of the vehicle (meters/second)
+MaxSpeedMPS = 4.0
 
 # Time delta in debug mode from one main loop to the next?
 TimeDelta = 0.0001

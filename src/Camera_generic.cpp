@@ -217,7 +217,7 @@ bool Camera::TakeImage(int a) {
 	}
 	v4l2_close(fd);
 
-	TimeModule::Log("CMA", ": Camera image taken!");
+	TimeModule::Log("CMA", "Camera image taken!");
 
 #endif
 
