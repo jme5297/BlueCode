@@ -1,8 +1,37 @@
 #include <sensors/Camera/Camera_generic.h>
+#include <mutex>
+#include <condition_variable>
 using namespace sensors;
 using namespace Times;
 
 #ifdef USE_CAMERA
+
+	struct v4l2_format              fmt;
+	struct v4l2_buffer              buf;
+	struct v4l2_requestbuffers      req;
+	enum v4l2_buf_type              type;
+	fd_set                          fds;
+	struct timeval                  tv;
+	int                             r, fd = -1;
+	unsigned int                    i, n_buffers;
+	char                            *dev_name = "/dev/video0";
+	char                            out_name[256];
+	FILE                            *fout;
+	struct buffer                   *buffers;
+	int                             p;
+
+bool selectSuccess = false;
+bool time_to_quit = false;
+std::mutex m;
+std::condition_variable cv;
+
+void trySelect(){
+	std::lock_guard<std::mutex> _(m);
+	r = select(fd + 1, &fds, NULL, NULL, &tv);
+	selectSuccess = true;
+	cv.notify_all();
+}
+
 
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 struct buffer {
@@ -34,6 +63,7 @@ bool Camera::Init() {
 
 #ifdef USE_CAMERA
 	// Actual code goes here to take Camera image
+/*
 	struct v4l2_format              fmt;
 	struct v4l2_buffer              buf;
 	struct v4l2_requestbuffers      req;
@@ -47,7 +77,7 @@ bool Camera::Init() {
 	FILE                            *fout;
 	struct buffer                   *buffers;
 	int                             p;
-
+*/
 	fd = v4l2_open(dev_name, O_RDWR | O_NONBLOCK, 0);
 	if (fd < 0) {
 		perror("INIT ERROR: Can't open Camera.");
@@ -85,6 +115,7 @@ bool Camera::TakeImage(int a) {
 #else
 
 // Actual code goes here to take Camera image
+/*
 	struct v4l2_format              fmt;
 	struct v4l2_buffer              buf;
 	struct v4l2_requestbuffers      req;
@@ -97,7 +128,7 @@ bool Camera::TakeImage(int a) {
 	FILE                            *fout;
 	struct buffer                   *buffers;
 	int                             p;
-
+*/
 	fd = v4l2_open(dev_name, O_RDWR | O_NONBLOCK, 0);
 	if (fd < 0) {
 		perror("Cannot open device");
@@ -171,14 +202,30 @@ bool Camera::TakeImage(int a) {
 	do {
 		FD_ZERO(&fds);
 		FD_SET(fd, &fds);
-		struct timeval tv;
+//		struct timeval tv;
 
 		/* Timeout. */
 		tv.tv_sec = 0;
 		tv.tv_usec = 500000;
 
 		std::cout << "About to select r, timeout(sec): " << tv.tv_sec << ".\n";
-		r = select(fd + 1, &fds, NULL, NULL, &tv);
+
+//		r = select(fd + 1, &fds, NULL, NULL, &tv);
+		time_to_quit = false;
+		std::thread(trySelect).detach();
+		typedef std::chrono::steady_clock Clock;
+		auto t0 = Clock::now();
+		auto t1 = t0 + std::chrono::seconds(1);
+		std::unique_lock<std::mutex> lk(m);
+		while(!time_to_quit && Clock::now() < t1)
+			cv.wait_until(lk, t1);
+		
+		if(!selectSuccess){
+			return false;
+		} else {
+			selectSuccess = false;
+		}
+
 	} while ((r == -1 && (errno = EINTR)));
 
 	if (r == -1) {
