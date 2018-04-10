@@ -10,22 +10,22 @@
 # Format: [ lon, lat ]
 
 # Simulation testing - camera
-BEGIN_COORDINATES
--77.87307817, 40.79242444
--77.87307817, 40.79242444
--77.87307817, 40.79242444
--77.87307817, 40.79242444
--77.87307817, 40.79242444
-END_COORDINATES
-
-# West of the soccer fields, near the golf course
 #BEGIN_COORDINATES
 #-77.87307817, 40.79242444
-#-77.87333702, 40.79230712
-#-77.87368363, 40.79259134
-#-77.87345385, 40.79276895
-#-77.87319792, 40.79259924
+#-77.87307817, 40.79242444
+#-77.87307817, 40.79242444
+#-77.87307817, 40.79242444
+#-77.87307817, 40.79242444
 #END_COORDINATES
+
+# West of the soccer fields, near the golf course
+BEGIN_COORDINATES
+-77.87307817, 40.79242444
+-77.87333702, 40.79230712
+-77.87368363, 40.79259134
+-77.87345385, 40.79276895
+-77.87319792, 40.79259924
+END_COORDINATES
 
 # Should the Nav Plan be optimized?
 Optimize = 1
@@ -125,7 +125,7 @@ Laser_Left = 44
 Laser_Right = 26
 
 # Temporarily disable a laser (set to -1 to disable both!)
-Temp_Disable_Laser = 44
+Temp_Disable_Laser = 26
 
 # GPIO Port numbers used for transistor to switch to payload servo
 # P9.23
