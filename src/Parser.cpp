@@ -11,6 +11,7 @@ double Parser::Refresh_GPS;
 std::vector<Coordinate> Parser::inputCoords;
 std::ifstream Parser::configFile;
 int Parser::Optimize;
+int Parser::ReOptimize;
 bool Parser::WriteToLogFile;
 double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
@@ -112,6 +113,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> Refresh_GPS;
+			continue;
+		}
+		else if (s.find("ReOptimize") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> ReOptimize;
 			continue;
 		}
 		else if (s.find("Optimize") != std::string::npos) {

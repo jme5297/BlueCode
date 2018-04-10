@@ -91,13 +91,12 @@ void Guider::Run(Navigator* n) {
 		gm.maintainTime = 0.0;
 		gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 		gm.hasFixedSpeed = false;
-//		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
 		gm.accelerationTime = 2.0;
 		RequestGuidanceManeuver(gm);
-		TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting calibration.");
+		TimeModule::Log("GDE", "Let's begin! Requesting first calibration.");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 	}
 	// if we've just dropped off a payload successfully, then we need to calibrate.
@@ -116,13 +115,12 @@ void Guider::Run(Navigator* n) {
 		gm.maintainTime = 0.0;
 		gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 		gm.hasFixedSpeed = false;
-//		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
 		gm.accelerationTime = 2.0;
 		RequestGuidanceManeuver(gm);
-		TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting calibration.");
+		TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): ReCalibrating after payload drop.");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 	}
 	// If we're within payload dropping distance, and if we haven't yet queued a payload drop,
@@ -138,8 +136,19 @@ void Guider::Run(Navigator* n) {
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 		GuidanceManeuverIndex++;
 
-		// Save the heading that was before the payload drop.
-		savedHeading = n->GetHeading();
+		// Save the heading that was before the payload drop, only if we have accurate data!
+		if(GuidanceManeuverBuffer.size() >= 1 && (
+					(GuidanceManeuverBuffer[GuidanceManeuverIndex-1].state == ManeuverState::PayloadDrop) ||
+					(GuidanceManeuverBuffer[GuidanceManeuverIndex-2].state == ManeuverState::PayloadDrop)
+				)
+			){
+			TimeModule::Log("GDE", "Not saving new heading data, cannot confirm accurate heading data.");
+		}else if(GuidanceManeuverBuffer.size() == 0){
+			TimeModule::Log("GDE", "THIS SHOULD NOT BE HIT!");
+		}else{
+			TimeModule::Log("GDE", "Saving our heading for after payload drop.");
+			savedHeading = n->GetHeading();
+		}
 
 		//Push back a control move to drop payload.
 		GuidanceManeuver gm;
@@ -151,7 +160,6 @@ void Guider::Run(Navigator* n) {
 		gm.maintainTime = 0.0;
 		gm.speed = 0.0;
 		gm.hasFixedSpeed = false;
-//		gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
@@ -170,7 +178,7 @@ void Guider::Run(Navigator* n) {
 		GuidanceManeuverIndex++;
 		GuidanceManeuver gm;
 
-		// First, request a turn->
+		// First, request a turn
 		gm.state = ManeuverState::AvoidDiverge;
 		gm.done = false;
 		gm.speed = -1.0 * Parser::GetBreakFactor();
@@ -189,7 +197,6 @@ void Guider::Run(Navigator* n) {
 		gm.requestedTurnAngle = obstacleDivergenceAngle;
 		gm.hasBeganDiverging = true;
 		gm.avoidDivergeState = 0;
-//		gm.speedRate = Parser::GetAccFactorObs() * Parser::GetRefresh_GUID();
 		gm.maintainTime = obstacleDivergenceTime;
 		gm.accelerationTime	= 2.0;
 		RequestGuidanceManeuver(gm);
@@ -221,8 +228,7 @@ void Guider::Run(Navigator* n) {
 		double dott = x1 * x2 + y1 * y2;      // dot product between [x1, y1] and [x2, y2]
 		double det = x1 * y2 - y1 * x2;      // determinant
 		offAngle = atan2(det, dott) * 180.0 / PI;  // atan2(y, x) or atan2(sin, cos)
-		TimeModule::Log("GDE", "Next waypoint: " + std::to_string(wpLon) + " - " + std::to_string(wpLat) + " - distance: " + std::to_string(m.distance) + " meters.");
-		TimeModule::Log("GDE", "Current Heading " + std::to_string(usedHeading) + " - Desired Heading " + std::to_string(m.heading) + " - off angle " + std::to_string(offAngle));
+		TimeModule::Log("GDE", "Next waypoint in " + std::to_string(m.distance) + " meters.");
 
 		// If headings are far apart, we need to turn-> CANNOT TURN DIRECTLY AFTER ANOTHER TURn->
 		if (fabs(offAngle) >= offAngleDeviate && GetCurrentGuidanceManeuver().state != ManeuverState::Turn) {
@@ -232,11 +238,11 @@ void Guider::Run(Navigator* n) {
 			gm.state = ManeuverState::Turn;
 			if (offAngle < 0.0) {
 				gm.turnDirection = 1;
-				TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting right turn of " + std::to_string(fabs(offAngle)) + " degrees.");
+				TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Turning right " + std::to_string(fabs(offAngle)) + " degrees.");
 			}
 			else {
 				gm.turnDirection = -1;
-				TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting left turn of " + std::to_string(fabs(offAngle)) + " degrees.");
+				TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Turning left " + std::to_string(fabs(offAngle)) + " degrees.");
 			}
 			gm.requestedTurnAngle = fabs(offAngle);
 			gm.currentTurnAngle = 0.0;
@@ -244,7 +250,6 @@ void Guider::Run(Navigator* n) {
 			gm.maintainTime = 0.0;
 			gm.speed = 1.0 * Parser::GetTurnSpeedFactor();
 			gm.hasFixedSpeed = false;
-//			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
@@ -257,8 +262,6 @@ void Guider::Run(Navigator* n) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			GuidanceManeuverIndex++;
 			GuidanceManeuver gm;
-			// double dist = n->DistanceBetweenCoordinates(n->GetCoordinates(), n->GetNavPlan().coordinates[coordinateIndex]);
-			// double time = dist / maxVehicleSpeed * 0.5;
 
 			gm.state = ManeuverState::Maintain;
 			gm.turnDirection = 0;
@@ -268,7 +271,6 @@ void Guider::Run(Navigator* n) {
 			gm.maintainTime = minimumMaintainTime;
 			gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
 			gm.hasFixedSpeed = false;
-//			gm.speedRate = Parser::GetAccFactor() * Parser::GetRefresh_GUID();
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
@@ -322,10 +324,14 @@ void Guider::Run(Navigator* n) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			TimeModule::Log("GDE", "Calibration maneuver complete.");
 
-			if (Parser::GetReCalibrate()) {
-				TimeModule::Log("GDE", "Re-optimizing Nav-Plan.");
+			// Reoptimize if 
+			if (Parser::GetReOptimize() == 1 && (
+						(Parser::GetReCalibrate() == 1) ||
+						(GuidanceManeuverBuffer.size() == 1)
+					)
+				){
+				TimeModule::Log("GDE", "Re-Optimizing Nav-Plan after calibration maneuver.");
 				n->ConstructNavPlan(coordinateIndex);
-
 				int step = 0;
 				for (int i = coordinateIndex; i < n->GetNavPlan().movements.size()-1; i++){
 					TimeModule::Log("NAV", "Step " + std::to_string(step+1) + ": move " + std::to_string(n->GetNavPlan().movements[i].distance)
@@ -333,8 +339,10 @@ void Guider::Run(Navigator* n) {
 						+ " to payload point #" + std::to_string(i+1));
 						step++;
 				}
-
+			}else{
+				TimeModule::Log("GDE", "No need to re-optimize after this calibration maneuver.");
 			}
+
 		}
 		break;
 	case ManeuverState::Turn:
@@ -441,6 +449,19 @@ void Guider::Run(Navigator* n) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			TimeModule::Log("GDE", "CTL sent payload-drop and image-taken signals.");
 			coordinateIndex++;
+
+			if (coordinateIndex != n->GetNavPlan().coordinates.size() && Parser::GetReOptimize() && !Parser::GetReCalibrate()) {
+				TimeModule::Log("GDE", "Re-Optimizing Nav-Plan after payload drop.");
+				n->ConstructNavPlan(coordinateIndex);
+				int step = 0;
+				for (int i = coordinateIndex; i < n->GetNavPlan().movements.size()-1; i++){
+					TimeModule::Log("NAV", "Step " + std::to_string(step+1) + ": move " + std::to_string(n->GetNavPlan().movements[i].distance)
+						+ " meters at heading " + std::to_string(n->GetNavPlan().movements[i].heading)
+						+ " to payload point #" + std::to_string(i+1));
+						step++;
+				}
+			}
+
 		}
 		break;
 	}

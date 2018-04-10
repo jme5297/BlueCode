@@ -28,9 +28,11 @@ BEGIN_COORDINATES
 -77.87201799, 40.79312062
 END_COORDINATES
 
-
-# Should the Nav Plan be optimized?
+# Should the Nav Plan be optimized at the start of the mission?
 Optimize = 1
+
+# Should the Nav Plan be re-optimized after each payload drop and each calibration?
+ReOptimize = 1
 
 # Write mission log to a text file?
 WriteToLogFile = 1
@@ -72,7 +74,8 @@ BreakFactor = 0.99
 PayloadDropRadius = 9.5
 
 # Uncertainty of the GPS (meters)?
-GPSUncertainty = 2.5
+#GPSUncertainty = 2.5
+GPSUncertainty = 0.0
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 20.0
@@ -157,7 +160,8 @@ SimDelta = 0.01
 Refresh_GPS   = 1.0
 
 # Uncertainty of the GPS Heading information (degrees)
-GPSHeadingUncertainty = 15.0
+#GPSHeadingUncertainty = 15.0
+GPSHeadingUncertainty = 0.0
 
 # How many degrees can the wheel turn at full servo power in one direction?
 MaxWheelAngleDegrees = 45.0
@@ -168,8 +172,8 @@ VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.79262444
-InitialLongitude = -77.87337817
+InitialLatitude = 40.79310003
+InitialLongitude = -77.87231386
 InitialHeading = 310
 
 # Add some obstacles to the scene
