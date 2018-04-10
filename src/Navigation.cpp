@@ -134,12 +134,15 @@ void Navigator::ConstructNavPlan(int cInd)
 	}
 	pts.close();
 
+	// Come up with nominal Nav-Plan movement and distance info.
+	PopulateMovements();
+
 	return;
 }
 
 // Populate the movement array, which stores heading and distance information to all waypoints.
 // NOTE: ConstructNavPlan() is not required to be run, but is highly recommended.
-void Navigator::PopulateMovements(SensorHub* sh)
+void Navigator::PopulateMovements()
 {
 
 	// Create a generic movement vector, and store the active Nav Plan coordinates.
@@ -150,15 +153,12 @@ void Navigator::PopulateMovements(SensorHub* sh)
 	moves.push_back(CalculateMovement(curPos, coords[0]));
 
 	// All other movements are from nav plan coordinates to other nav plan coordinates.
-	for (unsigned int i = 0; i < coords.size() - 1; i++)
+	for (unsigned int i = 0; i < coords.size(); i++)
 	{
 		moves.push_back(CalculateMovement(coords[i], coords[i + 1]));
 	}
 
-	// If we have to return to the original location, then include this.
-	// moves.push_back(CalculateMovement(coords[coords.size() - 1], initialPosition));
-
-	// Update the total movement vector to the Active Nav Plan->
+	// Update the total movement vector to the Active Nav Plan
 	activeNavPlan.movements = moves;
 
 	return;

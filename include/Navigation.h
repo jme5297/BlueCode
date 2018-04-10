@@ -31,7 +31,7 @@ namespace Navigation {
 
 		// Nav Plan construction functions
 		void ConstructNavPlan(int);					///< Determine the most optimal path between Nav Plan coordinates
-		void PopulateMovements(SensorHub* sh);		///< Populate the required headings and distances between optimal path
+		void PopulateMovements();		///< Populate the required headings and distances between optimal path
 
 		// Nav Plan Accessor functions
 		NavPlan GetNavPlan();						///< Return the active Nav Plan

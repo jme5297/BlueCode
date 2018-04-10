@@ -322,9 +322,18 @@ void Guider::Run(Navigator* n) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			TimeModule::Log("GDE", "Calibration maneuver complete.");
 
-			if (Parser::GetOptimize()) {
+			if (Parser::GetReCalibrate()) {
 				TimeModule::Log("GDE", "Re-optimizing Nav-Plan.");
 				n->ConstructNavPlan(coordinateIndex);
+
+				int step = 0;
+				for (int i = coordinateIndex; i < n->GetNavPlan().movements.size()-1; i++){
+					TimeModule::Log("NAV", "Step " + std::to_string(step+1) + ": move " + std::to_string(n->GetNavPlan().movements[i].distance)
+						+ " meters at heading " + std::to_string(n->GetNavPlan().movements[i].heading)
+						+ " to payload point #" + std::to_string(i+1));
+						step++;
+				}
+
 			}
 		}
 		break;

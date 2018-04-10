@@ -79,7 +79,7 @@ OffAngleDeviate = 20.0
 CalibrationTime = 4.0
 
 # Vehicle should recalibrate after each consecutive payload drop
-ReCalibrate = 0
+ReCalibrate = 1
 
 # Minimum amount of time required to stay straight in a maintain mode (seconds)
 MinimumMaintainTime = 2.0

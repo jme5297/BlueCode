@@ -182,9 +182,6 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	myNavigator->ConstructNavPlan(0);
 	//}
 
-	// Come up with nominal Nav-Plan movement and distance info.
-	myNavigator->PopulateMovements(mySensorHub);
-
 	return true;
 }
 
