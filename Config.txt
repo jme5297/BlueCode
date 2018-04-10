@@ -19,13 +19,15 @@
 #END_COORDINATES
 
 # West of the soccer fields, near the golf course
+# Four white crosses, and the center circle of the field.
 BEGIN_COORDINATES
--77.87307817, 40.79242444
--77.87333702, 40.79230712
--77.87368363, 40.79259134
--77.87345385, 40.79276895
--77.87319792, 40.79259924
+-77.87234811, 40.79282781
+-77.87264617, 40.79304823
+-77.87231386, 40.79310003
+-77.87223508, 40.79330462
+-77.87201799, 40.79312062
 END_COORDINATES
+
 
 # Should the Nav Plan be optimized?
 Optimize = 1
@@ -48,16 +50,16 @@ Refresh_OUT   = 0.1
 # ------------------------------------
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 98.0
+TurnFactorDPS = 92.0
 
 # Throttle % while turning
-TurnSpeedFactor = 0.21
+TurnSpeedFactor = 0.25
 
 # Throttle % while moving straight
-StraightSpeedFactor = 0.21
+StraightSpeedFactor = 0.25
 
 # Multiplier for increasing backwards movement
-BackMultiplier = 1.1
+BackMultiplier = 1.03
 
 # Intensity of vehicle breaking (between 0.0 and 1.0)
 BreakFactor = 0.99
@@ -67,10 +69,10 @@ BreakFactor = 0.99
 # ------------------------------------
 
 # Acceptable payload drop radius from target (meters)
-PayloadDropRadius = 8.0
+PayloadDropRadius = 9.5
 
 # Uncertainty of the GPS (meters)?
-GPSUncertainty = 1.5
+GPSUncertainty = 2.5
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 20.0
@@ -175,7 +177,7 @@ InitialHeading = 310
 #BEGIN_OBSTACLES
 #-77.872148,	40.793335,	10,	3,	0.5,	-20
 #-77.871981, 40.793170,	10,	3,	0.5,	90
-#-77.872361, 40.792952, 	10,	4,	0.5,	320
+#-77.872361, 40.792952, 10,	4,	0.5,	320
 #END_OBSTACLES
 
 # Add lasers to the vehicle.
