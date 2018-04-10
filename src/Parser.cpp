@@ -38,6 +38,8 @@ double Parser::PRU_ESC_Delay;
 double Parser::PRU_Steer_Delay;
 double Parser::MaxTurnSteering;
 int Parser::MaxCameraAttempts;
+int Parser::Cam_Width;
+int Parser::Cam_Height;
 int Parser::Laser_Left;
 int Parser::Laser_Right;
 int Parser::Temp_Disable_Laser;
@@ -283,6 +285,18 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> MaxCameraAttempts;
+			continue;
+		}
+		else if (s.find("Cam_Width") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> Cam_Width;
+			continue;
+		}
+		else if (s.find("Cam_Height") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> Cam_Height;
 			continue;
 		}
 		else if (s.find("Laser_Left") != std::string::npos) {

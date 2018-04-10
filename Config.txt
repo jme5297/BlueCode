@@ -113,6 +113,11 @@ DC_Payload_Delta = 0.0105
 # -----------------------------------------
 #                         SENSORS AND PORTS
 # -----------------------------------------
+
+# Camera resolution
+Cam_Width = 640
+Cam_Height = 480
+
 # GPIO numbers of the left and right lasers.
 # P8.12
 Laser_Left = 44
@@ -141,7 +146,7 @@ PRU_Steer_Delay = 1999
 MaxSpeedMPS = 4.0
 
 # Time delta in debug mode from one main loop to the next?
-TimeDelta = 0.0001
+TimeDelta = 0.01
 
 # Sim delta from one Plant/simulation update to the next (seconds)?
 SimDelta = 0.01

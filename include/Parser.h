@@ -18,6 +18,11 @@
 #include <fcntl.h>			//Used for UART
 #include <termios.h>		//Used for UART
 #include <unistd.h>
+#include <mutex>
+#include <condition_variable>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <linux/videodev2.h>
 
 namespace sensors {
 	struct Coordinate {
@@ -104,6 +109,8 @@ public:
 	static double GetPRU_Sample_Rate() { return PRU_Sample_Rate; }
 	static double GetPRU_ESC_Delay() { return PRU_ESC_Delay; }
 	static double GetPRU_Steer_Delay() { return PRU_Steer_Delay; }
+	static int GetCam_Width(){ return Cam_Width; }
+	static int GetCam_Height(){ return Cam_Height; }
 	static int GetLaser_Left() { return Laser_Left; }
 	static int GetLaser_Right() { return Laser_Right; }
 	static int GetTemp_Disable_Laser(){ return Temp_Disable_Laser; }
@@ -159,6 +166,8 @@ protected:
 	static double PRU_Sample_Rate;
 	static double PRU_ESC_Delay;
 	static double PRU_Steer_Delay;
+	static int Cam_Width;
+	static int Cam_Height;
 	static int Laser_Left;
 	static int Laser_Right;
 	static int Temp_Disable_Laser;
