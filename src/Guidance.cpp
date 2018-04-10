@@ -209,6 +209,7 @@ void Guider::Run(Navigator* n) {
 		// If we're just coming from a payload-drop state, we already know our heading.
 		double usedHeading = 0.0;
 		if (GuidanceManeuverBuffer[GuidanceManeuverIndex].state == ManeuverState::PayloadDrop && Parser::GetReCalibrate() == 0) {
+			TimeModule::Log("GDE", "We're using saved heading information!");
 			usedHeading = savedHeading;
 		}
 		else {
@@ -324,7 +325,7 @@ void Guider::Run(Navigator* n) {
 			GuidanceManeuverBuffer[GuidanceManeuverIndex].done = true;
 			TimeModule::Log("GDE", "Calibration maneuver complete.");
 
-			// Reoptimize if 
+			// Reoptimize if
 			if (Parser::GetReOptimize() == 1 && (
 						(Parser::GetReCalibrate() == 1) ||
 						(GuidanceManeuverBuffer.size() == 1)

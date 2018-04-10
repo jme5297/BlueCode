@@ -159,11 +159,13 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	TimeModule::Log("MNE", "Awaiting for GPS signal...");
 	usleep(100000);
 	double lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
-	while(fabs(lon) < 0.001){
-		TimeModule::Log("MNE", "Waiting for calibration...");
+	while(fabs(lon) < 0.01){
 		lon = mySensorHub->GetGPS()->GetCurrentGPSCoordinates().lon;
 		usleep(100000);
 	}
+
+	TimeModule::Log("MNE", "Waiting for GPS to home in...");
+	usleep(5000000);
 #endif
 	// Add the waypoints provided from the configuration file, Config.txt, and
 	// make sure that there was at-least one nav plan coordinate added.
@@ -181,6 +183,14 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	//TimeModule::Log("MNE","Requesting Nav-Plan optimizaiton.");
 	myNavigator->ConstructNavPlan(0);
 	//}
+
+	int step = 0;
+	for (int i = 0; i < myNavigator->GetNavPlan().movements.size()-1; i++){
+		TimeModule::Log("NAV", "Step " + std::to_string(step+1) + ": move " + std::to_string(myNavigator->GetNavPlan().movements[i].distance)
+			+ " meters at heading " + std::to_string(myNavigator->GetNavPlan().movements[i].heading)
+			+ " to payload point #" + std::to_string(i+1));
+			step++;
+	}
 
 	return true;
 }

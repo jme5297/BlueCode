@@ -23,10 +23,12 @@
 BEGIN_COORDINATES
 -77.87234811, 40.79282781
 -77.87264617, 40.79304823
--77.87231386, 40.79310003
+-77.87265617, 40.79305823
 -77.87223508, 40.79330462
 -77.87201799, 40.79312062
 END_COORDINATES
+
+# #3 is -77.87231386, 40.79310003
 
 # Should the Nav Plan be optimized at the start of the mission?
 Optimize = 1
@@ -74,8 +76,7 @@ BreakFactor = 0.99
 PayloadDropRadius = 9.5
 
 # Uncertainty of the GPS (meters)?
-#GPSUncertainty = 2.5
-GPSUncertainty = 0.0
+GPSUncertainty = 2.5
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 20.0
@@ -160,8 +161,7 @@ SimDelta = 0.01
 Refresh_GPS   = 1.0
 
 # Uncertainty of the GPS Heading information (degrees)
-#GPSHeadingUncertainty = 15.0
-GPSHeadingUncertainty = 0.0
+GPSHeadingUncertainty = 15.0
 
 # How many degrees can the wheel turn at full servo power in one direction?
 MaxWheelAngleDegrees = 45.0
