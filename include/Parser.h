@@ -71,6 +71,7 @@ namespace Plant {
 
 using namespace Plant;
 using namespace sensors;
+using namespace std;
 
 class Parser {
 

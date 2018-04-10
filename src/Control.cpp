@@ -125,23 +125,11 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 				{
 					g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
 #ifdef TEST_PWM
-					// Extra logic to ensure that we are calibrated for backwards movement
-//					dutyCycle_speed = 0.142;
-//					WriteDutyCycle(0, dutyCycle_speed);
+
 					TimeModule::Log("CTL", "Calibrate ESC to zero...");
-//					usleep(1000000);
 					dutyCycle_speed = 0.15;
 					WriteDutyCycle(0, dutyCycle_speed);
-//					TimeModule::Log("CTL", "Calibrate ESC to zero...");
 					usleep(50000);
-//					dutyCycle_speed = 0.142;
-//					WriteDutyCycle(0, dutyCycle_speed);
-//					TimeModule::Log("CTL", "Calibrate ESC to zero...");
-//					usleep(1000000);
-//					dutyCycle_speed = 0.15;
-//					WriteDutyCycle(0, dutyCycle_speed);
-//					TimeModule::Log("CTL", "Just work");
-//					usleep(1000000);
 #endif
 					TimeModule::Log("CTL", "We've stopped. Ready to move backwards.");
 				}
@@ -325,7 +313,7 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 	if(attempts == Parser::GetMaxCameraAttempts()){
 		TimeModule::Log("CTL", "I give up!");
 		g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
-	} 
+	}
 	return;
 }
 

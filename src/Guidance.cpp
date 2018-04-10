@@ -177,11 +177,11 @@ void Guider::Run(Navigator* n) {
 		gm.turnDirection = 0;
 		if (n->GetPathObstructions().at(0)) {
 			gm.avoidDirection = -1;
-			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting obstacle diverge. Sweep to the left, diverge to the right.");
+			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting obstacle diverge. Sweep to the left - diverge to the right.");
 		}
 		else {
 			gm.avoidDirection = 1;
-			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting obstacle diverge. Sweep to the right, diverge to the left.");
+			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting obstacle diverge. Sweep to the right - diverge to the left.");
 		}
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
@@ -221,8 +221,8 @@ void Guider::Run(Navigator* n) {
 		double dott = x1 * x2 + y1 * y2;      // dot product between [x1, y1] and [x2, y2]
 		double det = x1 * y2 - y1 * x2;      // determinant
 		offAngle = atan2(det, dott) * 180.0 / PI;  // atan2(y, x) or atan2(sin, cos)
-		TimeModule::Log("GDE", "Next waypoint: " + std::to_string(wpLon) + ", " + std::to_string(wpLat) + ", distance: " + std::to_string(m.distance) + " meters.");
-		TimeModule::Log("GDE", "Current Heading " + std::to_string(usedHeading) + ", Desired Heading " + std::to_string(m.heading) + ", off angle " + std::to_string(offAngle));
+		TimeModule::Log("GDE", "Next waypoint: " + std::to_string(wpLon) + " - " + std::to_string(wpLat) + " - distance: " + std::to_string(m.distance) + " meters.");
+		TimeModule::Log("GDE", "Current Heading " + std::to_string(usedHeading) + " - Desired Heading " + std::to_string(m.heading) + " - off angle " + std::to_string(offAngle));
 
 		// If headings are far apart, we need to turn-> CANNOT TURN DIRECTLY AFTER ANOTHER TURn->
 		if (fabs(offAngle) >= offAngleDeviate && GetCurrentGuidanceManeuver().state != ManeuverState::Turn) {

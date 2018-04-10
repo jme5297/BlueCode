@@ -185,14 +185,6 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 	// Come up with nominal Nav-Plan movement and distance info.
 	myNavigator->PopulateMovements(mySensorHub);
 
-	std::ofstream pts;
-	pts.open("pts.csv");
-	std::vector<Coordinate> coords = myNavigator->GetWaypoints();
-	for (int i = 0; i < (int)coords.size(); i++) {
-		pts << coords[i].lon << "," << coords[i].lat << "\n";
-	}
-	pts.close();
-
 	return true;
 }
 

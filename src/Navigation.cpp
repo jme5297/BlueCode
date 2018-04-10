@@ -127,6 +127,13 @@ void Navigator::ConstructNavPlan(int cInd)
 		activeNavPlan.coordinates.push_back(allCoordinatePermutations[shortestDistanceIndex][i]);
 	}
 
+	std::ofstream pts;
+	pts.open("pts.csv");
+	for (int i = 0; i < (int)activeNavPlan.coordinates.size(); i++) {
+		pts << activeNavPlan.coordinates[i].lon << "," << activeNavPlan.coordinates[i].lat << "\n";
+	}
+	pts.close();
+
 	return;
 }
 

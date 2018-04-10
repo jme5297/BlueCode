@@ -168,7 +168,7 @@ VehicleLength = 0.34
 # Initial location and true heading of vehicle at start of sim.
 InitialLatitude = 40.79242444
 InitialLongitude = -77.87317817
-InitialHeading = 90
+InitialHeading = 310
 
 # Add some obstacles to the scene
 # Format: lon(deg), lat(deg), length(m), width(m), height(m), z-rotation(deg)

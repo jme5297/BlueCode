@@ -2,6 +2,7 @@
 
 using namespace Plant;
 using namespace sensors;
+using namespace std;
 
 // General Configuration
 double Parser::Refresh_GNC;

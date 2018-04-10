@@ -32,10 +32,12 @@ bool Camera::TakeImage(int a) {
 	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CMA]: (Fake) Camera image taken!\n";
 	return true;
 #else
-	std::string command = "fswebcam --font :16 --bottom-banner --title 'Payload Drop #" + 
-		std::to_string(imagecount) + "' --subtitle 'Guidance Maneuver #" + 
-		std::to_string(a) + "' -r " + std::to_string(Parser::GetCam_Width()) + "x" + std::to_string(Parser::GetCam_Height()) + 
+	std::string command =
+		"fswebcam --font :16 --bottom-banner --title 'Payload Drop #" + std::to_string(imagecount) +
+		"' --subtitle 'Guidance Maneuver #" + std::to_string(a) +
+		"' -r " + std::to_string(Parser::GetCam_Width()) + "x" + std::to_string(Parser::GetCam_Height()) +
 		" image_" + std::to_string(imagecount) + ".jpg";
+		std::cout << command << "\n";
 	system(command.c_str());
 #endif
 	imagecount++;
