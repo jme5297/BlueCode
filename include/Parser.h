@@ -18,11 +18,6 @@
 #include <fcntl.h>			//Used for UART
 #include <termios.h>		//Used for UART
 #include <unistd.h>
-#include <mutex>
-#include <condition_variable>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <linux/videodev2.h>
 
 namespace sensors {
 	struct Coordinate {

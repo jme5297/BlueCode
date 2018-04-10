@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-data = pd.read_csv('../build/data_2.csv', sep=',', index_col=False, header=None, names=['time', 'lat', 'lon'])
-mlog = pd.read_csv('../build/mxlog_2.csv', sep=',', index_col=False, header=None, names=['time', 'who', 'msg'])
+data = pd.read_csv('../build/data_0.csv', sep=',', index_col=False, header=None, names=['time', 'lat', 'lon'])
+mlog = pd.read_csv('../build/mxlog_0.csv', sep=',', index_col=False, header=None, names=['time', 'who', 'msg'])
 pts = pd.read_csv('../build/pts.csv', sep=',',index_col=False, header=None, names=['lat', 'lon'])
 datanp = np.array(data)
 ptsnp = np.array(pts)
