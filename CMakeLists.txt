@@ -82,14 +82,14 @@ endif()
 
 # Attempt to use an attached camera
 if(${USE_CAMERA})
-  message(STATUS "Camera usage requested. Checking for V4L2...")
-  FIND_PACKAGE(V4L2 REQUIRED)
+  message(STATUS "Camera usage requested.") # Checking for V4L2...")
+#  FIND_PACKAGE(V4L2 REQUIRED)
   add_definitions(-D USE_CAMERA)
 endif()
 
 # Bring in all of my headers
 include_directories(include)
-include_directories( ${V4L2_INCLUDE_DIRS} )
+#include_directories( ${V4L2_INCLUDE_DIRS} )
 
 # Add all sources to the executable
 file(GLOB SOURCES "src/*.cpp")
@@ -103,7 +103,7 @@ endif()
 add_executable(BlueCode WIN32 ${source_files})
 target_link_libraries( BlueCode ${IRRLICHT_LIBRARY}
 	${CMAKE_THREAD_LIBS_INIT}
-	${V4L2_LIBRARIES}
+#	${V4L2_LIBRARIES}
 	${OSX_LIBRARIES} ${LINUX_LIBRARIES} ${OPENGL_LIBRARIES} )
 
 if(${TEST_PWM})

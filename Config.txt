@@ -31,7 +31,7 @@ END_COORDINATES
 Optimize = 1
 
 # Write mission log to a text file?
-WriteToLogFile = 0
+WriteToLogFile = 1
 
 # ############################################################################
 #                                                                Configuration
@@ -115,8 +115,8 @@ DC_Payload_Delta = 0.0105
 # -----------------------------------------
 
 # Camera resolution
-Cam_Width = 640
-Cam_Height = 480
+Cam_Width = 1280
+Cam_Height = 720
 
 # GPIO numbers of the left and right lasers.
 # P8.12
@@ -125,7 +125,7 @@ Laser_Left = 44
 Laser_Right = 26
 
 # Temporarily disable a laser (set to -1 to disable both!)
-Temp_Disable_Laser = 0
+Temp_Disable_Laser = 44
 
 # GPIO Port numbers used for transistor to switch to payload servo
 # P9.23
@@ -167,7 +167,7 @@ VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
 InitialLatitude = 40.79242444
-InitialLongitude = -77.87307817
+InitialLongitude = -77.87317817
 InitialHeading = 90
 
 # Add some obstacles to the scene

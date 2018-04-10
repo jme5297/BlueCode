@@ -21,7 +21,7 @@
 #include <linux/videodev2.h>
 #include <libv4l2.h>
 */
-#include <sensors/Camera/webcam.h>
+//#include <sensors/Camera/webcam.h>
 #endif
 
 namespace sensors {

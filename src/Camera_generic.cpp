@@ -1,6 +1,7 @@
 #include <sensors/Camera/Camera_generic.h>
 using namespace sensors;
 using namespace Times;
+int imagecount;
 
 Camera::Camera() {
 
@@ -10,15 +11,7 @@ Camera::~Camera() {
 }
 bool Camera::Init() {
 
-#ifdef USE_CAMERA
-	try{
-		Webcam webcam("/dev/video0", Parser::GetCam_Width(), Parser::GetCam_Height());
-	}catch(const char * msg){
-		TimeModule::Log("CMA", "Can't access webcam...");
-		return false;
-	}
-#endif
-
+	imagecount = 1;
 	return true;
 }
 bool Camera::Reset() {
@@ -39,16 +32,12 @@ bool Camera::TakeImage(int a) {
 	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CMA]: (Fake) Camera image taken!\n";
 	return true;
 #else
-
-	Webcam webcam("/dev/video0", Parser::GetCam_Width(), Parser::GetCam_Height());
-	auto frame = webcam.frame();
-	std::ofstream image;
-	image.open("image_" + std::to_string(a) + ".ppm");
-	image << "P6\n" << Parser::GetCam_Width() << " " << Parser::GetCam_Height() << " 255\n";
-	image.write((char *) frame.data, frame.size);
-	image.close();
-
+	std::string command = "fswebcam --font :16 --bottom-banner --title 'Payload Drop #" + 
+		std::to_string(imagecount) + "' --subtitle 'Guidance Maneuver #" + 
+		std::to_string(a) + "' -r " + std::to_string(Parser::GetCam_Width()) + "x" + std::to_string(Parser::GetCam_Height()) + 
+		" image_" + std::to_string(imagecount) + ".jpg";
+	system(command.c_str());
 #endif
-
+	imagecount++;
 	return true;
 }
