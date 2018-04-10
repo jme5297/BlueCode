@@ -79,7 +79,7 @@ OffAngleDeviate = 20.0
 CalibrationTime = 4.0
 
 # Vehicle should recalibrate after each consecutive payload drop
-ReCalibrate = 1
+ReCalibrate = 0
 
 # Minimum amount of time required to stay straight in a maintain mode (seconds)
 MinimumMaintainTime = 2.0
@@ -166,8 +166,8 @@ VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.79242444
-InitialLongitude = -77.87317817
+InitialLatitude = 40.79262444
+InitialLongitude = -77.87337817
 InitialHeading = 310
 
 # Add some obstacles to the scene
