@@ -48,19 +48,31 @@ WriteToLogFile = 1
 # ------------------------------------
 Refresh_GNC   = 0.01
 Refresh_OUT   = 0.1
+Refresh_Gains = 1.0
 
 # ------------------------------------
 #                             DYNAMICS
 # ------------------------------------
 
+# Maximum speed of the vehicle at 100% throttle (meters/second)
+MaxSpeedMPS = 4.0
+
+# Speed sensitivity factor.
+# 0.0 - throttle will not be updated at all in attempt to match velocity
+# 1.0 - throttle will be SIGNIFICANTLY ADJUSTED to match velocity
+SpeedSensitivityFactor = 0.3
+
 # Vehicle turn rate at full turning speed (degrees/second)
 TurnFactorDPS = 92.0
 
-# Throttle % while turning
+# Nominal while turning will be (MaxSpeedMPS)*(TurnSpeedFactor)
 TurnSpeedFactor = 0.25
 
-# Throttle % while moving straight
+# Nominal while moving straight will be (MaxSpeedMPS)*(StraightSpeedFactor)
 StraightSpeedFactor = 0.25
+
+# Maximum allowable (never exceed) throttle %. 0.9 = never exceed 90% throttle.
+MaxAllowableSpeedFactor = 0.5
 
 # Multiplier for increasing backwards movement
 BackMultiplier = 1.03
@@ -82,7 +94,7 @@ GPSUncertainty = 2.5
 OffAngleDeviate = 20.0
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
-CalibrationTime = 4.0
+CalibrationTime = 6.0
 
 # Vehicle should recalibrate after each consecutive payload drop
 ReCalibrate = 0
@@ -148,9 +160,6 @@ PRU_Steer_Delay = 1999
 #                                              Configuration for the simulator
 # ############################################################################
 
-# Maximum speed of the vehicle (meters/second)
-MaxSpeedMPS = 4.0
-
 # Time delta in debug mode from one main loop to the next?
 TimeDelta = 0.01
 
@@ -159,6 +168,11 @@ SimDelta = 0.01
 
 # How often new GPS model data comes in
 Refresh_GPS   = 1.0
+
+# How tough is it to get speed on terrain?
+# > 1.0 - very easy to pick up speed (ex: turf, or downhill)
+# < 1.0 - very tough to pick up speed (ex: rough grass, or uphill)
+TerrainRoughness = 0.9
 
 # Uncertainty of the GPS Heading information (degrees)
 GPSHeadingUncertainty = 15.0

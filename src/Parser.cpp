@@ -7,6 +7,7 @@ using namespace std;
 // General Configuration
 double Parser::Refresh_GNC;
 double Parser::Refresh_OUT;
+double Parser::Refresh_Gains;
 double Parser::Refresh_GPS;
 std::vector<Coordinate> Parser::inputCoords;
 std::ifstream Parser::configFile;
@@ -15,10 +16,15 @@ int Parser::ReOptimize;
 bool Parser::WriteToLogFile;
 double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
+
+// Dynamics
 double Parser::TurnFactorDPS;
 double Parser::MaxSpeedMPS;
 double Parser::TurnSpeedFactor;
 double Parser::StraightSpeedFactor;
+double Parser::MaxAllowableSpeedFactor;
+double Parser::SpeedSensitivityFactor;
+
 double Parser::BackMultiplier;
 double Parser::BreakFactor;
 double Parser::CalibrationTime;
@@ -52,6 +58,7 @@ std::vector<pLas> Parser::Lasers;
 // Simulation
 double Parser::TimeDelta;
 double Parser::SimDelta;
+double Parser::TerrainRoughness;
 double Parser::GPSUncertainty;
 double Parser::GPSHeadingUncertainty;
 double Parser::GPSVelocityUncertainty;
@@ -110,6 +117,12 @@ void Parser::ReadInputs(std::string file)
 			ss >> Refresh_OUT;
 			continue;
 		}
+		else if (s.find("Refresh_Gains") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> Refresh_Gains;
+			continue;
+		}
 		else if (s.find("Refresh_GPS") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -146,6 +159,8 @@ void Parser::ReadInputs(std::string file)
 			ss >> OffAngleDeviate;
 			continue;
 		}
+
+
 		else if (s.find("TurnFactorDPS") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -170,6 +185,18 @@ void Parser::ReadInputs(std::string file)
 			ss >> StraightSpeedFactor;
 			continue;
 		}
+		else if (s.find("MaxAllowableSpeedFactor") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> MaxAllowableSpeedFactor;
+			continue;
+		}
+		else if (s.find("SpeedSensitivityFactor") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> SpeedSensitivityFactor;
+			continue;
+		}
 		else if (s.find("BackMultipier") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -182,6 +209,9 @@ void Parser::ReadInputs(std::string file)
 			ss >> BreakFactor;
 			continue;
 		}
+
+
+
 		else if (s.find("CalibrationTime") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -347,10 +377,16 @@ void Parser::ReadInputs(std::string file)
 			ss >> TimeDelta;
 			continue;
 		}
-				else if (s.find("SimDelta") != std::string::npos) {
+		else if (s.find("SimDelta") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> SimDelta;
+			continue;
+		}
+		else if (s.find("TerrainRoughness") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> TerrainRoughness;
 			continue;
 		}
 		else if (s.find("GPSUncertainty") != std::string::npos) {

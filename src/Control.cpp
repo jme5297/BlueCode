@@ -18,7 +18,7 @@ using namespace sensors;
 // --------------------
 // NORMALIZED
 // --------------------
-double norm_speed;
+double norm_throttle;
 double norm_steer;
 
 // --------------------
@@ -47,6 +47,9 @@ std::ofstream tReader;
 std::string gpio_steer;
 std::string gpio_payload;
 
+// SPEED GAIN
+double speedGain = 1.0;
+
 // Prototypes for PRU running threads
 void DisablePRUs();
 void ControlMotors();
@@ -54,6 +57,11 @@ void ControlSteering();
 void WriteDutyCycle(int, double);
 
 Controller::Controller() {}
+
+void Controller::Initialize(){
+		TimeModule::InitProccessCounter("Gains", Parser::GetRefresh_Gains());
+		return;
+}
 
 /*!
  * Main Run routine for Controller.
@@ -65,11 +73,28 @@ Controller::Controller() {}
  */
 void Controller::Run(Guider* g, SensorHub* sh) {
 
-	//
+	// Update normalized speed and make sure it's within bounds
+	norm_throttle = g->GetCurrentGuidanceManeuver().speed*speedGain;
+	if(norm_throttle > Parser::GetMaxAllowableSpeedFactor()){
+		TimeModule::Log("CTL", "Max forward throttle reached!!");
+		norm_throttle = Parser::GetMaxAllowableSpeedFactor();
+	}
+	if(norm_throttle < -1.0*Parser::GetMaxAllowableSpeedFactor()){
+		TimeModule::Log("CTL", "Max backward throttle reached!!");
+		norm_throttle = -1.0*Parser::GetMaxAllowableSpeedFactor();
+	}
+
+	// Special case for obstacle avoidance: throw full reverse if obstacle is found!
+	if(g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge &&
+			g->GetCurrentGuidanceManeuver().avoidDivergeState == 0){
+		TimeModule::Log("CTL", "Forget gains... full reverse!!");
+		norm_throttle = g->GetCurrentGuidanceManeuver().speed;
+	}
+
 	if (!g->GetCurrentGuidanceManeuver().hasFixedSpeed) {
 
+		// Update the normalization speeds
 		double accelTime = g->GetCurrentGuidanceManeuver().accelerationTime;
-		norm_speed = g->GetCurrentGuidanceManeuver().speed;
 		norm_steer = 0.0;
 
 		// Begin timers for each type of maneuver.
@@ -147,14 +172,14 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		}
 
 		// Update the duty cycles.
-		dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_speed );
+		dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_throttle );
 		dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
 		WriteDutyCycle(0, dutyCycle_speed);
 		WriteDutyCycle(1, dutyCycle_steer);
 
 		// Update the plant values if in sim mode.
 #ifdef SIM
-		PlantModel::GetVehicle()->wheelSpeedN = norm_speed;
+		PlantModel::GetVehicle()->wheelSpeedN = norm_throttle;
 		PlantModel::GetVehicle()->wheelSteeringN = norm_steer;
 #endif
 
@@ -162,9 +187,27 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		return;
 	}
 
+	// Update gains, calculate desired velocity and actual velocity
+	if (TimeModule::ProccessUpdate("Gains")){
+		if(g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop ||
+				g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge ||
+				g->GetCurrentGuidanceManeuver().state == ManeuverState::Turn ){
+					TimeModule::Log("CTL", "No reason to update speed gain here.");
+
+		}else{
+
+			double vel_desired = Parser::GetMaxSpeedMPS() * g->GetCurrentGuidanceManeuver().speed;
+			double vel_gps = sh->GetGPS()->GetGPSVelocity();
+			double dvel = vel_desired-vel_gps;
+			speedGain += (dvel)*Parser::GetSpeedSensitivityFactor();
+			if(speedGain < 0.0){ speedGain = 0.0; }
+			TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + "), speed gain to " + std::to_string(speedGain));
+		}
+	}
+
 	// Update the plant values if in sim mode (have to do it here as well)
 #ifdef SIM
-	PlantModel::GetVehicle()->wheelSpeedN = norm_speed;
+	PlantModel::GetVehicle()->wheelSpeedN = norm_throttle;
 	PlantModel::GetVehicle()->wheelSteeringN = norm_steer;
 #endif
 
@@ -342,7 +385,7 @@ void Controller::InitializeMotorControl() {
 	dutyCycle_speed = Parser::GetDC_ESC_Zero();
 	dc0 = static_cast<unsigned int>(dutyCycle_speed * Parser::GetPRU_Sample_Rate());
 	dp0 = static_cast<unsigned int>(Parser::GetPRU_ESC_Delay());
-	norm_speed = 0.0;
+	norm_throttle = 0.0;
 #ifdef TEST_PWM
 	TimeModule::Log("CTL", "Initializing motor control.");
 	ControlMotors();

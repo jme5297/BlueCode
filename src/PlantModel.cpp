@@ -249,6 +249,9 @@ void PlantModel::Run(double dt) {
 	double alpha = GetVehicle()->wheelSteeringN * GetVehicle()->maxWheelSteeringAngleDeg;
 	double speed = GetVehicle()->wheelSpeedN * GetVehicle()->maxSpeedMPS;
 
+	// Add a terrain roughness factor
+	speed *= Parser::GetTerrainRoughness();
+
 	if (fabs(alpha) <= 1e-15) {
 		dx = speed * dt*sin(GetVehicle()->heading * PI / 180.0);
 		dy = speed * dt*cos(GetVehicle()->heading * PI / 180.0);

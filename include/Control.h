@@ -20,6 +20,7 @@ namespace Control {
 	public:
 		Controller();
 
+		void Initialize();
 		void Run(Guider* g, SensorHub* sh);						///< Main execution function for the Controller.
 		void SetMaxCameraAttempts(int i) { maxCameraAttempts = i; }
 		void SetMaxTurnSteering(double d);

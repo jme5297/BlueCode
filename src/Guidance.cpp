@@ -94,7 +94,7 @@ void Guider::Run(Navigator* n) {
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
-		gm.accelerationTime = 2.0;
+		gm.accelerationTime = 1.0;
 		RequestGuidanceManeuver(gm);
 		TimeModule::Log("GDE", "Let's begin! Requesting first calibration.");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
@@ -118,7 +118,7 @@ void Guider::Run(Navigator* n) {
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
-		gm.accelerationTime = 2.0;
+		gm.accelerationTime = 1.0;
 		RequestGuidanceManeuver(gm);
 		TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): ReCalibrating after payload drop.");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
@@ -254,7 +254,14 @@ void Guider::Run(Navigator* n) {
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
-			gm.accelerationTime	= 1.0;
+
+			// If we're already at the correct speed, then note this!
+			if(GuidanceManeuverBuffer[GuidanceManeuverIndex-1].speed == gm.speed){
+				gm.accelerationTime	= 0.0;
+			}else{
+				gm.accelerationTime	= 1.5;
+			}
+
 			RequestGuidanceManeuver(gm);
 			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
 		}
@@ -275,7 +282,14 @@ void Guider::Run(Navigator* n) {
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
-			gm.accelerationTime	= 1.0;
+
+			// If we're already at the correct speed, then note this!
+			if(GuidanceManeuverBuffer[GuidanceManeuverIndex-1].speed == gm.speed){
+				gm.accelerationTime	= 0.0;
+			}else{
+				gm.accelerationTime	= 1.5;
+			}
+
 			RequestGuidanceManeuver(gm);
 			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting course maintain.");
 			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));

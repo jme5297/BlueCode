@@ -103,8 +103,7 @@ void GPS::Run() {
 		double vell = sqrt(vx*vx + vy*vy);
 		vehicleVelocity = vell + (-0.5 + ((double)rand() / (RAND_MAX))) * Parser::GetGPSVelocityUncertainty();
 
-		std::cout << std::to_string(c.lon) << ", " << std::to_string(c.lat) <<
-			", " << std::to_string(vehicleHeading) << ", " << vehicleVelocity << "\n";
+		//std::cout << std::to_string(c.lon) << ", " << std::to_string(c.lat) << ", " << std::to_string(vehicleHeading) << ", " << vehicleVelocity << "\n";
 
 		// Heading
 		head = (head < 0.0) ? 360.0 + head : head;
@@ -132,7 +131,7 @@ void RunGPS(){
 				i=0;
 				process();
 				lastCoordinates = currentGPSCoordinates;
-				std::cout << std::to_string(lat) << ", " << std::to_string(lon) << ", " << std::to_string(cog) << ", " << std::to_string(vel*0.514444) << "\n";
+				//std::cout << std::to_string(lat) << ", " << std::to_string(lon) << ", " << std::to_string(cog) << ", " << std::to_string(vel*0.514444) << "\n";
 				if(fabs(lon) > 0.01 && fabs(lat) > 0.01){
 					Coordinate c;
 					c.lat = lat;

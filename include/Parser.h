@@ -75,18 +75,24 @@ public:
 	static std::vector<Coordinate> GetInputCoordinates() { return inputCoords; }
 	static double GetRefresh_GNC() { return Refresh_GNC; }
 	static double GetRefresh_OUT() { return Refresh_OUT; }
+	static double GetRefresh_Gains(){ return Refresh_Gains; }
 	static double GetRefresh_GPS() { return Refresh_GPS; }
 	static int GetOptimize() { return Optimize; }
 	static int GetReOptimize(){ return ReOptimize; }
 	static bool GetWriteToLogFile() { return WriteToLogFile; }
 	static double GetPayloadDropRadius() { return PayloadDropRadius; }
 	static double GetOffAngleDeviate() { return OffAngleDeviate; }
+
+	// Dynamics
 	static double GetTurnFactorDPS() { return TurnFactorDPS; }
 	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
 	static double GetTurnSpeedFactor(){ return TurnSpeedFactor; }
 	static double GetStraightSpeedFactor(){ return StraightSpeedFactor; }
+	static double GetMaxAllowableSpeedFactor(){ return MaxAllowableSpeedFactor; }
+	static double GetSpeedSensitivityFactor(){ return SpeedSensitivityFactor; }
 	static double GetBackMultipier(){ return BackMultiplier; }
 	static double GetBreakFactor(){ return BreakFactor; }
+
 	static double GetCalibrationTime() { return CalibrationTime; }
 	static int GetReCalibrate(){ return ReCalibrate; }
 	static double GetMinimumMaintainTime() { return MinimumMaintainTime; }
@@ -117,6 +123,7 @@ public:
 	// Simulation
 	static double GetTimeDelta() { return TimeDelta; }
 	static double GetSimDelta() { return SimDelta; }
+	static double GetTerrainRoughness(){ return TerrainRoughness; }
 	static double GetGPSUncertainty() { return GPSUncertainty; }
 	static double GetGPSHeadingUncertainty() { return GPSHeadingUncertainty; }
 	static double GetGPSVelocityUncertainty(){ return GPSVelocityUncertainty; }
@@ -133,6 +140,7 @@ public:
 protected:
 	static double Refresh_GNC;
 	static double Refresh_OUT;
+	static double Refresh_Gains;
 	static double Refresh_GPS;
 	static std::ifstream configFile;
 	static std::vector<Coordinate> inputCoords;
@@ -141,11 +149,18 @@ protected:
 	static bool WriteToLogFile;
 	static double PayloadDropRadius;
 	static double OffAngleDeviate;
+
+	// Dynamics
+	static double MaxSpeedMPS;
 	static double TurnFactorDPS;
 	static double TurnSpeedFactor;
 	static double StraightSpeedFactor;
+	static double MaxAllowableSpeedFactor;
+	static double SpeedSensitivityFactor;
 	static double BackMultiplier;
 	static double BreakFactor;
+
+
 	static double CalibrationTime;
 	static int ReCalibrate;
 	static double MinimumMaintainTime;
@@ -176,10 +191,10 @@ protected:
 	// Simulation
 	static double TimeDelta;
 	static double SimDelta;
+	static double TerrainRoughness;
 	static double GPSUncertainty;
 	static double GPSHeadingUncertainty;
 	static double GPSVelocityUncertainty;
-	static double MaxSpeedMPS;
 	static double MaxWheelAngleDegrees;
 	static double VehicleWidth;
 	static double VehicleHeight;
