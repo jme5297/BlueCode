@@ -255,8 +255,8 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 
 		// Run the plant model, and update the simulation time (if running DEBUG mode).
 #ifdef SIM
+		mySensorHub->GetGPS()->Run();
 		if (TimeModule::ProccessUpdate("Plant")) {
-
 #ifdef USE_IRRLICHT
 			// Passing GPS coordinates so the simulation can plot true vs. actual.
 			PlantModel::SendGPSData(

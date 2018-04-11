@@ -37,9 +37,6 @@ void Navigator::Run(SensorHub* sh)
 
 	// Run the GPS.
 	lastCoordinates = curPos;
-#ifdef SIM
-	sh->GetGPS()->Run();
-#endif
 	curPos = sh->GetGPS()->GetCurrentGPSCoordinates();
 	vehicleHeading = sh->GetGPS()->GetGPSGroundCourse();
 
@@ -71,12 +68,6 @@ void Navigator::ConstructNavPlan(int cInd)
 	// There should ALWAYS be at-least one waypoint, and your initial position.
 	if(activeNavPlan.coordinates.size() == 1){
 		TimeModule::Log("NAV", "This should NOT be hit. Did you forget to push your initial position to the NavPlan?");
-		return;
-	}
-
-	// If we are not optimizing, then no need to re-run this code.
-	if(!Parser::GetOptimize()){
-		TimeModule::Log("NAV", "No need to optimize");
 		return;
 	}
 
@@ -113,6 +104,13 @@ void Navigator::ConstructNavPlan(int cInd)
 	}
 
 	TimeModule::Log("NAV", "Path " + std::to_string(shortestDistanceIndex) + " is the shortest!");
+
+	// If we are not optimizing, then no need to re-run this code.
+	if(!Parser::GetOptimize()){
+		TimeModule::Log("NAV", "No need to optimize.");
+		shortestDistanceIndex = 0;
+	}
+
 
 	// Clear the current plan->
 	std::vector<Coordinate> tmpCoords = activeNavPlan.coordinates;

@@ -11,13 +11,14 @@ unsigned char rx_buffer[80];
 void RunGPS();
 void process();
 void data_GR(char * buffer, int loc);
-double lat, lon, cog;
+double lat, lon, cog, vel;
 int uart0_filestream = -1;
 #endif
 
 Coordinate lastCoordinates;
 Coordinate currentGPSCoordinates;
 double vehicleHeading;
+double vehicleVelocity;
 
 GPS::GPS() {
 
@@ -79,11 +80,15 @@ void GPS::Run() {
 #ifdef SIM
 	double PI = 3.14159265;
 	if (TimeModule::ProccessUpdate("GPS")) {
+
+		double dt = TimeModule::GetLastProccessDelta("GPS");
+
 		// Calculate GPS.
 		Coordinate c = PlantModel::GetVehicle()->gps.coords;
 		c.lat += (-0.5 + ((double)rand() / (RAND_MAX))) * gpsUncertainty / latToM;
 		c.lon += (-0.5 + ((double)rand() / (RAND_MAX))) * gpsUncertainty / lonToM;
 		currentGPSCoordinates = c;
+
 		// Calculate Ground Course (heading).
 		Coordinate c1 = lastCoordinates;
 		Coordinate c2 = PlantModel::GetVehicle()->gps.coords;
@@ -91,8 +96,21 @@ void GPS::Run() {
 		double dy = c2.lat - c1.lat;
 		double z = atan2(dy, dx) * 180.0 / PI;
 		double head = 90.0 - z;
+
+		// Vehicle velocity
+		double vx = dx/dt*84397.32550370222;
+		double vy = dy/dt*111049.88839989061;
+		double vell = sqrt(vx*vx + vy*vy);
+		vehicleVelocity = vell + (-0.5 + ((double)rand() / (RAND_MAX))) * Parser::GetGPSVelocityUncertainty();
+
+		std::cout << std::to_string(c.lon) << ", " << std::to_string(c.lat) <<
+			", " << std::to_string(vehicleHeading) << ", " << vehicleVelocity << "\n";
+
+		// Heading
 		head = (head < 0.0) ? 360.0 + head : head;
 		vehicleHeading = head + (-0.5 + ((double)rand() / (RAND_MAX))) * Parser::GetGPSHeadingUncertainty();
+
+		// Update
 		lastCoordinates = PlantModel::GetVehicle()->gps.coords;
 	}
 #endif
@@ -114,13 +132,14 @@ void RunGPS(){
 				i=0;
 				process();
 				lastCoordinates = currentGPSCoordinates;
-				std::cout << std::to_string(lat) << ", " << std::to_string(lon) << ", " << std::to_string(cog) << "\n";
+				std::cout << std::to_string(lat) << ", " << std::to_string(lon) << ", " << std::to_string(cog) << ", " << std::to_string(vel) << "\n";
 				if(fabs(lon) > 0.01 && fabs(lat) > 0.01){
 					Coordinate c;
 					c.lat = lat;
 					c.lon = lon;
 					currentGPSCoordinates = c;
 					vehicleHeading = cog;
+					vehicleVelocity = vel*0.514444;
 				}
 			}
 		}
@@ -152,6 +171,9 @@ void process(){
 		lon_degs = lon_nmea - lon_mins;
 		lon = -1.0*(lon_degs + lon_mins/0.60);
 
+		data_GR(field, 7);
+		vel = strtod(field, NULL);
+
 		data_GR(field, 8);
 		cog =  strtod(field,NULL);
 	}
@@ -179,3 +201,4 @@ void data_GR(char * buffer, int loc){
 bool GPS::Reset() { return true; }
 Coordinate GPS::GetCurrentGPSCoordinates() { return currentGPSCoordinates; }
 double GPS::GetGPSGroundCourse() { return vehicleHeading; }
+double GPS::GetGPSVelocity() { return vehicleVelocity; }

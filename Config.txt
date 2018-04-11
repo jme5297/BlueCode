@@ -163,6 +163,9 @@ Refresh_GPS   = 1.0
 # Uncertainty of the GPS Heading information (degrees)
 GPSHeadingUncertainty = 15.0
 
+# Uncertainty of GPS velocity
+GPSVelocityUncertainty = 0.1;
+
 # How many degrees can the wheel turn at full servo power in one direction?
 MaxWheelAngleDegrees = 45.0
 

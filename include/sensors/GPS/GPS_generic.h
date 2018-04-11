@@ -20,6 +20,7 @@ namespace sensors {
 		bool Reset();
 		Coordinate GetCurrentGPSCoordinates();
 		double GetGPSGroundCourse();
+		double GetGPSVelocity();
 
 #ifdef SIM
 		void SetGPSUncertainty(double d) { gpsUncertainty = d; }

@@ -54,6 +54,7 @@ double Parser::TimeDelta;
 double Parser::SimDelta;
 double Parser::GPSUncertainty;
 double Parser::GPSHeadingUncertainty;
+double Parser::GPSVelocityUncertainty;
 double Parser::MaxWheelAngleDegrees;
 double Parser::VehicleWidth;
 double Parser::VehicleHeight;
@@ -362,6 +363,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> GPSHeadingUncertainty;
+			continue;
+		}
+		else if (s.find("GPSVelocityUncertainty") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> GPSVelocityUncertainty;
 			continue;
 		}
 		else if (s.find("MaxWheelAngleDegrees") != std::string::npos) {
