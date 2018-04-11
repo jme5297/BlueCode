@@ -60,19 +60,19 @@ MaxSpeedMPS = 4.0
 # Speed sensitivity factor.
 # 0.0 - throttle will not be updated at all in attempt to match velocity
 # 1.0 - throttle will be SIGNIFICANTLY ADJUSTED to match velocity
-SpeedSensitivityFactor = 0.3
+SpeedSensitivityFactor = 0.0
 
 # Vehicle turn rate at full turning speed (degrees/second)
 TurnFactorDPS = 92.0
 
 # Nominal while turning will be (MaxSpeedMPS)*(TurnSpeedFactor)
-TurnSpeedFactor = 0.25
+TurnSpeedFactor = 0.20
 
 # Nominal while moving straight will be (MaxSpeedMPS)*(StraightSpeedFactor)
-StraightSpeedFactor = 0.25
+StraightSpeedFactor = 0.20
 
 # Maximum allowable (never exceed) throttle %. 0.9 = never exceed 90% throttle.
-MaxAllowableSpeedFactor = 0.5
+MaxAllowableSpeedFactor = 0.3
 
 # Multiplier for increasing backwards movement
 BackMultiplier = 1.03
@@ -143,7 +143,7 @@ Laser_Left = 44
 Laser_Right = 26
 
 # Temporarily disable a laser (set to -1 to disable both!)
-Temp_Disable_Laser = 26
+Temp_Disable_Laser = -1
 
 # GPIO Port numbers used for transistor to switch to payload servo
 # P9.23

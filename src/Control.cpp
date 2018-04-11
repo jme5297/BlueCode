@@ -73,21 +73,25 @@ void Controller::Initialize(){
  */
 void Controller::Run(Guider* g, SensorHub* sh) {
 
+	bool updateSpeedGain = true;
+
 	// Update normalized speed and make sure it's within bounds
 	norm_throttle = g->GetCurrentGuidanceManeuver().speed*speedGain;
 	if(norm_throttle > Parser::GetMaxAllowableSpeedFactor()){
-		TimeModule::Log("CTL", "Max forward throttle reached!!");
+//		TimeModule::Log("CTL", "Max forward throttle reached!!");
 		norm_throttle = Parser::GetMaxAllowableSpeedFactor();
+		updateSpeedGain = false;
 	}
 	if(norm_throttle < -1.0*Parser::GetMaxAllowableSpeedFactor()){
-		TimeModule::Log("CTL", "Max backward throttle reached!!");
+//		TimeModule::Log("CTL", "Max backward throttle reached!!");
 		norm_throttle = -1.0*Parser::GetMaxAllowableSpeedFactor();
+		updateSpeedGain = false;
 	}
 
 	// Special case for obstacle avoidance: throw full reverse if obstacle is found!
 	if(g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge &&
 			g->GetCurrentGuidanceManeuver().avoidDivergeState == 0){
-		TimeModule::Log("CTL", "Forget gains... full reverse!!");
+		//TimeModule::Log("CTL", "Forget gains... full reverse!!");
 		norm_throttle = g->GetCurrentGuidanceManeuver().speed;
 	}
 
@@ -188,7 +192,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	}
 
 	// Update gains, calculate desired velocity and actual velocity
-	if (TimeModule::ProccessUpdate("Gains")){
+	if (TimeModule::ProccessUpdate("Gains") && updateSpeedGain){
 		if(g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop ||
 				g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge ||
 				g->GetCurrentGuidanceManeuver().state == ManeuverState::Turn ){
@@ -202,6 +206,13 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			speedGain += (dvel)*Parser::GetSpeedSensitivityFactor();
 			if(speedGain < 0.0){ speedGain = 0.0; }
 			TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + "), speed gain to " + std::to_string(speedGain));
+			
+			// Update the duty cycles.
+			dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_throttle );
+			dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
+			WriteDutyCycle(0, dutyCycle_speed);
+			WriteDutyCycle(1, dutyCycle_steer);
+
 		}
 	}
 

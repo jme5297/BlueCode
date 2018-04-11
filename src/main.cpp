@@ -236,7 +236,6 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 
 	// Open a file to save the output information the vehicle.
 	std::ofstream output;
-	output.open((name).c_str());
 
 
 	// Initialize the motor, steering, and payload control.
@@ -295,10 +294,14 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 
 		// Write program information to the output data file.
 		if (TimeModule::ProccessUpdate("Write")) {
+			output.open((name).c_str(), std::ofstream::app);
 			output << TimeModule::GetElapsedTime("BeginMainOpsTime") << "," << std::setprecision(12)
 				<< lon << ","
 				<< lat << ","
-				<< myNavigator->GetHeading() << "\n";
+				<< myNavigator->GetHeading() << ","
+				<< mySensorHub->GetGPS()->GetGPSVelocity() <<  "\n";
+			std::cout << "hey\n";
+			output.close();
 		}
 
 		// If the Guider determines the nav plan to be complete, then stop the main operations loop.
