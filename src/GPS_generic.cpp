@@ -132,7 +132,7 @@ void RunGPS(){
 				i=0;
 				process();
 				lastCoordinates = currentGPSCoordinates;
-				std::cout << std::to_string(lat) << ", " << std::to_string(lon) << ", " << std::to_string(cog) << ", " << std::to_string(vel) << "\n";
+				std::cout << std::to_string(lat) << ", " << std::to_string(lon) << ", " << std::to_string(cog) << ", " << std::to_string(vel*0.514444) << "\n";
 				if(fabs(lon) > 0.01 && fabs(lat) > 0.01){
 					Coordinate c;
 					c.lat = lat;
