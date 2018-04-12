@@ -14,18 +14,20 @@ std::vector< tuple<string, double, double, double > > TimeModule::processes;
 #endif
 
 // Output stream
-std::ofstream output;
-std::string name;
+std::ofstream mxlog;
 
 TimeModule::TimeModule() {
 
 }
 
 void TimeModule::Initialize(){
+
+	mxlog.open("mxlog.csv");
 	#ifdef DEBUG
 		currentSimTime = 0.0;
 	#endif
 		if(Parser::GetWriteToLogFile()){
+			/*
 			// Data
 			int ii = 0;
 			name = "mxlog_" + std::to_string(ii) + ".csv";
@@ -37,6 +39,7 @@ void TimeModule::Initialize(){
 				f.open(name.c_str());
 			}
 			f.close();
+			*/
 		}
 }
 
@@ -47,12 +50,10 @@ void TimeModule::Log(string agent, string message) {
 
 	// Open a file to save the output information the vehicle.
 	if(Parser::GetWriteToLogFile()){
-		output.open((name).c_str(), std::ofstream::app);
-		output <<
+		mxlog <<
 			std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "," <<
 			agent << "," <<
 			message << "\n";
-		output.close();
 	}
 }
 

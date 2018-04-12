@@ -9,6 +9,16 @@
 # Coordinates to target
 # Format: [ lon, lat ]
 
+# West of the soccer fields, near the golf course
+# Four white crosses, and the center circle of the field.
+#BEGIN_COORDINATES
+#-77.87234811, 40.79282781
+#-77.87264617, 40.79304823
+#-77.87231386, 40.79310003
+#-77.87223508, 40.79330462
+#-77.87201799, 40.79312062
+#END_COORDINATES
+
 # Simulation testing - camera
 #BEGIN_COORDINATES
 #-77.87307817, 40.79242444
@@ -18,20 +28,16 @@
 #-77.87307817, 40.79242444
 #END_COORDINATES
 
-# West of the soccer fields, near the golf course
-# Four white crosses, and the center circle of the field.
+# Simulation testing - hill testing
+# set initial to -77.87307817, 40.79242444 and heading to 0.0.
+# set to non-optimize
 BEGIN_COORDINATES
--77.87234811, 40.79282781
--77.87264617, 40.79304823
--77.87265617, 40.79305823
--77.87223508, 40.79330462
--77.87201799, 40.79312062
+-77.87307817, 40.79272444
+-77.87307817, 40.79212444
 END_COORDINATES
 
-# #3 is -77.87231386, 40.79310003
-
 # Should the Nav Plan be optimized at the start of the mission?
-Optimize = 1
+Optimize = 0
 
 # Should the Nav Plan be re-optimized after each payload drop and each calibration?
 ReOptimize = 1
@@ -60,10 +66,10 @@ MaxSpeedMPS = 13.0
 # Speed sensitivity factor.
 # 0.0 - throttle will not be updated at all in attempt to match velocity
 # 1.0 - throttle will be SIGNIFICANTLY ADJUSTED to match velocity
-SpeedSensitivityFactor = 0.3
+SpeedSensitivityFactor = 0.35
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 100.0
+TurnFactorDPS = 120.0
 
 # Nominal while turning will be (MaxSpeedMPS)*(TurnSpeedFactor)
 TurnSpeedFactor = 0.20
@@ -71,8 +77,8 @@ TurnSpeedFactor = 0.20
 # Nominal while moving straight will be (MaxSpeedMPS)*(StraightSpeedFactor)
 StraightSpeedFactor = 0.20
 
-# Maximum allowable (never exceed) throttle %. 0.9 = never exceed 90% throttle.
-MaxAllowableSpeedFactor = 0.5
+# Maximum allowable throttle gain. 2.0 means throttle will never exceed (StraightSpeedFactor)*2.0.
+MaxAllowableThrottleGain = 1.7
 
 # Multiplier for increasing backwards movement
 BackMultiplier = 1.00
@@ -172,7 +178,13 @@ Refresh_GPS   = 1.0
 # How tough is it to get speed on terrain?
 # > 1.0 - very easy to pick up speed (ex: turf, or downhill)
 # < 1.0 - very tough to pick up speed (ex: rough grass, or uphill)
-TerrainRoughness = 0.8
+TerrainRoughness = 1.0
+
+# Hill factor.
+# 0.0 for no hill
+# > 0.0: hill that goes up northwards
+# < 0.0: hill that goes up southwards
+HillFactor = 0.2;
 
 # Uncertainty of the GPS Heading information (degrees)
 GPSHeadingUncertainty = 15.0
@@ -181,7 +193,7 @@ GPSHeadingUncertainty = 15.0
 GPSVelocityUncertainty = 0.1;
 
 # How many degrees can the wheel turn at full servo power in one direction?
-MaxWheelAngleDegrees = 20.0
+MaxWheelAngleDegrees = 17.5
 
 # Vehicle Width parameters (meters)
 VehicleWidth = 0.31
@@ -189,9 +201,9 @@ VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.79310003
-InitialLongitude = -77.87231386
-InitialHeading = 310
+InitialLatitude = 40.79242444
+InitialLongitude = -77.87307817
+InitialHeading = 0
 
 # Add some obstacles to the scene
 # Format: lon(deg), lat(deg), length(m), width(m), height(m), z-rotation(deg)

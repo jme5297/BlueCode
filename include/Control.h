@@ -24,6 +24,8 @@ namespace Control {
 		void Run(Guider* g, SensorHub* sh);						///< Main execution function for the Controller.
 		void SetMaxCameraAttempts(int i) { maxCameraAttempts = i; }
 		void SetMaxTurnSteering(double d);
+		double GetThrottleGain();
+		double GetNormThrottle();
 
 		// Controls
 		void PayloadDrop(Guider* g, SensorHub* sh);

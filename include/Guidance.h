@@ -84,6 +84,8 @@ namespace Guidance {
 		void SetPayloadServoTime(double d) { payloadServoTime = d; }
 		void SetTurnFactorDPS(double d) { turnFactorDPS = d; }
 
+		int GetGuidanceManeuverState();
+
 		double GetPayloadDropRadius() { return payloadDropRadius; }
 		double GetPayloadServoTime() { return payloadServoTime; }
 

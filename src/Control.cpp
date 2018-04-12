@@ -19,6 +19,7 @@ using namespace sensors;
 // NORMALIZED
 // --------------------
 double norm_throttle;
+double Controller::GetNormThrottle(){ return norm_throttle; }
 double norm_steer;
 
 // --------------------
@@ -48,7 +49,8 @@ std::string gpio_steer;
 std::string gpio_payload;
 
 // SPEED GAIN
-double speedGain = 1.0;
+double throttleGain = 1.0;
+double Controller::GetThrottleGain(){ return throttleGain; }
 
 // Prototypes for PRU running threads
 void DisablePRUs();
@@ -73,20 +75,7 @@ void Controller::Initialize(){
  */
 void Controller::Run(Guider* g, SensorHub* sh) {
 
-	bool updateSpeedGain = true;
-
-	// Update normalized speed and make sure it's within bounds
-	norm_throttle = g->GetCurrentGuidanceManeuver().speed*speedGain;
-	if(norm_throttle > Parser::GetMaxAllowableSpeedFactor()){
-//		TimeModule::Log("CTL", "Max forward throttle reached!!");
-		norm_throttle = Parser::GetMaxAllowableSpeedFactor();
-		updateSpeedGain = false;
-	}
-	if(norm_throttle < -1.0*Parser::GetMaxAllowableSpeedFactor()){
-//		TimeModule::Log("CTL", "Max backward throttle reached!!");
-		norm_throttle = -1.0*Parser::GetMaxAllowableSpeedFactor();
-		updateSpeedGain = false;
-	}
+	norm_throttle = g->GetCurrentGuidanceManeuver().speed*throttleGain;
 
 	// Special case for obstacle avoidance: throw full reverse if obstacle is found!
 	if(g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge &&
@@ -192,7 +181,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	}
 
 	// Update gains, calculate desired velocity and actual velocity
-	if (TimeModule::ProccessUpdate("Gains") && updateSpeedGain){
+	if (TimeModule::ProccessUpdate("Gains")){
 		if(g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop ||
 				g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge ||
 				g->GetCurrentGuidanceManeuver().state == ManeuverState::Turn ){
@@ -203,16 +192,23 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			double vel_desired = Parser::GetMaxSpeedMPS() * g->GetCurrentGuidanceManeuver().speed;
 			double vel_gps = sh->GetGPS()->GetGPSVelocity();
 			double dvel = vel_desired-vel_gps;
-			speedGain += (dvel)*Parser::GetSpeedSensitivityFactor();
-			if(speedGain < 0.0){ speedGain = 0.0; }
-			TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + "), speed gain to " + std::to_string(speedGain));
 
-			// Update the duty cycles.
-			dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_throttle );
-			dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
-			WriteDutyCycle(0, dutyCycle_speed);
-			WriteDutyCycle(1, dutyCycle_steer);
+			if(throttleGain + (dvel)*Parser::GetSpeedSensitivityFactor() < Parser::GetMaxAllowableThrottleGain()){
 
+				throttleGain += (dvel)*Parser::GetSpeedSensitivityFactor();
+				if(throttleGain < 0.0){ throttleGain = 0.0; }
+				TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + "), speed gain to " + std::to_string(throttleGain));
+
+				// Update the duty cycles.
+				dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_throttle );
+				dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
+				WriteDutyCycle(0, dutyCycle_speed);
+				WriteDutyCycle(1, dutyCycle_steer);
+
+			}else{
+				TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + "), speed gain to " + std::to_string(throttleGain));
+				TimeModule::Log("CTL","Hit max allowable throttle gain!");
+			}
 		}
 	}
 

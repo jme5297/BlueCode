@@ -18,6 +18,11 @@ Guider::Guider() {
 	savedHeading = 0;
 }
 
+int Guider::GetGuidanceManeuverState(){
+	if(!GuidanceManeuverBuffer.empty()){ return GetCurrentGuidanceManeuver().state; }
+	else{ return -1; }
+}
+
 /**
  * This will add a guidance maneuver to the end of the guidance maneuver buffer.
  * @param[in]   gm        - A pre-constructed guidance maneuver

@@ -22,7 +22,7 @@ double Parser::TurnFactorDPS;
 double Parser::MaxSpeedMPS;
 double Parser::TurnSpeedFactor;
 double Parser::StraightSpeedFactor;
-double Parser::MaxAllowableSpeedFactor;
+double Parser::MaxAllowableThrottleGain;
 double Parser::SpeedSensitivityFactor;
 
 double Parser::BackMultiplier;
@@ -59,6 +59,7 @@ std::vector<pLas> Parser::Lasers;
 double Parser::TimeDelta;
 double Parser::SimDelta;
 double Parser::TerrainRoughness;
+double Parser::HillFactor;
 double Parser::GPSUncertainty;
 double Parser::GPSHeadingUncertainty;
 double Parser::GPSVelocityUncertainty;
@@ -185,10 +186,10 @@ void Parser::ReadInputs(std::string file)
 			ss >> StraightSpeedFactor;
 			continue;
 		}
-		else if (s.find("MaxAllowableSpeedFactor") != std::string::npos) {
+		else if (s.find("MaxAllowableThrottleGain") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			ss >> MaxAllowableSpeedFactor;
+			ss >> MaxAllowableThrottleGain;
 			continue;
 		}
 		else if (s.find("SpeedSensitivityFactor") != std::string::npos) {
@@ -387,6 +388,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> TerrainRoughness;
+			continue;
+		}
+		else if (s.find("HillFactor") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> HillFactor;
 			continue;
 		}
 		else if (s.find("GPSUncertainty") != std::string::npos) {

@@ -23,6 +23,9 @@ using namespace Plant;
 PlantModel pm;
 #endif
 
+// Open a file to save the output information the vehicle.
+std::ofstream output;
+
 //-----------------------------------------------------------
 //                                        Function Prototypes
 //-----------------------------------------------------------
@@ -93,7 +96,6 @@ int main(int argc, char* argv[]) {
 
 	// Read all of the inputs in the configuration file.
 	Parser::ReadInputs("../Config.txt");
-	TimeModule::Initialize();
 
 	// Create all of the main structures to be passed to the respective subroutines.
 	Navigator NAV;
@@ -127,6 +129,28 @@ int main(int argc, char* argv[]) {
 
 bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuider, Controller* myController)
 {
+
+	// Initialize the plant model (and Irrlicht window, if desired).
+#ifdef SIM
+	// Initialize is a non-static function.
+	pm.Initialize();
+#endif
+
+	// Open output
+	TimeModule::Initialize();
+	output.open("data.csv");
+
+	output
+		<< "time,"
+		<< "lon,"
+		<< "lat,"
+		<< "head,"
+		<< "vel,"
+		<< "gmIndex,"
+		<< "gmState,"
+		<< "normThrot,"
+		<< "spdGain" << "\n";
+
 	// Set all other configuration parameters that were defined in Config.txt.
 	myGuider->SetPayloadDropRadius(Parser::GetPayloadDropRadius());
 	myGuider->SetOffAngleDeviate(Parser::GetOffAngleDeviate());
@@ -192,20 +216,18 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 			step++;
 	}
 
-	return true;
-}
-
-void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuider, Controller* myController) {
-
-	// Initialize the plant model (and Irrlicht window, if desired).
 #ifdef SIM
-	// Initialize is a non-static function.
-	pm.Initialize();
 #ifdef USE_IRRLICHT
 	PlantModel::DrawObstacles(Parser::GetObstacles());
 	PlantModel::DrawPayloadLocations(myNavigator->GetNavPlan().coordinates, myGuider->GetPayloadDropRadius());
 #endif
 #endif
+
+
+	return true;
+}
+
+void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuider, Controller* myController) {
 
 	// If debug mode is active, ensure the TimeModule is not running on std::chrono.
 #ifdef DEBUG
@@ -222,21 +244,6 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 #ifdef SIM
 	TimeModule::InitProccessCounter("Plant", Parser::GetSimDelta());
 #endif
-
-	int ii = 0;
-	std::string name = "data_" + std::to_string(ii) + ".csv";
-	std::ifstream f(name.c_str());
-	while (f.good()) {
-		ii = ii + 1;
-		name = "data_" + std::to_string(ii) + ".csv";
-		f.close();
-		f.open(name.c_str());
-	}
-	f.close();
-
-	// Open a file to save the output information the vehicle.
-	std::ofstream output;
-
 
 	// Initialize the motor, steering, and payload control.
 	myController->Initialize();
@@ -294,14 +301,16 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 
 		// Write program information to the output data file.
 		if (TimeModule::ProccessUpdate("Write")) {
-			output.open((name).c_str(), std::ofstream::app);
-			output << TimeModule::GetElapsedTime("BeginMainOpsTime") << "," << std::setprecision(12)
+			output
+				<< TimeModule::GetElapsedTime("BeginMainOpsTime") << "," << std::setprecision(12)
 				<< lon << ","
 				<< lat << ","
 				<< myNavigator->GetHeading() << ","
-				<< mySensorHub->GetGPS()->GetGPSVelocity() <<  "\n";
-//			std::cout << "hey\n";
-			output.close();
+				<< mySensorHub->GetGPS()->GetGPSVelocity() << ","
+				<< myGuider->GetGuidanceManeuverIndex() << ","
+				<< myGuider->GetGuidanceManeuverState() << ","
+				<< myController->GetNormThrottle() << ","
+				<< myController->GetThrottleGain() << "\n";
 		}
 
 		// If the Guider determines the nav plan to be complete, then stop the main operations loop.

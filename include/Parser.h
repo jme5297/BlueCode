@@ -88,7 +88,7 @@ public:
 	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
 	static double GetTurnSpeedFactor(){ return TurnSpeedFactor; }
 	static double GetStraightSpeedFactor(){ return StraightSpeedFactor; }
-	static double GetMaxAllowableSpeedFactor(){ return MaxAllowableSpeedFactor; }
+	static double GetMaxAllowableThrottleGain(){ return MaxAllowableThrottleGain; }
 	static double GetSpeedSensitivityFactor(){ return SpeedSensitivityFactor; }
 	static double GetBackMultipier(){ return BackMultiplier; }
 	static double GetBreakFactor(){ return BreakFactor; }
@@ -124,6 +124,7 @@ public:
 	static double GetTimeDelta() { return TimeDelta; }
 	static double GetSimDelta() { return SimDelta; }
 	static double GetTerrainRoughness(){ return TerrainRoughness; }
+	static double GetHillFactor(){ return HillFactor; }
 	static double GetGPSUncertainty() { return GPSUncertainty; }
 	static double GetGPSHeadingUncertainty() { return GPSHeadingUncertainty; }
 	static double GetGPSVelocityUncertainty(){ return GPSVelocityUncertainty; }
@@ -155,7 +156,7 @@ protected:
 	static double TurnFactorDPS;
 	static double TurnSpeedFactor;
 	static double StraightSpeedFactor;
-	static double MaxAllowableSpeedFactor;
+	static double MaxAllowableThrottleGain;
 	static double SpeedSensitivityFactor;
 	static double BackMultiplier;
 	static double BreakFactor;
@@ -192,6 +193,7 @@ protected:
 	static double TimeDelta;
 	static double SimDelta;
 	static double TerrainRoughness;
+	static double HillFactor;
 	static double GPSUncertainty;
 	static double GPSHeadingUncertainty;
 	static double GPSVelocityUncertainty;
