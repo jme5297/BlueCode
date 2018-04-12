@@ -250,7 +250,7 @@ void PlantModel::Run(double dt) {
 	double speed = GetVehicle()->wheelSpeedN * GetVehicle()->maxSpeedMPS;
 
 	// Add a terrain roughness factor
-	speed *= Parser::GetTerrainRoughness();
+	speed = speed *  Parser::GetTerrainRoughness() + (0.1*speed*sin(GetVehicle()->heading * PI / 180.0));
 
 	if (fabs(alpha) <= 1e-15) {
 		dx = speed * dt*sin(GetVehicle()->heading * PI / 180.0);
