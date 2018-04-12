@@ -197,7 +197,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 
 				throttleGain += (dvel)*Parser::GetSpeedSensitivityFactor();
 				if(throttleGain < 0.0){ throttleGain = 0.0; }
-				TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + "), speed gain to " + std::to_string(throttleGain));
+				TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + ") : speed gain to " + std::to_string(throttleGain));
 
 				// Update the duty cycles.
 				dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_throttle );
@@ -206,8 +206,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 				WriteDutyCycle(1, dutyCycle_steer);
 
 			}else{
-				TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + "), speed gain to " + std::to_string(throttleGain));
-				TimeModule::Log("CTL","Hit max allowable throttle gain!");
+				TimeModule::Log("CTL","Hit max allowable throttle gain - staying at " + std::to_string(throttleGain));
 			}
 		}
 	}

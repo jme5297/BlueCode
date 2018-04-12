@@ -149,7 +149,7 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 		<< "gmIndex,"
 		<< "gmState,"
 		<< "normThrot,"
-		<< "spdGain" << "\n";
+		<< "throtGain" << "\n";
 
 	// Set all other configuration parameters that were defined in Config.txt.
 	myGuider->SetPayloadDropRadius(Parser::GetPayloadDropRadius());

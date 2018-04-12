@@ -1,12 +1,14 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-plt.figure().patch.set_facecolor('gray')
+plt.figure(num=None, figsize=(16, 9), dpi=80, facecolor='w', edgecolor='k')
 directory = '../build/'
 
 data = pd.read_csv(directory+'data.csv', sep=',', index_col=False)
-mlog = pd.read_csv(directory+'mxlog.csv', sep=',', index_col=False, header=None, names=['time', 'who', 'msg'])
+mxlog = pd.read_csv(directory+'mxlog.csv', sep=',', index_col=False)
 pts = pd.read_csv(directory+'pts.csv', sep=',',index_col=False, header=None, names=['lon', 'lat'])
 datanp = np.array(data)
 ptsnp = np.array(pts)
@@ -18,7 +20,7 @@ plt.xlabel('Time (sec)')
 plt.ylabel('Velocity (m/s)')
 
 plt.subplot(3,1,2)
-plt.plot(data['time'], data['spdGain'], color='red')
+plt.plot(data['time'], data['throtGain'], color='red')
 plt.grid(b=True, which='both', linestyle='-')
 plt.xlabel('Time (sec)')
 plt.ylabel('Speed Gain Factor')
@@ -29,5 +31,4 @@ plt.grid(b=True, which='both', linestyle='-')
 plt.xlabel('Time (sec)')
 plt.ylabel('Throttle')
 
-
-plt.show()
+plt.savefig('vel_v_time.png', bbox_inches='tight')

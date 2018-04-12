@@ -11,13 +11,13 @@
 
 # West of the soccer fields, near the golf course
 # Four white crosses, and the center circle of the field.
-#BEGIN_COORDINATES
-#-77.87234811, 40.79282781
-#-77.87264617, 40.79304823
-#-77.87231386, 40.79310003
-#-77.87223508, 40.79330462
-#-77.87201799, 40.79312062
-#END_COORDINATES
+BEGIN_COORDINATES
+-77.87234811, 40.79282781
+-77.87264617, 40.79304823
+-77.87231386, 40.79310003
+-77.87223508, 40.79330462
+-77.87201799, 40.79312062
+END_COORDINATES
 
 # Simulation testing - camera
 #BEGIN_COORDINATES
@@ -31,13 +31,13 @@
 # Simulation testing - hill testing
 # set initial to -77.87307817, 40.79242444 and heading to 0.0.
 # set to non-optimize
-BEGIN_COORDINATES
--77.87307817, 40.79272444
--77.87307817, 40.79212444
-END_COORDINATES
+#BEGIN_COORDINATES
+#-77.87307817, 40.79272444
+#-77.87307817, 40.79212444
+#END_COORDINATES
 
 # Should the Nav Plan be optimized at the start of the mission?
-Optimize = 0
+Optimize = 1
 
 # Should the Nav Plan be re-optimized after each payload drop and each calibration?
 ReOptimize = 1
@@ -91,10 +91,10 @@ BreakFactor = 0.99
 # ------------------------------------
 
 # Acceptable payload drop radius from target (meters)
-PayloadDropRadius = 9.5
+PayloadDropRadius = 9.13
 
 # Uncertainty of the GPS (meters)?
-GPSUncertainty = 2.5
+GPSUncertainty = 3.0
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 20.0
@@ -190,7 +190,7 @@ HillFactor = 0.2;
 GPSHeadingUncertainty = 15.0
 
 # Uncertainty of GPS velocity
-GPSVelocityUncertainty = 0.1;
+GPSVelocityUncertainty = 0.05;
 
 # How many degrees can the wheel turn at full servo power in one direction?
 MaxWheelAngleDegrees = 17.5
@@ -201,8 +201,8 @@ VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.79242444
-InitialLongitude = -77.87307817
+InitialLatitude = 40.79332444
+InitialLongitude = -77.87257817
 InitialHeading = 0
 
 # Add some obstacles to the scene
