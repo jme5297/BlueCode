@@ -114,6 +114,7 @@ public:
 	static double GetPRU_Steer_Delay() { return PRU_Steer_Delay; }
 	static int GetCam_Width(){ return Cam_Width; }
 	static int GetCam_Height(){ return Cam_Height; }
+	static int GetCam_Device(){ return Cam_Device; }
 	static int GetLaser_Left() { return Laser_Left; }
 	static int GetLaser_Right() { return Laser_Right; }
 	static int GetTemp_Disable_Laser(){ return Temp_Disable_Laser; }
@@ -183,6 +184,7 @@ protected:
 	static double PRU_Steer_Delay;
 	static int Cam_Width;
 	static int Cam_Height;
+	static int Cam_Device;
 	static int Laser_Left;
 	static int Laser_Right;
 	static int Temp_Disable_Laser;

@@ -317,6 +317,8 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 		if (myGuider->IsNavPlanComplete()) {
 			running = false;
 		}
+
+		usleep(1000);
 	}
 
 	TimeModule::Log("MNE","Main operations complete.");

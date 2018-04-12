@@ -10,13 +10,12 @@
 # Format: [ lon, lat ]
 
 # West of the soccer fields, near the golf course
-# Four white crosses, and the center circle of the field.
 BEGIN_COORDINATES
--77.87234811, 40.79282781
--77.87264617, 40.79304823
--77.87231386, 40.79310003
--77.87223508, 40.79330462
--77.87201799, 40.79312062
+-77.87231927, 40.79277784
+-77.87195496, 40.79308631
+-77.87226016, 40.79329983
+-77.87233552, 40.79305542
+-77.87275949, 40.79296715
 END_COORDINATES
 
 # Simulation testing - camera
@@ -43,7 +42,7 @@ Optimize = 1
 ReOptimize = 1
 
 # Write mission log to a text file?
-WriteToLogFile = 1
+WriteToLogFile = 0
 
 # ############################################################################
 #                                                                Configuration
@@ -66,19 +65,19 @@ MaxSpeedMPS = 13.0
 # Speed sensitivity factor.
 # 0.0 - throttle will not be updated at all in attempt to match velocity
 # 1.0 - throttle will be SIGNIFICANTLY ADJUSTED to match velocity
-SpeedSensitivityFactor = 0.35
+SpeedSensitivityFactor = 0.05
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 120.0
+TurnFactorDPS = 105.0
 
 # Nominal while turning will be (MaxSpeedMPS)*(TurnSpeedFactor)
-TurnSpeedFactor = 0.20
+TurnSpeedFactor = 0.16
 
 # Nominal while moving straight will be (MaxSpeedMPS)*(StraightSpeedFactor)
-StraightSpeedFactor = 0.20
+StraightSpeedFactor = 0.16
 
 # Maximum allowable throttle gain. 2.0 means throttle will never exceed (StraightSpeedFactor)*2.0.
-MaxAllowableThrottleGain = 1.7
+MaxAllowableThrottleGain = 1.5
 
 # Multiplier for increasing backwards movement
 BackMultiplier = 1.00
@@ -94,13 +93,13 @@ BreakFactor = 0.99
 PayloadDropRadius = 9.13
 
 # Uncertainty of the GPS (meters)?
-GPSUncertainty = 3.0
+GPSUncertainty = 2.0
 
 # Acceptable tolerance off-angle maximum to continue on heading (degrees)
 OffAngleDeviate = 20.0
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
-CalibrationTime = 6.0
+CalibrationTime = 4.5
 
 # Vehicle should recalibrate after each consecutive payload drop
 ReCalibrate = 0
@@ -139,8 +138,9 @@ DC_Payload_Delta = 0.0105
 # -----------------------------------------
 
 # Camera resolution
-Cam_Width = 1280
-Cam_Height = 720
+Cam_Width = 352
+Cam_Height = 288
+Cam_Device = 0
 
 # GPIO numbers of the left and right lasers.
 # P8.12
@@ -149,7 +149,7 @@ Laser_Left = 44
 Laser_Right = 26
 
 # Temporarily disable a laser (set to -1 to disable both!)
-Temp_Disable_Laser = 26
+Temp_Disable_Laser = -1
 
 # GPIO Port numbers used for transistor to switch to payload servo
 # P9.23

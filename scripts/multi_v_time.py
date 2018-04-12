@@ -9,7 +9,7 @@ from matplotlib import cm
 fig = plt.figure(num=None, figsize=(16, 9), dpi=80, facecolor='w', edgecolor='k')
 ax = fig.add_subplot(111, projection='3d')
 
-directory = '../build/'
+directory = ''
 data = pd.read_csv(directory+'data.csv', sep=',', index_col=False)
 mxlog = pd.read_csv(directory+'mxlog.csv', sep=',', index_col=False)
 pts = pd.read_csv(directory+'pts.csv', sep=',',index_col=False, header=None, names=['lon', 'lat'])

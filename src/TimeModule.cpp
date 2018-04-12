@@ -22,11 +22,13 @@ TimeModule::TimeModule() {
 
 void TimeModule::Initialize(){
 
+	if(Parser::GetWriteToLogFile()){
 	mxlog.open("mxlog.csv");
 	mxlog <<
 		"time," <<
 		"who," <<
 		"msg\n";
+	}
 
 	#ifdef DEBUG
 		currentSimTime = 0.0;

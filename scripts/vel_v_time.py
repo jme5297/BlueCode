@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 plt.figure(num=None, figsize=(16, 9), dpi=80, facecolor='w', edgecolor='k')
-directory = '../build/'
+directory = ''
 
 data = pd.read_csv(directory+'data.csv', sep=',', index_col=False)
 mxlog = pd.read_csv(directory+'mxlog.csv', sep=',', index_col=False)
