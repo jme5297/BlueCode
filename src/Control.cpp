@@ -206,7 +206,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			speedGain += (dvel)*Parser::GetSpeedSensitivityFactor();
 			if(speedGain < 0.0){ speedGain = 0.0; }
 			TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + "), speed gain to " + std::to_string(speedGain));
-			
+
 			// Update the duty cycles.
 			dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_throttle );
 			dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );

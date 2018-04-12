@@ -300,7 +300,7 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 				<< lat << ","
 				<< myNavigator->GetHeading() << ","
 				<< mySensorHub->GetGPS()->GetGPSVelocity() <<  "\n";
-			std::cout << "hey\n";
+//			std::cout << "hey\n";
 			output.close();
 		}
 
