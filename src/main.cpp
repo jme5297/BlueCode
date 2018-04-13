@@ -145,11 +145,15 @@ bool ProgramSetup(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGuid
 		<< "lon,"
 		<< "lat,"
 		<< "head,"
-		<< "vel,"
+		<< "gpsVel,"
 		<< "gmIndex,"
 		<< "gmState,"
 		<< "normThrot,"
-		<< "throtGain" << "\n";
+		<< "throtGain"
+#ifdef SIM
+		<< ",vel"
+#endif
+		<< "\n";
 
 	// Set all other configuration parameters that were defined in Config.txt.
 	myGuider->SetPayloadDropRadius(Parser::GetPayloadDropRadius());
@@ -310,7 +314,11 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 				<< myGuider->GetGuidanceManeuverIndex() << ","
 				<< myGuider->GetGuidanceManeuverState() << ","
 				<< myController->GetNormThrottle() << ","
-				<< myController->GetThrottleGain() << "\n";
+				<< myController->GetThrottleGain()
+#ifdef SIM
+				<< "," << PlantModel::GetVehicle()->velocity
+#endif
+				<< "\n";
 		}
 
 		// If the Guider determines the nav plan to be complete, then stop the main operations loop.
@@ -318,7 +326,9 @@ void MainOperations(SensorHub* mySensorHub, Navigator* myNavigator, Guider* myGu
 			running = false;
 		}
 
+#ifndef DEBUG
 		usleep(1000);
+#endif
 	}
 
 	TimeModule::Log("MNE","Main operations complete.");

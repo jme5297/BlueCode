@@ -8,7 +8,9 @@ using namespace Times;
 using namespace Plant;
 // GPS velocity now runs on running average
 const int avgSize = 2;
+const int bufSize = 2;
 double velAvg[avgSize];
+double velBuf[bufSize];
 #else
 
 // Used for UART communication
@@ -113,19 +115,26 @@ void GPS::Run() {
 		double vx = dx/dt*84397.32550370222;
 		double vy = dy/dt*111049.88839989061;
 		double vell = sqrt(vx*vx + vy*vy);
-		vehicleVelocity = vell + (-0.5 + ((double)rand() / (RAND_MAX))) * Parser::GetGPSVelocityUncertainty();
+		double tempVel = vell + (-0.5 + ((double)rand() / (RAND_MAX))) * Parser::GetGPSVelocityUncertainty();
 
 		// Velocity transfer function: running average
-		double sum = vehicleVelocity;
+		double sum = tempVel;
 		for(int i = 0; i < avgSize; i++){
 			sum += velAvg[i];
 		}
-		vehicleVelocity = sum/((double)(avgSize+1));
+		tempVel = sum/((double)(avgSize+1));
 
 		for(int i = 0; i < avgSize-1; i++){
 			velAvg[i] = velAvg[i+1];
 		}
-		velAvg[avgSize-1] = vehicleVelocity;
+		velAvg[avgSize-1] = tempVel;
+
+		// Velocity transfer function: delay
+		for(int i = 0; i < bufSize-1; i++){
+			velBuf[i] = velBuf[i+1];
+		}
+		vehicleVelocity = velBuf[0];
+		velBuf[bufSize-1] = tempVel;
 
 		// Heading
 		head = (head < 0.0) ? 360.0 + head : head;

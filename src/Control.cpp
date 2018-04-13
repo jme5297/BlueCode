@@ -49,8 +49,8 @@ std::string gpio_steer;
 std::string gpio_payload;
 
 // SPEED GAIN
-double throttleGain = 1.0;
-double PIDfactor = 1.0;
+double throttleGain = 0.0;
+double PIDfactor = 0.0;
 double Controller::GetThrottleGain(){ return PIDfactor; }
 double vel_last;
 
@@ -219,7 +219,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			// Calculate the difference between current and desired velocity
 			double vel_desired = Parser::GetMaxSpeedMPS() * g->GetCurrentGuidanceManeuver().speed;
 			double vel_gps = sh->GetGPS()->GetGPSVelocity();
-			double dvel = vel_desired-vel_gps;
+			double dvel = vel_gps-vel_desired;
 
 			// Derivative
 			double dveldt = (vel_gps-vel_last)/TimeModule::GetLastProccessDelta("Gains");
@@ -310,6 +310,8 @@ void Controller::Run(Guider* g, SensorHub* sh) {
  * The payload guidance maneuver is not complete until both of these flags are triggered.
  */
 void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
+
+	throttleGain = 0.0;
 
 	// Part 1: Check if the payload drop has not been completed
 	if (!g->GetCurrentGuidanceManeuver().payloadDropComplete)

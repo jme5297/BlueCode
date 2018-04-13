@@ -255,6 +255,8 @@ void PlantModel::Run(double dt) {
 	// Add a hill (north is higher altitude)
 	speed += -1.0*Parser::GetHillFactor()*speed*cos(GetVehicle()->heading * PI / 180.0);
 
+	GetVehicle()->velocity = speed;
+
 	if (fabs(alpha) <= 1e-15) {
 		dx = speed * dt*sin(GetVehicle()->heading * PI / 180.0);
 		dy = speed * dt*cos(GetVehicle()->heading * PI / 180.0);

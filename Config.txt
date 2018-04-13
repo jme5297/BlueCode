@@ -31,7 +31,7 @@ WriteToLogFile = 0
 # ------------------------------------
 Refresh_GNC   = 0.01
 Refresh_OUT   = 0.5
-Refresh_Gains = 2.0
+Refresh_Gains = 1.0
 
 # ------------------------------------
 #                             DYNAMICS
@@ -40,18 +40,18 @@ Refresh_Gains = 2.0
 # Maximum speed of the vehicle at 100% throttle (meters/second)
 MaxSpeedMPS = 13.0
 
-PID_P = 0.35;
-PID_I = 0.2;
-PID_D = -0.7;
+PID_P = -0.15;
+PID_I = -0.08;
+PID_D = -0.25;
 
 # Vehicle turn rate at full turning speed (degrees/second)
 TurnFactorDPS = 105.0
 
 # Nominal while turning will be (MaxSpeedMPS)*(TurnSpeedFactor)
-TurnSpeedMPS = 1.8
+TurnSpeedMPS = 1.6
 
 # Nominal while moving straight will be (MaxSpeedMPS)*(StraightSpeedFactor)
-StraightSpeedMPS = 1.8
+StraightSpeedMPS = 1.6
 
 # Maximum allowable throttle gain.
 # EX: 2.0 means throttle will never exceed (StraightSpeedMPS)/(MaxSpeedMPS)*2.0.
@@ -156,13 +156,13 @@ Refresh_GPS   = 1.0
 # How tough is it to get speed on terrain?
 # > 1.0 - very easy to pick up speed (ex: turf, or downhill)
 # < 1.0 - very tough to pick up speed (ex: rough grass, or uphill)
-TerrainRoughness = 0.7
+TerrainRoughness = 1.0
 
 # Hill factor.
 # 0.0 for no hill
 # > 0.0: hill that goes up northwards
 # < 0.0: hill that goes up southwards
-HillFactor = 0.1;
+HillFactor = 0.0
 
 # Uncertainty of the GPS Heading information (degrees)
 GPSHeadingUncertainty = 15.0

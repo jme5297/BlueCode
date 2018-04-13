@@ -56,6 +56,8 @@ namespace Plant {
 		double maxSpeedMPS; ///< Max allowable speed in meters per second.
 							/** \note This applies to both vehicle types. */
 
+		double velocity;
+
 		// Sensor types - generic
 		pGPS gps;
 		pCam cam;

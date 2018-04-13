@@ -198,7 +198,7 @@ void Parser::ReadInputs(std::string file)
 		else if (s.find("PID_P") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			ss >> PID_D;
+			ss >> PID_P;
 			continue;
 		}
 		else if (s.find("PID_I") != std::string::npos) {
