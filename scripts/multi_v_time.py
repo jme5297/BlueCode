@@ -11,7 +11,7 @@ ax = fig.add_subplot(111, projection='3d')
 
 directory = ''
 data = pd.read_csv(directory+'data.csv', sep=',', index_col=False)
-mxlog = pd.read_csv(directory+'mxlog.csv', sep=',', index_col=False)
+#mxlog = pd.read_csv(directory+'mxlog.csv', sep=',', index_col=False)
 pts = pd.read_csv(directory+'pts.csv', sep=',',index_col=False, header=None, names=['lon', 'lat'])
 datanp = np.array(data)
 ptsnp = np.array(pts)
@@ -32,14 +32,15 @@ segments = np.concatenate([points[:-1], points[1:]], axis=1)
 norm = plt.Normalize(throt.min(), throt.max())
 lc = Line3DCollection(segments, cmap='viridis', norm=norm)
 lc.set_array(throt)
-lc.set_linewidth(2)
+lc.set_linewidths(6.0)
 line = ax.add_collection3d(lc, zs=z)
 
 # Create colorbar
 m = cm.ScalarMappable(cmap='viridis')
 m.set_array([min(throt),max(throt)])
 m.set_clim(vmin=min(throt),vmax=max(throt))
-fig.colorbar(m)
+cb = fig.colorbar(m)
+cb.set_label('Throttle Gain')
 
 ax.set_xlabel('Lon (deg)')
 ax.set_ylabel('Lat (deg)')

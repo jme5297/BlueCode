@@ -11,7 +11,7 @@ fig = plt.gcf()
 
 directory = ''
 data = pd.read_csv(directory+'data.csv', sep=',', index_col=False)
-mlog = pd.read_csv(directory+'mxlog.csv', sep=',', index_col=False)
+#mlog = pd.read_csv(directory+'mxlog.csv', sep=',', index_col=False)
 pts = pd.read_csv(directory+'pts.csv', sep=',',index_col=False, header=None, names=['lon', 'lat'])
 datanp = np.array(data)
 ptsnp = np.array(pts)
@@ -23,15 +23,15 @@ for ii in range(1, len(pts)):
     plt.plot([ptsnp[ii-1,0], ptsnp[ii,0]],[ptsnp[ii-1,1], ptsnp[ii,1]],color='green', linestyle='--')
 
 # Collect all of the payload drop times
-drops = mlog.loc[mlog['msg'] == 'CTL sent payload-drop and image-taken signals.' ]
+#drops = mlog.loc[mlog['msg'] == 'CTL sent payload-drop and image-taken signals.' ]
 
 # Starting location and payload drop locations
 plt.plot(datanp[0,1],datanp[0,2], marker='o', markersize=10, color='blue')
-for ii in range(0, len(drops)):
-    time = drops.iloc[ii]['time']
-    idx = np.argmin(abs(datanp[:,0]-time))
-    plt.plot(datanp[idx,1],datanp[idx,2], marker='o', markersize=10, color='green')
-    plt.plot([datanp[idx,1],ptsnp[ii,0]],[datanp[idx,2],ptsnp[ii,1]], color='black', linestyle='--')
+#for ii in range(0, len(drops)):
+#    time = drops.iloc[ii]['time']
+#    idx = np.argmin(abs(datanp[:,0]-time))
+#    plt.plot(datanp[idx,1],datanp[idx,2], marker='o', markersize=10, color='green')
+#    plt.plot([datanp[idx,1],ptsnp[ii,0]],[datanp[idx,2],ptsnp[ii,1]], color='black', linestyle='--')
 
 # Plot positional data, with color dependent on velocity
 x = datanp[:,1]
@@ -41,10 +41,12 @@ points = np.array([x, y]).T.reshape(-1, 1, 2)
 segments = np.concatenate([points[:-1], points[1:]], axis=1)
 norm = plt.Normalize(v.min(), v.max())
 lc = LineCollection(segments, cmap='viridis', norm=norm)
+lc.set_linestyle('-');
+lc.set_linewidths(8.0);
 lc.set_array(v)
-lc.set_linewidth(2)
 line = ax.add_collection(lc)
-fig.colorbar(line, ax=ax)
+cb = fig.colorbar(line, ax=ax)
+cb.set_label('Velocity (m/s)')
 
 plt.grid(b=True, which='both', linestyle='-')
 plt.xlabel('Lon (deg)')
