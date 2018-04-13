@@ -10,7 +10,7 @@
 # Format: [ lon, lat ]
 
 BEGIN_COORDINATES
--77.87307817, 40.79362444
+-77.86975157, 40.7945132
 END_COORDINATES
 
 # Should the Nav Plan be optimized at the start of the mission?
@@ -20,7 +20,7 @@ Optimize = 1
 ReOptimize = 1
 
 # Write mission log to a text file?
-WriteToLogFile = 0
+WriteToLogFile = 1
 
 # ############################################################################
 #                                                                Configuration
@@ -38,24 +38,24 @@ Refresh_Gains = 1.0
 # ------------------------------------
 
 # Maximum speed of the vehicle at 100% throttle (meters/second)
-MaxSpeedMPS = 13.0
+MaxSpeedMPS = 7.2
 
 PID_P = -0.15;
 PID_I = -0.08;
 PID_D = -0.25;
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 105.0
+TurnFactorDPS = 93.0
 
 # Nominal while turning will be (MaxSpeedMPS)*(TurnSpeedFactor)
-TurnSpeedMPS = 1.6
+TurnSpeedMPS = 1.8
 
 # Nominal while moving straight will be (MaxSpeedMPS)*(StraightSpeedFactor)
-StraightSpeedMPS = 1.6
+StraightSpeedMPS = 1.8
 
 # Maximum allowable throttle gain.
 # EX: 2.0 means throttle will never exceed (StraightSpeedMPS)/(MaxSpeedMPS)*2.0.
-MaxAllowableThrottleGain = 2.0
+MaxAllowableThrottleGain = 1.5
 
 # Multiplier for increasing backwards movement
 BackMultiplier = 1.00
@@ -77,7 +77,7 @@ GPSUncertainty = 2.0
 OffAngleDeviate = 20.0
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
-CalibrationTime = 4.0
+CalibrationTime = 6.0
 
 # Vehicle should recalibrate after each consecutive payload drop
 ReCalibrate = 0

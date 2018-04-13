@@ -329,19 +329,20 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 			tReader.open(gpio_steer);
 			tReader << 0;
 			tReader.close();
-			usleep(10000);
+			usleep(500000);
 #endif
 
 			// Begin writing the payload servo duty cycle value to the PRU memory.
 			hasPayloadServoMoved = true;
 			WriteDutyCycle(1, dutyCycle_payload);
-			usleep(10000);
+			usleep(500000);
 
 #ifdef TEST_PWM
 			// Switch on the transistor for the payload servo.
 			tReader.open(gpio_payload);
 			tReader << 1;
 			tReader.close();
+			usleep(500000);
 #endif
 
 			TimeModule::Log("CTL", "Payload Servo Active. Allowing a grace period.");
