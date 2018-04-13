@@ -6,13 +6,19 @@ using namespace Times;
 
 #ifdef SIM
 using namespace Plant;
+// GPS velocity now runs on running average
+const int avgSize = 2;
+double velAvg[avgSize];
 #else
+
+// Used for UART communication
 unsigned char rx_buffer[80];
 void RunGPS();
 void process();
 void data_GR(char * buffer, int loc);
 double lat, lon, cog, vel;
 int uart0_filestream = -1;
+
 #endif
 
 Coordinate lastCoordinates;
@@ -34,7 +40,13 @@ bool GPS::Init() {
 	lastCoordinates = currentGPSCoordinates;
 	TimeModule::InitProccessCounter("GPS", Parser::GetRefresh_GPS());
 	vehicleHeading = 0.0;
+
+	for(int i = 0; i < avgSize; i++){
+		velAvg[i] = 0.0;
+	}
+
 	return PlantModel::GetVehicle()->gps.initialized;
+
 #else
 
 	uart0_filestream = open("/dev/ttyO4", O_RDWR | O_NOCTTY | O_NDELAY);		//Open in non blocking read/write mode
@@ -103,7 +115,17 @@ void GPS::Run() {
 		double vell = sqrt(vx*vx + vy*vy);
 		vehicleVelocity = vell + (-0.5 + ((double)rand() / (RAND_MAX))) * Parser::GetGPSVelocityUncertainty();
 
-		//std::cout << std::to_string(c.lon) << ", " << std::to_string(c.lat) << ", " << std::to_string(vehicleHeading) << ", " << vehicleVelocity << "\n";
+		// Velocity transfer function: running average
+		double sum = vehicleVelocity;
+		for(int i = 0; i < avgSize; i++){
+			sum += velAvg[i];
+		}
+		vehicleVelocity = sum/((double)(avgSize+1));
+
+		for(int i = 0; i < avgSize-1; i++){
+			velAvg[i] = velAvg[i+1];
+		}
+		velAvg[avgSize-1] = vehicleVelocity;
 
 		// Heading
 		head = (head < 0.0) ? 360.0 + head : head;

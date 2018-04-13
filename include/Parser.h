@@ -86,10 +86,12 @@ public:
 	// Dynamics
 	static double GetTurnFactorDPS() { return TurnFactorDPS; }
 	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
-	static double GetTurnSpeedFactor(){ return TurnSpeedFactor; }
-	static double GetStraightSpeedFactor(){ return StraightSpeedFactor; }
+	static double GetTurnSpeedMPS(){ return TurnSpeedMPS; }
+	static double GetStraightSpeedMPS(){ return StraightSpeedMPS; }
 	static double GetMaxAllowableThrottleGain(){ return MaxAllowableThrottleGain; }
-	static double GetSpeedSensitivityFactor(){ return SpeedSensitivityFactor; }
+	static double GetPID_P(){ return PID_P; }
+	static double GetPID_I(){ return PID_I; }
+	static double GetPID_D(){ return PID_D; }
 	static double GetBackMultipier(){ return BackMultiplier; }
 	static double GetBreakFactor(){ return BreakFactor; }
 
@@ -155,10 +157,12 @@ protected:
 	// Dynamics
 	static double MaxSpeedMPS;
 	static double TurnFactorDPS;
-	static double TurnSpeedFactor;
-	static double StraightSpeedFactor;
+	static double TurnSpeedMPS;
+	static double StraightSpeedMPS;
 	static double MaxAllowableThrottleGain;
-	static double SpeedSensitivityFactor;
+	static double PID_P;
+	static double PID_I;
+	static double PID_D;
 	static double BackMultiplier;
 	static double BreakFactor;
 

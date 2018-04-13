@@ -20,10 +20,12 @@ double Parser::OffAngleDeviate;
 // Dynamics
 double Parser::TurnFactorDPS;
 double Parser::MaxSpeedMPS;
-double Parser::TurnSpeedFactor;
-double Parser::StraightSpeedFactor;
+double Parser::TurnSpeedMPS;
+double Parser::StraightSpeedMPS;
 double Parser::MaxAllowableThrottleGain;
-double Parser::SpeedSensitivityFactor;
+double Parser::PID_P;
+double Parser::PID_I;
+double Parser::PID_D;
 
 double Parser::BackMultiplier;
 double Parser::BreakFactor;
@@ -175,16 +177,16 @@ void Parser::ReadInputs(std::string file)
 			ss >> MaxSpeedMPS;
 			continue;
 		}
-		else if (s.find("TurnSpeedFactor") != std::string::npos) {
+		else if (s.find("TurnSpeedMPS") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			ss >> TurnSpeedFactor;
+			ss >> TurnSpeedMPS;
 			continue;
 		}
-		else if (s.find("StraightSpeedFactor") != std::string::npos) {
+		else if (s.find("StraightSpeedMPS") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			ss >> StraightSpeedFactor;
+			ss >> StraightSpeedMPS;
 			continue;
 		}
 		else if (s.find("MaxAllowableThrottleGain") != std::string::npos) {
@@ -193,10 +195,22 @@ void Parser::ReadInputs(std::string file)
 			ss >> MaxAllowableThrottleGain;
 			continue;
 		}
-		else if (s.find("SpeedSensitivityFactor") != std::string::npos) {
+		else if (s.find("PID_P") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
-			ss >> SpeedSensitivityFactor;
+			ss >> PID_D;
+			continue;
+		}
+		else if (s.find("PID_I") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> PID_I;
+			continue;
+		}
+		else if (s.find("PID_D") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> PID_D;
 			continue;
 		}
 		else if (s.find("BackMultipier") != std::string::npos) {

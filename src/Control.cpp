@@ -50,7 +50,9 @@ std::string gpio_payload;
 
 // SPEED GAIN
 double throttleGain = 1.0;
-double Controller::GetThrottleGain(){ return throttleGain; }
+double PIDfactor = 1.0;
+double Controller::GetThrottleGain(){ return PIDfactor; }
+double vel_last;
 
 // Prototypes for PRU running threads
 void DisablePRUs();
@@ -75,23 +77,32 @@ void Controller::Initialize(){
  */
 void Controller::Run(Guider* g, SensorHub* sh) {
 
-	norm_throttle = g->GetCurrentGuidanceManeuver().speed*throttleGain;
+	// Update the normalied throttle.
+	norm_throttle = g->GetCurrentGuidanceManeuver().speed*PIDfactor;
 
 	// Special case for obstacle avoidance: throw full reverse if obstacle is found!
 	if(g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge &&
 			g->GetCurrentGuidanceManeuver().avoidDivergeState == 0){
-		//TimeModule::Log("CTL", "Forget gains... full reverse!!");
 		norm_throttle = g->GetCurrentGuidanceManeuver().speed;
 	}
 
+	/*
+	 * The hasFixedSpeed flag allows time for the vehicle to adjust after a
+	 * manuever change. Each maneuver type has it's own wait time. After each hasFixedSpeed
+	 * flag is triggered, a special milestone is added that represents the official start
+	 * of that maneuver. The Speed_<#> milestones are set in the Guider and represent
+	 * the instant that a specific maneuver was requested.
+	 */
 	if (!g->GetCurrentGuidanceManeuver().hasFixedSpeed) {
 
-		// Update the normalization speeds
+		// During this phase, make sure we are not steering in a specific direction.
 		double accelTime = g->GetCurrentGuidanceManeuver().accelerationTime;
 		norm_steer = 0.0;
 
-		// Begin timers for each type of maneuver.
+		// Each switch case below contains logic for when acceleration time for the
+		// specific maneuver is complete.
 		switch (g->GetCurrentGuidanceManeuver().state) {
+		// Calibrate: add a timer to signify start of maneuver.
 		case ManeuverState::Calibrate:
 			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex())) >= accelTime)
 			{
@@ -100,6 +111,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 				TimeModule::AddMilestone("Calibration_" + std::to_string(g->GetGuidanceManeuverIndex()));
 			}
 			break;
+		// Turn: add a timer (for the Guider integrator), and update the steering direction.
 		case ManeuverState::Turn:
 			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex())) >= accelTime)
 			{
@@ -109,6 +121,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 				TimeModule::AddMilestone("Turn_" + std::to_string(g->GetGuidanceManeuverIndex()));
 			}
 			break;
+		// Maintain: add a timer to signify start of maneuver.
 		case ManeuverState::Maintain:
 			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex())) >= accelTime)
 			{
@@ -117,6 +130,10 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 				TimeModule::AddMilestone("Maintain_" + std::to_string(g->GetGuidanceManeuverIndex()));
 			}
 			break;
+		// Avoid-Diverge-0: vehicle has stopped and is ready to move backwards.
+		// Avoid-Diverge-1: vehilce is moving backwards, ready to sweep-turn. Start timer.
+		// Avoid-Diverge-2: vehicle stopped, ready to move forward. Negate the turn.
+		// Avoid-Diverge-3: vehicle is moving forwards, ready to maintain. Start timer.
 		case ManeuverState::AvoidDiverge:
 			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex()) + "_" + std::to_string(g->GetCurrentGuidanceManeuver().avoidDivergeState)) >= accelTime)
 			{
@@ -142,84 +159,109 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 				else if(g->GetCurrentGuidanceManeuver().avoidDivergeState == 0)
 				{
 					g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
-#ifdef TEST_PWM
-
 					TimeModule::Log("CTL", "Calibrate ESC to zero...");
 					dutyCycle_speed = 0.15;
 					WriteDutyCycle(0, dutyCycle_speed);
+#ifdef TEST_PWM
 					usleep(50000);
 #endif
 					TimeModule::Log("CTL", "We've stopped. Ready to move backwards.");
 				}
 			}
 			break;
+		// Payload Drop: kill steering direction. Start timer for payload drop
 		case ManeuverState::PayloadDrop:
 			if(TimeModule::GetElapsedTime("Speed_" + std::to_string(g->GetGuidanceManeuverIndex())) >= accelTime)
 			{
 				g->GetCurrentGuidanceManeuver().hasFixedSpeed = true;
-				norm_steer = (double)(g->GetCurrentGuidanceManeuver().turnDirection);
+				norm_steer = 0.0;
 				TimeModule::Log("CTL", "Speed fixed. Ready to drop payload.");
 				TimeModule::AddMilestone("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex()));
 			}
 			break;
 		}
 
-		// Update the duty cycles.
+		// Update the duty cycles to reflect possible changes that occured above.
 		dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_throttle );
 		dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
 		WriteDutyCycle(0, dutyCycle_speed);
 		WriteDutyCycle(1, dutyCycle_steer);
 
-		// Update the plant values if in sim mode.
-#ifdef SIM
-		PlantModel::GetVehicle()->wheelSpeedN = norm_throttle;
-		PlantModel::GetVehicle()->wheelSteeringN = norm_steer;
-#endif
-
-		// Don't perform other logic until we're complete.
-		return;
+		// Don't perform other logic until hasFixedSpeed flag is tripped.
+		// return;
 	}
+	// The below code only runs when hasFixedSpeed is tripped.
 
-	// Update gains, calculate desired velocity and actual velocity
-	if (TimeModule::ProccessUpdate("Gains")){
-		if(g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop ||
+	//----------------------------------------------------------------
+	//                       PID CONTROLLER
+	//----------------------------------------------------------------
+
+	/*
+	 * At fixed time intervals, the Controller will update a throttle gain parameter. This gain
+	 * is multiplied into the requested guidance speed before being passed into the normalized throttle
+	 * command to the ESC. This acts as a tunable PID controller which enables the vehicle to attempt to
+	 * hold velocity constant. Note that the frequency of the gains update should be no greater than half
+	 * the frequency of incoming GPS data. A maximum allowable throttle gain can also be set in the
+	 * configuration file to ensure that the vehicle does not speed up faster than a specified limit.
+	 */
+	if (TimeModule::ProccessUpdate("Gains"))
+	{
+		// During specialized guidance maneuvers, there's no reason to be updating the throttle gain. Throttle
+		// gain is updated most effectively during straight unaccelerated travel (maintain/calibration maneuvers).
+		if(//g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop ||
 				g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge ||
-				g->GetCurrentGuidanceManeuver().state == ManeuverState::Turn ){
-					TimeModule::Log("CTL", "No reason to update speed gain here.");
-
-		}else{
-
+				g->GetCurrentGuidanceManeuver().state == ManeuverState::Turn )
+		{
+			TimeModule::Log("CTL", "No reason to update speed gain here.");
+		}
+		else
+		{
+			// Calculate the difference between current and desired velocity
 			double vel_desired = Parser::GetMaxSpeedMPS() * g->GetCurrentGuidanceManeuver().speed;
 			double vel_gps = sh->GetGPS()->GetGPSVelocity();
 			double dvel = vel_desired-vel_gps;
 
-			if(throttleGain + (dvel)*Parser::GetSpeedSensitivityFactor() < Parser::GetMaxAllowableThrottleGain()){
+			// Derivative
+			double dveldt = (vel_gps-vel_last)/TimeModule::GetLastProccessDelta("Gains");
+			vel_last = vel_gps;
 
-				throttleGain += (dvel)*Parser::GetSpeedSensitivityFactor();
-				if(throttleGain < 0.0){ throttleGain = 0.0; }
-				TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + ") : throttle gain " + std::to_string(throttleGain));
+			// Update Integral portion
+			throttleGain = throttleGain + (dvel)*Parser::GetPID_I();
 
-				// Update the duty cycles.
-				dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_throttle );
-				dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
-				WriteDutyCycle(0, dutyCycle_speed);
-				WriteDutyCycle(1, dutyCycle_steer);
+			PIDfactor = 0.0;
+			PIDfactor += Parser::GetPID_P()*dvel;  			// P
+			PIDfactor += throttleGain;									// I
+			PIDfactor += Parser::GetPID_D()*dveldt;			// D
 
-			}else{
-				TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + ") : throttle gain " + std::to_string(throttleGain));
+			// Check to see if the next PID step will throw the throttle gain past its allowable limit.
+			if(PIDfactor > Parser::GetMaxAllowableThrottleGain())
+			{
+				PIDfactor = Parser::GetMaxAllowableThrottleGain();
 			}
+			else if(PIDfactor < 0.0)
+			{
+				PIDfactor = 0.0;
+			}
+			TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + ") : throttle gain " + std::to_string(PIDfactor));
+
+			// Update the normalied throttle.
+			norm_throttle = g->GetCurrentGuidanceManeuver().speed*PIDfactor;
+
+			// Update the duty cycles.
+			dutyCycle_speed = Parser::GetDC_ESC_Zero() + (Parser::GetDC_ESC_Fwd() - Parser::GetDC_ESC_Back()) * ( 0.5 * norm_throttle );
+			dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
+			WriteDutyCycle(0, dutyCycle_speed);
+			WriteDutyCycle(1, dutyCycle_steer);
 		}
 	}
 
-	// Update the plant values if in sim mode (have to do it here as well)
-#ifdef SIM
-	PlantModel::GetVehicle()->wheelSpeedN = norm_throttle;
-	PlantModel::GetVehicle()->wheelSteeringN = norm_steer;
-#endif
+	//----------------------------------------------------------------
+	//                      SPECIAL CASE CONTROL
+	//----------------------------------------------------------------
 
 	// If the NAV plan is complete, then stop the vehicle and return.
-	if (g->IsNavPlanComplete()) {
-
+	if (g->IsNavPlanComplete())
+	{
 		TimeModule::Log("CTL","Nav Plan complete signal from GDE. Stopping vehicle.");
 		dutyCycle_speed = Parser::GetDC_ESC_Zero();
 		WriteDutyCycle(0, dutyCycle_speed);
@@ -230,20 +272,17 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		return;
 	}
 
-	// If the buffer is empty, then don't run anything.
-	// Note: This is not needed now, but will be left in until certain to not be used.
-	if (g->GetGuidanceManeuverBuffer().empty() || g->GetCurrentGuidanceManeuver().done) {
-
-	}
-
 	// If the current maneuver is a paylod drop, run payload drop functions.
-	if (g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop) {
+	if (g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop &&
+		g->GetCurrentGuidanceManeuver().hasFixedSpeed)
+	{
 		// Failsafe to ensure that the vehicle is not moving during a payload drop
 		dutyCycle_speed = Parser::GetDC_ESC_Zero();
 		WriteDutyCycle(0, dutyCycle_speed);
 
 		// If we're on our last leg (return-to-home), then no need to drop payload.
-		if (g->coordinateIndex == g->totalCoordinates - 1 && g->GetCurrentGuidanceManeuver().done != true) {
+		if (g->coordinateIndex == g->totalCoordinates - 1 && g->GetCurrentGuidanceManeuver().done != true)
+		{
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
 			g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
 			TimeModule::Log("CTL","WE'RE BACK HOME! Sending fake signals back to GDE.");
@@ -262,18 +301,24 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	return;
 }
 
-/**
- * \note PayloadDrop also handles camera image operations.
+/*!
+ * Main function for handling Payload Drop routines. The GNC pipeline may be stuck
+ * in this specific function for quite a while, depending on how quickly the payload
+ * drop can be completed. There are two components of this function:
+ *   1) moving the payload dropping mechanism
+ *   2) taking a picture at the payload drop site
+ * The payload guidance maneuver is not complete until both of these flags are triggered.
  */
 void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 
-	// Check if the payload drop has not been completed
-	if (!g->GetCurrentGuidanceManeuver().payloadDropComplete) {
-
-		// Check to see if we have updated the payload servo value for this payload drop yet
-		if(!hasPayloadServoMoved){
-
-			// Update the current value for the payload servo. NOTE: this
+	// Part 1: Check if the payload drop has not been completed
+	if (!g->GetCurrentGuidanceManeuver().payloadDropComplete)
+	{
+		// Check to see if we have updated the payload servo value for this payload drop yet.
+		// This value resets after every payload drop.
+		if(!hasPayloadServoMoved)
+		{
+			// Update the current value for the payload servo. Note: this
 			// has to be updated before setting payloadServoActive flag.
 			dutyCycle_payload += Parser::GetDC_Payload_Delta();
 
@@ -300,8 +345,9 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 			TimeModule::Log("CTL", "Payload Servo Active. Allowing a grace period.");
 		}
 
-		// When enough time has elapsed, set the payload dropped flag to true.
-		if (TimeModule::GetElapsedTime("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex())) >= g->GetPayloadServoTime()) {
+		// When enough time has elapsed, set the payload dropped flag (Part 1)to true.
+		if (TimeModule::GetElapsedTime("PayloadDrop_" + std::to_string(g->GetGuidanceManeuverIndex())) >= g->GetPayloadServoTime())
+		{
 			g->GetCurrentGuidanceManeuver().payloadDropComplete = true;
 
 #ifdef TEST_PWM
@@ -324,24 +370,24 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 			tReader.close();
 #endif
 
-			TimeModule::Log("CTL", "Grace period complete. Payload servo disabled.");
-			TimeModule::Log("CTL", "Allowing steering servo to fix itself.");
+			TimeModule::Log("CTL", "Payload drop complete. Allowing steering servo to fix itself.");
 			TimeModule::AddMilestone("FixSteering_" + std::to_string(g->GetGuidanceManeuverIndex()));
 		}
 
 		// Don't take any images until we've dropped our payload.
 		return;
-	}
+	} // Part 1
 
-	// Once payload drop is complete, realign the steering servo with a grace period.
+	// Part 1.5: Once payload drop is complete, realign the steering servo with a grace period.
 	// Payload drop logic cannot continue until steering servo is fixed again.
 	if (TimeModule::GetElapsedTime("FixSteering_" + std::to_string(g->GetGuidanceManeuverIndex())) >= 0.5) {
 			TimeModule::Log("CTL", "Steering servo fixed back to position.");
 	}else{
 		return;
-	}
+	} // Part 1.5
 
-	// Take an image
+	// Part 2: Take an image. The controller is allowed to try a certain amount of times (specified in
+  // the config file) to take an image, and will simply move on if not successful.
 	int attempts = 0;
 	for(attempts = 0; attempts < Parser::GetMaxCameraAttempts(); attempts++){
 		// Attempt to take an image after the payload has been dropped.
@@ -353,14 +399,12 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 		}
 		else {
 			TimeModule::Log("CTL","Image taking has failed on attempt " + std::to_string(attempts+1) + ". ");
-#ifdef USE_CAMERA
-			usleep(10000);
-#endif
 		}
 	}
 
+	// If still no success on taking images, then simply move on.
 	if(attempts == Parser::GetMaxCameraAttempts()){
-		TimeModule::Log("CTL", "I give up!");
+		TimeModule::Log("CTL", "I give up on trying to take images! Moving on.");
 		g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
 	}
 	return;
@@ -369,25 +413,35 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 /*!
  * Write a new duty cycle to a specific PRU.
  */
-void WriteDutyCycle(int pru, double dc){
+void WriteDutyCycle(int pru, double dc)
+{
 #ifdef TEST_PWM
 	if(pru == 0){
 		dc0 = static_cast<unsigned int>(dc * Parser::GetPRU_Sample_Rate());
 		if(dc0 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc0 -= 1; }
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 1, &dc0, 4);
 	}else{
-//		std::cout << dc << "\n";
 		dc1 = static_cast<unsigned int>(dc * Parser::GetPRU_Sample_Rate());
 		if(dc1 == static_cast<unsigned int>(Parser::GetPRU_Sample_Rate())){ dc1 -= 1; }
 		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 1, &dc1, 4);
 	}
 #endif
+
+// Update the plant model if necessary
+#ifdef SIM
+	if(pru == 0){
+		PlantModel::GetVehicle()->wheelSpeedN = norm_throttle;
+	}else{
+		PlantModel::GetVehicle()->wheelSteeringN = norm_steer;
+	}
+#endif
 }
 
 /*!
- * Begin a thread for the ESC PRU
+ * Begin ESC PRU
  */
-void Controller::InitializeMotorControl() {
+void Controller::InitializeMotorControl()
+{
 	dutyCycle_speed = Parser::GetDC_ESC_Zero();
 	dc0 = static_cast<unsigned int>(dutyCycle_speed * Parser::GetPRU_Sample_Rate());
 	dp0 = static_cast<unsigned int>(Parser::GetPRU_ESC_Delay());
@@ -399,9 +453,10 @@ void Controller::InitializeMotorControl() {
 }
 
 /*!
- * Begin a thread for the Steering and Payload PRU.
+ * Begin Steering and Payload PRU.
  */
-void Controller::InitializeSteeringControl() {
+void Controller::InitializeSteeringControl()
+{
 	dutyCycle_steer = Parser::GetDC_Steer_Straight();
 	dutyCycle_payload = Parser::GetDC_Payload_Start();
 	dc1 = static_cast<unsigned int>(dutyCycle_steer * Parser::GetPRU_Sample_Rate());
@@ -426,11 +481,10 @@ void Controller::InitializeSteeringControl() {
 }
 
 /*!
- * Main thread for controlling the ESC PRU.
+ * Main controlling for the ESC PRU.
  */
 void ControlMotors()
 {
-
 #ifdef TEST_PWM
 	TimeModule::Log("CTL", "Enabling PRU1 (Steering & Payload).");
 	tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
@@ -445,7 +499,7 @@ void ControlMotors()
 }
 
 /*!
- * Main thread for controlling the Steering and Payload servos.
+ * Main controlling for the Steering and Payload servos.
  */
 void ControlSteering()
 {
@@ -466,8 +520,8 @@ void ControlSteering()
  * Decelerate and disable PRU on vehicle during an emergency.
  * A user can trigger this function by CTRL-C at runtime.
  */
-void Controller::EmergencyShutdown() {
-
+void Controller::EmergencyShutdown()
+{
 	std::cout << "===EMERGENCY! DECELERATING!===\n";
 	dutyCycle_steer = Parser::GetDC_Steer_Straight();
 	WriteDutyCycle(1, dutyCycle_steer);
@@ -483,27 +537,26 @@ void Controller::EmergencyShutdown() {
 	DisablePRUs();
 }
 
-void DisablePRUs(){
+void DisablePRUs()
+{
 	#ifdef TEST_PWM
 		// Exiting out of the motor
 		prussdrv_pru_write_memory(PRUSS0_PRU0_DATARAM, 3, &modeOff, 4);
 		prussdrv_exec_program(PRU_NUM0, "./pru1.bin");
-
 		usleep(1000);
 
 		// Exit out of the steering
 		prussdrv_pru_write_memory(PRUSS0_PRU1_DATARAM, 3, &modeOff, 4);
 		prussdrv_exec_program(PRU_NUM1, "./pru2.bin");
 
+		// Close the transistors
 		tReader.open(gpio_steer);
 		tReader << 0;
 		tReader.close();
 		tReader.open(gpio_payload);
 		tReader << 0;
 		tReader.close();
-
 	#endif
 }
 
 void Controller::SetMaxTurnSteering(double d) { maxTurnSteering = d; }
-// void Controller::SetMaxCameraAttempts(Parser::GetMaxCameraAttempts());

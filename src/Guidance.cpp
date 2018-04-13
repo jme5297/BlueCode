@@ -94,12 +94,12 @@ void Guider::Run(Navigator* n) {
 		gm.currentTurnAngle = 0.0;
 		gm.hasBeganDiverging = false;
 		gm.maintainTime = 0.0;
-		gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
+		gm.speed = Parser::GetStraightSpeedMPS() / Parser::GetMaxSpeedMPS();
 		gm.hasFixedSpeed = false;
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
-		gm.accelerationTime = 1.0;
+		gm.accelerationTime = 2.5;
 		RequestGuidanceManeuver(gm);
 		TimeModule::Log("GDE", "Let's begin! Requesting first calibration.");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
@@ -118,12 +118,12 @@ void Guider::Run(Navigator* n) {
 		gm.currentTurnAngle = 0.0;
 		gm.hasBeganDiverging = false;
 		gm.maintainTime = 0.0;
-		gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
+		gm.speed = Parser::GetStraightSpeedMPS() / Parser::GetMaxSpeedMPS();
 		gm.hasFixedSpeed = false;
 		gm.done = false;
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
-		gm.accelerationTime = 1.0;
+		gm.accelerationTime = 2.5;
 		RequestGuidanceManeuver(gm);
 		TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): ReCalibrating after payload drop.");
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()));
@@ -254,17 +254,19 @@ void Guider::Run(Navigator* n) {
 			gm.currentTurnAngle = 0.0;
 			gm.hasBeganDiverging = false;
 			gm.maintainTime = 0.0;
-			gm.speed = 1.0 * Parser::GetTurnSpeedFactor();
+			gm.speed = Parser::GetTurnSpeedMPS() / Parser::GetMaxSpeedMPS();
 			gm.hasFixedSpeed = false;
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
 
 			// If we're already at the correct speed, then note this!
-			if(GuidanceManeuverBuffer[GuidanceManeuverIndex-1].speed == gm.speed){
+			if(GuidanceManeuverBuffer[GuidanceManeuverIndex-1].state != ManeuverState::Calibrate &&
+				GuidanceManeuverBuffer[GuidanceManeuverIndex-1].state != ManeuverState::PayloadDrop)
+			{
 				gm.accelerationTime	= 0.0;
 			}else{
-				gm.accelerationTime	= 1.5;
+				gm.accelerationTime	= 2.0;
 			}
 
 			RequestGuidanceManeuver(gm);
@@ -282,17 +284,19 @@ void Guider::Run(Navigator* n) {
 			gm.currentTurnAngle = 0.0;
 			gm.hasBeganDiverging = false;
 			gm.maintainTime = minimumMaintainTime;
-			gm.speed = 1.0 * Parser::GetStraightSpeedFactor();
+			gm.speed = Parser::GetStraightSpeedMPS() / Parser::GetMaxSpeedMPS();
 			gm.hasFixedSpeed = false;
 			gm.done = false;
 			gm.payloadDropComplete = false;
 			gm.payloadImageTaken = false;
 
 			// If we're already at the correct speed, then note this!
-			if(GuidanceManeuverBuffer[GuidanceManeuverIndex-1].speed == gm.speed){
+			if(GuidanceManeuverBuffer[GuidanceManeuverIndex-1].state != ManeuverState::Calibrate &&
+				GuidanceManeuverBuffer[GuidanceManeuverIndex-1].state != ManeuverState::PayloadDrop)
+			{
 				gm.accelerationTime	= 0.0;
 			}else{
-				gm.accelerationTime	= 1.5;
+				gm.accelerationTime	= 2.0;
 			}
 
 			RequestGuidanceManeuver(gm);
@@ -415,7 +419,7 @@ void Guider::Run(Navigator* n) {
 			if(!man->hasFixedSpeed)
 				break;
 			man->hasFixedSpeed = false;
-			man->speed = 1.0 * Parser::GetStraightSpeedFactor();
+			man->speed = Parser::GetStraightSpeedMPS() / Parser::GetMaxSpeedMPS();
 			man->turnDirection = 0;
 			man->avoidDivergeState = 3;
 			man->accelerationTime = 2.0;
@@ -448,7 +452,7 @@ void Guider::Run(Navigator* n) {
 			if(!man->hasFixedSpeed)
 				break;
 			man->hasFixedSpeed = false;
-			man->speed = -1.5 * Parser::GetTurnSpeedFactor();
+			man->speed = Parser::GetTurnSpeedMPS() / Parser::GetMaxSpeedMPS() * Parser::GetBackMultipier();
 			man->turnDirection = man->avoidDirection;
 			man->avoidDivergeState = 1;
 			man->accelerationTime = 1.0;

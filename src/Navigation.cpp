@@ -47,6 +47,11 @@ Coordinate Navigator::GetCoordinates()
 //	std::cout << "curPosLat: " << curPos.lat << "\n";
 	return curPos;
 }
+void Navigator::AddCoordinates(std::vector<Coordinate> coords)
+{
+	activeNavPlan.coordinates = coords;
+	//std::cout << activeNavPlan.coordinates.size();
+}
 // Add a coordinate to the vector list of coordinates of the specific active Nav Plan->
 // NOTE: This must be done before constructing the Nav Plan->
 void Navigator::AddCoordinate(Coordinate c)
@@ -58,6 +63,8 @@ void Navigator::AddCoordinate(Coordinate c)
 
 	// Update the vector of coordinates to the active Nav Plan
 	activeNavPlan.coordinates = myCoords;
+
+	//std::cout << activeNavPlan.coordinates.size();
 	return;
 }
 
@@ -232,10 +239,6 @@ void Navigator::PrintCoordinatePermutation(std::vector<Coordinate>& vec)
 {
 	for (unsigned int i = 0; i < vec.size(); i++)
 		std::cout << vec[i].lon << "," << vec[i].lat << "||";
-}
-void Navigator::AddCoordinates(std::vector<Coordinate> coords)
-{
-	activeNavPlan.coordinates = coords;
 }
 
 double Navigator::DistanceBetweenCoordinates(Coordinate c1, Coordinate c2)
