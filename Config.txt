@@ -38,8 +38,9 @@ Refresh_Gains = 1.0
 # ------------------------------------
 
 # Maximum speed of the vehicle at 100% throttle (meters/second)
-MaxSpeedMPS = 7.2
+MaxSpeedMPS = 10.0
 
+# PID Gains. if PID is set to false in Control.cpp, these won't matter.
 PID_P = -0.15;
 PID_I = -0.08;
 PID_D = -0.25;
@@ -47,18 +48,21 @@ PID_D = -0.25;
 # Vehicle turn rate at full turning speed (degrees/second)
 TurnFactorDPS = 93.0
 
-# Nominal while turning will be (MaxSpeedMPS)*(TurnSpeedFactor)
+# Nominal speed while turning
+# NOTE: without PID enabled, the throttle percentage is simply (StraightSpeedMPS)/(MaxSpeedMPS).
 TurnSpeedMPS = 1.8
 
-# Nominal while moving straight will be (MaxSpeedMPS)*(StraightSpeedFactor)
+# Nominal speed while moving straight
+# NOTE: without PID enabled, the throttle percentage is simply (StraightSpeedMPS)/(MaxSpeedMPS).
 StraightSpeedMPS = 1.8
 
 # Maximum allowable throttle gain.
 # EX: 2.0 means throttle will never exceed (StraightSpeedMPS)/(MaxSpeedMPS)*2.0.
+# If PID is set to false, then this doesn't matter.
 MaxAllowableThrottleGain = 1.5
 
 # Multiplier for increasing backwards movement
-BackMultiplier = 1.00
+BackMultiplier = 1.05
 
 # Intensity of vehicle breaking (between 0.0 and 1.0)
 BreakFactor = 0.99
