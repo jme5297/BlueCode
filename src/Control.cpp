@@ -11,11 +11,6 @@
 using namespace Plant;
 #endif
 
-//--------------------
-//------  PID TESTING
-//--------------------
-bool PID = false;
-
 using namespace Guidance;
 using namespace Control;
 using namespace sensors;
@@ -83,13 +78,14 @@ void Controller::Initialize(){
 void Controller::Run(Guider* g, SensorHub* sh) {
 
 	// Update the normalied throttle.
-	if(!PID){ PIDfactor = 1.0; }
+	if(Parser::GetUse_PID() == 0){ PIDfactor = 1.0; }
 	norm_throttle = g->GetCurrentGuidanceManeuver().speed*PIDfactor;
 
 	// Special case for obstacle avoidance: throw full reverse if obstacle is found!
 	if(g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge &&
-			g->GetCurrentGuidanceManeuver().avoidDivergeState == 0){
-		norm_throttle = g->GetCurrentGuidanceManeuver().speed;
+			g->GetCurrentGuidanceManeuver().avoidDivergeState <= 1){
+		norm_throttle = -0.25;
+//		norm_throttle = g->GetCurrentGuidanceManeuver().speed;
 	}
 
 	/*
@@ -192,9 +188,10 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 		dutyCycle_steer = Parser::GetDC_Steer_Straight() + (Parser::GetDC_Steer_Right() - Parser::GetDC_Steer_Left()) * ( 0.5 * norm_steer );
 		WriteDutyCycle(0, dutyCycle_speed);
 		WriteDutyCycle(1, dutyCycle_steer);
+//		std::cout << dutyCycle_speed << "\n";
 
 		// Don't perform other logic until hasFixedSpeed flag is tripped.
-		if(!PID){
+		if(Parser::GetUse_PID() == 0){
 			return;
 		}
 	}
@@ -212,13 +209,13 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	 * the frequency of incoming GPS data. A maximum allowable throttle gain can also be set in the
 	 * configuration file to ensure that the vehicle does not speed up faster than a specified limit.
 	 */
-	if ( PID && TimeModule::ProccessUpdate("Gains"))
+	if ( Parser::GetUse_PID() == 1 && TimeModule::ProccessUpdate("Gains"))
 	{
 		// During specialized guidance maneuvers, there's no reason to be updating the throttle gain. Throttle
 		// gain is updated most effectively during straight unaccelerated travel (maintain/calibration maneuvers).
 		if(//g->GetCurrentGuidanceManeuver().state == ManeuverState::PayloadDrop ||
-				g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge ||
-				g->GetCurrentGuidanceManeuver().state == ManeuverState::Turn )
+				g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge)// ||
+//				g->GetCurrentGuidanceManeuver().state == ManeuverState::Turn )
 		{
 			TimeModule::Log("CTL", "No reason to update speed gain here.");
 		}
@@ -237,9 +234,9 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			throttleGain = throttleGain + (dvel)*Parser::GetPID_I();
 
 			PIDfactor = 0.0;
-			PIDfactor += Parser::GetPID_P()*dvel;  			// P
-			PIDfactor += throttleGain;									// I
-			PIDfactor += Parser::GetPID_D()*dveldt;			// D
+			PIDfactor += Parser::GetPID_P()*dvel;  					// P
+			PIDfactor += throttleGain*TimeModule::GetLastProccessDelta("Gains");	// I
+			PIDfactor += Parser::GetPID_D()*dveldt;					// D
 
 			// Check to see if the next PID step will throw the throttle gain past its allowable limit.
 			if(PIDfactor > Parser::GetMaxAllowableThrottleGain())
@@ -253,7 +250,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 			TimeModule::Log("CTL", "(" + std::to_string(vel_desired) + ") - (" + std::to_string(vel_gps) + ") : throttle gain " + std::to_string(PIDfactor));
 
 			// Update the normalied throttle.
-			if(!PID){ PIDfactor = 1.0; }
+			if(Parser::GetUse_PID() == 0){ PIDfactor = 1.0; }
 			norm_throttle = g->GetCurrentGuidanceManeuver().speed*PIDfactor;
 
 			// Update the duty cycles.

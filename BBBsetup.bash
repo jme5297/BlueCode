@@ -10,6 +10,7 @@ sudo config-pin P9.27 pruout
 sudo config-pin P8.27 pruout
 echo Configuring GPS pin...
 sudo config-pin P9.11 uart
+sudo config-pin P9.13 uart
 echo Configuring GPIO ports...
 sudo config-pin P9.23 gpio
 sudo config-pin P9.25 gpio

@@ -80,6 +80,7 @@ public:
 	static int GetOptimize() { return Optimize; }
 	static int GetReOptimize(){ return ReOptimize; }
 	static bool GetWriteToLogFile() { return WriteToLogFile; }
+	static int GetOutput_GPS_Data(){ return Output_GPS_Data; }
 	static double GetPayloadDropRadius() { return PayloadDropRadius; }
 	static double GetOffAngleDeviate() { return OffAngleDeviate; }
 
@@ -89,6 +90,7 @@ public:
 	static double GetTurnSpeedMPS(){ return TurnSpeedMPS; }
 	static double GetStraightSpeedMPS(){ return StraightSpeedMPS; }
 	static double GetMaxAllowableThrottleGain(){ return MaxAllowableThrottleGain; }
+	static int GetUse_PID(){ return Use_PID; }
 	static double GetPID_P(){ return PID_P; }
 	static double GetPID_I(){ return PID_I; }
 	static double GetPID_D(){ return PID_D; }
@@ -151,6 +153,7 @@ protected:
 	static int Optimize;
 	static int ReOptimize;
 	static bool WriteToLogFile;
+	static int Output_GPS_Data;
 	static double PayloadDropRadius;
 	static double OffAngleDeviate;
 
@@ -160,6 +163,7 @@ protected:
 	static double TurnSpeedMPS;
 	static double StraightSpeedMPS;
 	static double MaxAllowableThrottleGain;
+	static int Use_PID;
 	static double PID_P;
 	static double PID_I;
 	static double PID_D;

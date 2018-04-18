@@ -1,7 +1,9 @@
 #include <sensors/Camera/Camera_generic.h>
 using namespace sensors;
 using namespace Times;
-int imagecount;
+int plNum = 0;
+std::ifstream errorReader;
+int errorOffset = 0;
 
 Camera::Camera() {
 
@@ -11,7 +13,6 @@ Camera::~Camera() {
 }
 bool Camera::Init() {
 
-	imagecount = 1;
 	return true;
 }
 bool Camera::Reset() {
@@ -26,27 +27,29 @@ bool Camera::Disable() {
 
 	return true;
 }
+
 bool Camera::TakeImage(int a) {
 
 #ifndef USE_CAMERA
 	std::cout << "[" << std::to_string(TimeModule::GetElapsedTime("BeginMainOpsTime")) << "][CMA]: (Fake) Camera image taken!\n";
 	return true;
 #else
+	plNum++;
+	errorReader.open("camErrorOffset.txt");
+	errorReader >> errorOffset;
+	std::cout << "Current error count: " << errorOffset << "\n";
+	errorReader.close();
+
 	TimeModule::Log("CMA","Sleeping to relax...");
 	usleep(1000000);
-	std::string command =
-		"fswebcam --device /dev/video" + std::to_string(Parser::GetCam_Device()) +
-		" --font :12 --bottom-banner --title 'Payload Drop #" + std::to_string(imagecount) +
-		"' --subtitle 'Guidance Maneuver #" + std::to_string(a) +
-		"' -r " + std::to_string(Parser::GetCam_Width()) + "x" + std::to_string(Parser::GetCam_Height()) +
-		" image_" + std::to_string(imagecount) + ".jpg";
-		std::cout << command << "\n";
-	system(command.c_str());
-	TimeModule::Log("CMA","Sleeping to relax some more...");
-	usleep(1000000);
-#endif
-	imagecount++;
+
+	std::string cmd = "fswebcam " //-r " + std::to_string(Parser::GetCam_Width()) + "x" + std::to_string(Parser::GetCam_Height()) + 
+		" -d /dev/video" + std::to_string(Parser::GetCam_Device() + errorOffset) +  " image_" + std::to_string(plNum) + ".jpg";
+
+	system(cmd.c_str());
+
 	return true;
+#endif
 }
 
 

@@ -60,7 +60,7 @@ bool GPS::Init() {
 	}
 	struct termios options;
 	tcgetattr(uart0_filestream, &options);
-	options.c_cflag = B9600 | CS8 | CLOCAL | CREAD;		//<Set baud rate
+	options.c_cflag = B57600 | CS8 | CLOCAL | CREAD;		//<Set baud rate
 	options.c_iflag = IGNPAR;
 	options.c_oflag = 0;
 	options.c_lflag = 0;
@@ -162,7 +162,6 @@ void RunGPS(){
 				i=0;
 				process();
 				lastCoordinates = currentGPSCoordinates;
-				std::cout << std::to_string(lat) << ", " << std::to_string(lon) << ", " << std::to_string(cog) << ", " << std::to_string(vel*0.514444) << "\n";
 				if(fabs(lon) > 0.01 && fabs(lat) > 0.01){
 					Coordinate c;
 					c.lat = lat;
@@ -172,7 +171,7 @@ void RunGPS(){
 					vehicleVelocity = vel*0.514444;
 				}
 				// you've done well. take a small break.
-				usleep(130000);
+				//usleep(130000);
 			}
 		}
 	}
@@ -208,6 +207,10 @@ void process(){
 
 		data_GR(field, 8);
 		cog =  strtod(field,NULL);
+
+		if(Parser::GetOutput_GPS_Data() == 1){
+			std::cout << std::to_string(lat) << ", " << std::to_string(lon) << ", " << std::to_string(cog) << ", " << std::to_string(vel*0.514444) << "\n";
+		}
 	}
 }
 

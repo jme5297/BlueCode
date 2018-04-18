@@ -10,7 +10,10 @@
 # Format: [ lon, lat ]
 
 BEGIN_COORDINATES
--77.86975157, 40.7945132
+-77.86980177, 40.79439669
+-77.87017887, 40.79455632
+-77.87021748, 40.79471796
+-77.87064311, 40.79457089
 END_COORDINATES
 
 # Should the Nav Plan be optimized at the start of the mission?
@@ -22,6 +25,9 @@ ReOptimize = 1
 # Write mission log to a text file?
 WriteToLogFile = 1
 
+# Show GPS messages?
+Output_GPS_Data = 0
+
 # ############################################################################
 #                                                                Configuration
 # ############################################################################
@@ -30,8 +36,8 @@ WriteToLogFile = 1
 #                                RATES
 # ------------------------------------
 Refresh_GNC   = 0.01
-Refresh_OUT   = 0.5
-Refresh_Gains = 1.0
+Refresh_OUT   = 0.1
+Refresh_Gains = 0.2
 
 # ------------------------------------
 #                             DYNAMICS
@@ -41,12 +47,13 @@ Refresh_Gains = 1.0
 MaxSpeedMPS = 10.0
 
 # PID Gains. if PID is set to false in Control.cpp, these won't matter.
-PID_P = -0.15;
-PID_I = -0.08;
-PID_D = -0.25;
+Use_PID = 1
+PID_P = -0.25
+PID_I = -0.08
+PID_D = -0.25
 
 # Vehicle turn rate at full turning speed (degrees/second)
-TurnFactorDPS = 93.0
+TurnFactorDPS = 88.0
 
 # Nominal speed while turning
 # NOTE: without PID enabled, the throttle percentage is simply (StraightSpeedMPS)/(MaxSpeedMPS).
@@ -59,10 +66,10 @@ StraightSpeedMPS = 1.8
 # Maximum allowable throttle gain.
 # EX: 2.0 means throttle will never exceed (StraightSpeedMPS)/(MaxSpeedMPS)*2.0.
 # If PID is set to false, then this doesn't matter.
-MaxAllowableThrottleGain = 1.5
+MaxAllowableThrottleGain = 2.0
 
 # Multiplier for increasing backwards movement
-BackMultiplier = 1.05
+BackMultiplier = 1.2
 
 # Intensity of vehicle breaking (between 0.0 and 1.0)
 BreakFactor = 0.99
@@ -120,9 +127,9 @@ DC_Payload_Delta = 0.0105
 # -----------------------------------------
 
 # Camera resolution
-Cam_Width = 352
-Cam_Height = 288
-Cam_Device = 0
+Cam_Width = 1280
+Cam_Height = 720
+Cam_Device = 1
 
 # GPIO numbers of the left and right lasers.
 # P8.12
@@ -155,7 +162,7 @@ TimeDelta = 0.01
 SimDelta = 0.01
 
 # How often new GPS model data comes in
-Refresh_GPS   = 1.0
+Refresh_GPS   = 0.2
 
 # How tough is it to get speed on terrain?
 # > 1.0 - very easy to pick up speed (ex: turf, or downhill)
@@ -183,8 +190,8 @@ VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.79242444
-InitialLongitude = -77.87307817
+InitialLatitude = 40.7954229
+InitialLongitude = -77.86159459
 InitialHeading = 0
 
 # Add some obstacles to the scene

@@ -14,6 +14,7 @@ std::ifstream Parser::configFile;
 int Parser::Optimize;
 int Parser::ReOptimize;
 bool Parser::WriteToLogFile;
+int Parser::Output_GPS_Data;
 double Parser::PayloadDropRadius;
 double Parser::OffAngleDeviate;
 
@@ -23,6 +24,7 @@ double Parser::MaxSpeedMPS;
 double Parser::TurnSpeedMPS;
 double Parser::StraightSpeedMPS;
 double Parser::MaxAllowableThrottleGain;
+int Parser::Use_PID;
 double Parser::PID_P;
 double Parser::PID_I;
 double Parser::PID_D;
@@ -151,6 +153,12 @@ void Parser::ReadInputs(std::string file)
 			ss >> WriteToLogFile;
 			continue;
 		}
+		else if (s.find("Output_GPS_Data") != std::string::npos) {
+			std::string a  = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> Output_GPS_Data;
+			continue;
+		}
 		else if (s.find("PayloadDropRadius") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
@@ -193,6 +201,12 @@ void Parser::ReadInputs(std::string file)
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> MaxAllowableThrottleGain;
+			continue;
+		}
+		else if (s.find("Use_PID") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> Use_PID;
 			continue;
 		}
 		else if (s.find("PID_P") != std::string::npos) {
