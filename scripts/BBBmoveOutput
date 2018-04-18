@@ -1,0 +1,5 @@
+mkdir $1
+sudo mv *.csv $1
+sudo mv image* $1
+cp ../scripts/* $1
+cp ../Config.txt $1

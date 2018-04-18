@@ -1,0 +1,20 @@
+echo 0 > camErrorOffset.txt
+camOffset=1
+
+while true; do
+
+if pgrep -x "fswebcam" > /dev/null
+then
+	echo WEBCAM IS RUNNING!
+	sleep 10.0
+	if pgrep -x "fswebcam" > /dev/null
+	then
+		killall -9 fswebcam
+		((camOffset++))
+		echo $camOffset > camErrorOffset.txt
+		echo $camOffset
+	fi
+fi
+
+sleep 0.2
+done

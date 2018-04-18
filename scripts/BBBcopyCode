@@ -1,0 +1,16 @@
+echo Copying PRU code to BlueCode/build ...
+sudo cp ../../InterfaceCode/pwm/testSteering .
+sudo cp ../../InterfaceCode/pwm/armESC .
+sudo cp ../../InterfaceCode/pwm/resetPayloadServo .
+sudo cp ../../InterfaceCode/pwm/frequencyTest1 .
+sudo cp ../../InterfaceCode/pwm/frequencyTest2 .
+sudo cp ../../InterfaceCode/pwm/pwm_disabler1 .
+sudo cp ../../InterfaceCode/pwm/pwm_disabler2 .
+sudo cp ../../InterfaceCode/pwm/pru1.bin .
+sudo cp ../../InterfaceCode/pwm/pru2.bin .
+echo Copying laser and gps test code to BlueCode/Build ...
+sudo cp ../../InterfaceCode/gps .
+sudo cp ../../InterfaceCode/py_gps_write.py .
+sudo cp ../../InterfaceCode/py_gps_read.py .
+sudo cp ../../InterfaceCode/laser .
+sudo cp ../../InterfaceCode/picture .

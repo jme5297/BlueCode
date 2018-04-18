@@ -1,0 +1,4 @@
+./pwm_disabler1
+./pwm_disabler2
+echo 0 > /sys/class/gpio/gpio49/value
+echo 0 > /sys/class/gpio/gpio117/value
