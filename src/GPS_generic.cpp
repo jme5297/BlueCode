@@ -211,6 +211,8 @@ void process(){
 		if(Parser::GetOutput_GPS_Data() == 1){
 			std::cout << std::to_string(lat) << ", " << std::to_string(lon) << ", " << std::to_string(cog) << ", " << std::to_string(vel*0.514444) << "\n";
 		}
+
+		usleep(190000);
 	}
 }
 

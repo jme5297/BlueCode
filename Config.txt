@@ -127,9 +127,9 @@ DC_Payload_Delta = 0.0105
 # -----------------------------------------
 
 # Camera resolution
-Cam_Width = 1280
-Cam_Height = 720
-Cam_Device = 1
+Cam_Width = 320
+Cam_Height = 240
+Cam_Device = 0
 
 # GPIO numbers of the left and right lasers.
 # P8.12
