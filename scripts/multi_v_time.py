@@ -18,7 +18,7 @@ ptsnp = np.array(pts)
 
 ax.set_xlim(min(data['lon']),max(data['lon']))
 ax.set_ylim(min(data['lat']),max(data['lat']))
-ax.set_zlim(min(data['vel']),max(data['vel']))
+ax.set_zlim(min(data['gpsVel']),max(data['gpsVel']))
 
 x = datanp[:,1]
 y = datanp[:,2]
