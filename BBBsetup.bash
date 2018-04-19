@@ -1,6 +1,6 @@
 cd build
 echo Copying Interface code...
-bash BBBcopyInterfaceCode.bash
+bash BBBcopyCode
 echo Setting PRUs to idle mode...
 ./pwm_disabler1
 ./pwm_disabler2

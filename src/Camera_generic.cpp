@@ -2,8 +2,6 @@
 using namespace sensors;
 using namespace Times;
 int plNum = 0;
-std::ifstream errorReader;
-int errorOffset = 0;
 
 Camera::Camera() {
 
@@ -35,17 +33,8 @@ bool Camera::TakeImage(int a) {
 	return true;
 #else
 	plNum++;
-	errorReader.open("camErrorOffset.txt");
-	errorReader >> errorOffset;
-	std::cout << "Current error count: " << errorOffset << "\n";
-	errorReader.close();
 
-	TimeModule::Log("CMA","Sleeping to relax...");
-	usleep(1000000);
-
-	std::string cmd = "fswebcam " //-r " + std::to_string(Parser::GetCam_Width()) + "x" + std::to_string(Parser::GetCam_Height()) + 
-		" -d /dev/video" + std::to_string(Parser::GetCam_Device() + errorOffset) +  " image_" + std::to_string(plNum) + ".jpg";
-
+	std::string cmd = "./takePhoto " + std::to_string(plNum);
 	system(cmd.c_str());
 
 	return true;
