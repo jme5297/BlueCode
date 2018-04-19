@@ -11,9 +11,9 @@
 
 BEGIN_COORDINATES
 -77.86980177, 40.79439669
--77.87017887, 40.79455632
--77.87021748, 40.79471796
--77.87064311, 40.79457089
+-77.86980177, 40.79439669
+-77.86980177, 40.79439669
+-77.86980177, 40.79439669
 END_COORDINATES
 
 # Should the Nav Plan be optimized at the start of the mission?
@@ -49,8 +49,8 @@ MaxSpeedMPS = 10.0
 # PID Gains. if PID is set to false in Control.cpp, these won't matter.
 Use_PID = 1
 PID_P = -0.25
-PID_I = -0.08
-PID_D = -0.25
+PID_I = -0.15
+PID_D = -0.10
 
 # Vehicle turn rate at full turning speed (degrees/second)
 TurnFactorDPS = 88.0
@@ -190,8 +190,8 @@ VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.7954229
-InitialLongitude = -77.86159459
+InitialLatitude = 40.79439669
+InitialLongitude = -77.86980177
 InitialHeading = 0
 
 # Add some obstacles to the scene

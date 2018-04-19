@@ -13,4 +13,5 @@ sudo cp ../../InterfaceCode/gps .
 sudo cp ../../InterfaceCode/py_gps_write.py .
 sudo cp ../../InterfaceCode/py_gps_read.py .
 sudo cp ../../InterfaceCode/laser .
-sudo cp ../../InterfaceCode/picture .
+sudo cp ../../InterfaceCode/grabber .
+sudo cp ../../InterfaceCode/takePhoto .
