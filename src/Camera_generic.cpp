@@ -37,6 +37,7 @@ bool Camera::TakeImage(int a) {
 	std::string cmd = "./takePhoto " + std::to_string(plNum);
 	system(cmd.c_str());
 
+	TimeModule::Log("CMA", "Camera script complete!");
 	return true;
 #endif
 }

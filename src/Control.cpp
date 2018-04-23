@@ -47,6 +47,7 @@ bool hasPayloadServoMoved;
 std::ofstream tReader;
 std::string gpio_steer;
 std::string gpio_payload;
+std::string gpio_power;
 
 // SPEED GAIN
 double throttleGain = 0.0;
@@ -64,6 +65,7 @@ Controller::Controller() {}
 
 void Controller::Initialize(){
 		TimeModule::InitProccessCounter("Gains", Parser::GetRefresh_Gains());
+		gpio_power = "/sys/class/gpio/gpio" + std::to_string(Parser::GetPowerPort()) + "/value";
 		return;
 }
 
@@ -84,7 +86,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	// Special case for obstacle avoidance: throw full reverse if obstacle is found!
 	if(g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge &&
 			g->GetCurrentGuidanceManeuver().avoidDivergeState <= 1){
-		norm_throttle = -0.25;
+		norm_throttle = -0.35;
 //		norm_throttle = g->GetCurrentGuidanceManeuver().speed;
 	}
 
@@ -364,13 +366,13 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 			tReader.open(gpio_payload);
 			tReader << 0;
 			tReader.close();
-			usleep(10000);
+			usleep(500000);
 #endif
 
 			// Disable writing the payload duty cycle to the PRU memory.
 			hasPayloadServoMoved = false;
 			WriteDutyCycle(1, dutyCycle_steer);
-			usleep(10000);
+			usleep(500000);
 
 #ifdef TEST_PWM
 			// Switch on the transistor for the steering servo.
@@ -390,32 +392,54 @@ void Controller::PayloadDrop(Guider* g, SensorHub* sh) {
 	// Part 1.5: Once payload drop is complete, realign the steering servo with a grace period.
 	// Payload drop logic cannot continue until steering servo is fixed again.
 	if (TimeModule::GetElapsedTime("FixSteering_" + std::to_string(g->GetGuidanceManeuverIndex())) >= 0.5) {
-			TimeModule::Log("CTL", "Steering servo fixed back to position.");
+			TimeModule::Log("CTL", "Ready to take an image.");
 	}else{
 		return;
 	} // Part 1.5
 
 	// Part 2: Take an image. The controller is allowed to try a certain amount of times (specified in
-  // the config file) to take an image, and will simply move on if not successful.
-	int attempts = 0;
-	for(attempts = 0; attempts < Parser::GetMaxCameraAttempts(); attempts++){
+  	// the config file) to take an image, and will simply move on if not successful.
+//	int attempts = 0;
+//	for(attempts = 0; attempts < Parser::GetMaxCameraAttempts(); attempts++){
+		tReader.open(gpio_power);
+		tReader << 0;
+		tReader.close();
+		TimeModule::Log("CTL","Power off. Running camera logic.");
+		usleep(500000);
+
 		// Attempt to take an image after the payload has been dropped.
 		bool imageTaken = sh->GetCamera()->TakeImage(g->GetCurrentGuidanceManeuver().index);
 		if (imageTaken) {
 			g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
-			TimeModule::Log("CTL","Received successful image signal after " + std::to_string(attempts+1) + " attempts.");
-			break;
+			TimeModule::Log("CTL","Received successful image signal.");
+//			break;
 		}
 		else {
-			TimeModule::Log("CTL","Image taking has failed on attempt " + std::to_string(attempts+1) + ". ");
+			TimeModule::Log("CTL","Image taking has failed.");
 		}
-	}
+
+		TimeModule::Log("CTL", "Power on!");
+		usleep(500000);
+		tReader.open(gpio_power);
+		tReader << 1;
+		tReader.close();
+
+#ifndef SIM
+		usleep(500000);
+		double lon = sh->GetGPS()->GetCurrentGPSCoordinates().lon;
+		while(fabs(lon) <= 0.01){
+			lon = sh->GetGPS()->GetCurrentGPSCoordinates().lon;
+			usleep(10000);
+		}
+#endif
+
+//	}
 
 	// If still no success on taking images, then simply move on.
-	if(attempts == Parser::GetMaxCameraAttempts()){
-		TimeModule::Log("CTL", "I give up on trying to take images! Moving on.");
-		g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
-	}
+//	if(attempts == Parser::GetMaxCameraAttempts()){
+//		TimeModule::Log("CTL", "I give up on trying to take images! Moving on.");
+//		g->GetCurrentGuidanceManeuver().payloadImageTaken = true;
+//	}
 	return;
 }
 
