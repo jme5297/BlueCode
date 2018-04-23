@@ -132,14 +132,12 @@ Cam_Width = 320
 Cam_Height = 240
 Cam_Device = 0
 
-# GPIO numbers of the left and right lasers.
 # P8.12
 Laser_Left = 44
+# (unknown)
+Laser_Center = -1
 # P8.14
 Laser_Right = 26
-
-# Temporarily disable a laser (set to -1 to disable both!)
-Temp_Disable_Laser = -1
 
 # GPIO Port numbers used for transistor to switch to payload servo
 # P9.23

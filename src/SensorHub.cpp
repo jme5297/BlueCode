@@ -11,7 +11,8 @@ SensorHub::SensorHub() {
 	// Initialize two lasers.
 	lasers = {
 		Laser(Parser::GetLaser_Left()), // Laser 0 represents the left laser.
-		Laser(Parser::GetLaser_Right())  // Laser 1 represents the right laser.
+		Laser(Parser::GetLaser_Center()), // Laser 1 represents the center laser
+		Laser(Parser::GetLaser_Right())  // Laser 2 represents the right laser.
 	};
 }
 

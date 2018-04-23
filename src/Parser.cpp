@@ -54,8 +54,8 @@ int Parser::Cam_Device;
 int Parser::Cam_Width;
 int Parser::Cam_Height;
 int Parser::Laser_Left;
+int Parser::Laser_Center;
 int Parser::Laser_Right;
-int Parser::Temp_Disable_Laser;
 int Parser::GPIO_Steer;
 int Parser::GPIO_Payload;
 std::vector<pLas> Parser::Lasers;
@@ -380,16 +380,16 @@ void Parser::ReadInputs(std::string file)
 			ss >> Laser_Left;
 			continue;
 		}
+		else if (s.find("Laser_Center") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> Laser_Center;
+			continue;
+		}
 		else if (s.find("Laser_Right") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> Laser_Right;
-			continue;
-		}
-		else if (s.find("Temp_Disable_Laser") != std::string::npos) {
-			std::string a = s.substr(s.find("=") + 1);
-			std::stringstream ss(a);
-			ss >> Temp_Disable_Laser;
 			continue;
 		}
 		else if (s.find("GPIO_Steer") != std::string::npos) {

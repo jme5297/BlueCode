@@ -24,7 +24,7 @@ void Navigator::Run(SensorHub* sh)
 {
 	double PI = 3.14159265;
 
-	// Retrieve laser sensor information->
+	// Retrieve laser sensor information
 	isPathObstructed.clear();
 	for (int i = 0; i < sh->GetLasers().size(); i++) {
 		if (sh->GetLasers().at(i).ReadLaser()) {

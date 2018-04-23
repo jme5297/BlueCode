@@ -120,8 +120,8 @@ public:
 	static int GetCam_Height(){ return Cam_Height; }
 	static int GetCam_Device(){ return Cam_Device; }
 	static int GetLaser_Left() { return Laser_Left; }
+	static int GetLaser_Center(){ return Laser_Center; }
 	static int GetLaser_Right() { return Laser_Right; }
-	static int GetTemp_Disable_Laser(){ return Temp_Disable_Laser; }
 	static int GetGPIO_Steer() { return GPIO_Steer; }
 	static int GetGPIO_Payload() { return GPIO_Payload; }
 
@@ -194,8 +194,8 @@ protected:
 	static int Cam_Height;
 	static int Cam_Device;
 	static int Laser_Left;
+	static int Laser_Center;
 	static int Laser_Right;
-	static int Temp_Disable_Laser;
 	static int GPIO_Steer;
 	static int GPIO_Payload;
 

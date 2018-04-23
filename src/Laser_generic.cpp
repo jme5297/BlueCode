@@ -36,6 +36,9 @@ bool Laser::ReadLaser() {
 
 #ifdef USE_LASER
 
+	// If laser is disabled, skip entirely
+	if(ID == -1){ return false; }
+
 	// ACTUAL laser information here
 	int digit = -1;
 	ifstream laser;
@@ -50,14 +53,23 @@ bool Laser::ReadLaser() {
 		cout << "Unable to read the laser data\n";
 		return false;
 	}
-	if (digit == 0) {
+
+	if (digit == 0)
+	{
 		// Make sure that we are not testing a laser that isn't working.
+		/*
 		if(ID == Parser::GetTemp_Disable_Laser() || Parser::GetTemp_Disable_Laser() == -1){
 			return false;
 		}
+		*/
 		return true;
 	}
-	else if (digit == 1) { return false; }
+	else if (digit == 1)
+	{
+		return false;
+	}
+
+	// Fail safe return
 	return false;
 
 #else

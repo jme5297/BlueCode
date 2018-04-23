@@ -175,7 +175,7 @@ void Guider::Run(Navigator* n) {
 	}
 	// If there's obstructions that we didn't previously know about, then take care of this immediately.
 	else if (
-		(n->GetPathObstructions().at(0) || n->GetPathObstructions().at(1)) &&
+		(n->GetPathObstructions().at(0) || n->GetPathObstructions().at(1) || n->GetPathObstructions().at(2)) &&
 		!GetCurrentGuidanceManeuver().hasBeganDiverging &&
 		GuidanceManeuverBuffer[GuidanceManeuverIndex].state != ManeuverState::PayloadDrop) {
 
@@ -188,13 +188,20 @@ void Guider::Run(Navigator* n) {
 		gm.done = false;
 		gm.speed = -1.0 * Parser::GetBreakFactor();
 		gm.turnDirection = 0;
-		if (n->GetPathObstructions().at(0)) {
+		if (n->GetPathObstructions().at(0))
+		{
 			gm.avoidDirection = -1;
-			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting obstacle diverge. Sweep to the left - diverge to the right.");
+			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Left laser tripped. Sweep to the left and diverge to the right.");
 		}
-		else {
+		else if (n->GetPathObstructions().at(1))
+		{
+			gm.avoidDirection = -1;
+			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Center laser tripped. Sweep to the left and diverge to the right.");
+		}
+		else
+		{
 			gm.avoidDirection = 1;
-			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Requesting obstacle diverge. Sweep to the right - diverge to the left.");
+			TimeModule::Log("GDE", "(" + std::to_string(GuidanceManeuverIndex) + "): Right laser tripped. Sweep to the right and diverge to the left.");
 		}
 		gm.payloadDropComplete = false;
 		gm.payloadImageTaken = false;
