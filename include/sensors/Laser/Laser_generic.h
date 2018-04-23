@@ -28,6 +28,7 @@ namespace sensors {
 
 	protected:
 		int ID;
+		int total;
 
 	};
 }

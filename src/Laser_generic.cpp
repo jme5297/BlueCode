@@ -9,6 +9,7 @@ using namespace Plant;
 using namespace std;
 
 Laser::Laser(int i) {
+//	total=0;
 	ID = i;
 }
 Laser::~Laser() {
@@ -16,7 +17,13 @@ Laser::~Laser() {
 }
 bool Laser::Init() {
 
+	total = 0;
+
 #ifdef USE_LASER
+	if(ID==-1)
+	{ 
+		return true; 
+	}
 	ifstream laser;
 	string laserLoc = "/sys/class/gpio/gpio" + std::to_string(ID) + "/value";
 	laser.open(laserLoc);
@@ -29,7 +36,7 @@ bool Laser::Init() {
 	return true;
 }
 bool Laser::Reset() {
-
+	total = 0;
 	return true;
 }
 bool Laser::ReadLaser() {
@@ -37,7 +44,7 @@ bool Laser::ReadLaser() {
 #ifdef USE_LASER
 
 	// If laser is disabled, skip entirely
-	if(ID == -1){ return false; }
+	if(ID == -1){ total=0; return false; }
 
 	// ACTUAL laser information here
 	int digit = -1;
@@ -62,11 +69,24 @@ bool Laser::ReadLaser() {
 			return false;
 		}
 		*/
-		return true;
+
+		total = total+1;
+
+//		std::cout << ID << ", " << total << "\n";
+		if(total == 1){
+			total=0;
+			return true;
+		}else{
+			return false;
+		}
+
 	}
 	else if (digit == 1)
 	{
+		total=0;
+//		std::cout << ID << ", " << total << "\n";
 		return false;
+
 	}
 
 	// Fail safe return

@@ -210,7 +210,7 @@ void Guider::Run(Navigator* n) {
 		gm.hasBeganDiverging = true;
 		gm.avoidDivergeState = 0;
 		gm.maintainTime = obstacleDivergenceTime;
-		gm.accelerationTime	= 2.0;
+		gm.accelerationTime	= 1.0;
 		RequestGuidanceManeuver(gm);
 		TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()) + "_" + std::to_string(gm.avoidDivergeState));
 	}
@@ -429,7 +429,7 @@ void Guider::Run(Navigator* n) {
 			man->speed = Parser::GetStraightSpeedMPS() / Parser::GetMaxSpeedMPS();
 			man->turnDirection = 0;
 			man->avoidDivergeState = 3;
-			man->accelerationTime = 2.0;
+			man->accelerationTime = 0.0;
 			TimeModule::Log("GDE", "Received stopping signal again. Time to move forward.");
 			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()) + "_" + std::to_string(man->avoidDivergeState));
 
@@ -447,7 +447,7 @@ void Guider::Run(Navigator* n) {
 				man->speed = 0.0;
 				man->turnDirection = 0;
 				man->avoidDivergeState = 2;
-				man->accelerationTime = 1.0;
+				man->accelerationTime = 0.5;
 				TimeModule::Log("GDE", "Turn has been complete. Stopping again.");
 				TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()) + "_" + std::to_string(man->avoidDivergeState));
 			}
@@ -462,7 +462,7 @@ void Guider::Run(Navigator* n) {
 			man->speed = Parser::GetTurnSpeedMPS() / Parser::GetMaxSpeedMPS() * Parser::GetBackMultipier();
 			man->turnDirection = man->avoidDirection;
 			man->avoidDivergeState = 1;
-			man->accelerationTime = 1.0;
+			man->accelerationTime = 0.3;
 			TimeModule::Log("GDE", "Received stopping signal. Time to back up.");
 			TimeModule::AddMilestone("Speed_" + std::to_string(GetGuidanceManeuverIndex()) + "_" + std::to_string(man->avoidDivergeState));
 

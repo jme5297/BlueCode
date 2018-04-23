@@ -10,11 +10,9 @@
 # Format: [ lon, lat ]
 
 BEGIN_COORDINATES
--77.86980177, 40.79439669
--77.86980177, 40.79439669
--77.86980177, 40.79439669
--77.86980177, 40.79439669
--77.86980177, 40.79439669
+-77.87026947, 40.79447825
+-77.86987316, 40.79439886
+-77.86974847, 40.79482669
 END_COORDINATES
 
 # Should the Nav Plan be optimized at the start of the mission?
@@ -60,16 +58,16 @@ TurnFactorDPS = 88.0
 
 # Nominal speed while turning
 # NOTE: without PID enabled, the throttle percentage is simply (StraightSpeedMPS)/(MaxSpeedMPS).
-TurnSpeedMPS = 1.5
+TurnSpeedMPS = 1.4
 
 # Nominal speed while moving straight
 # NOTE: without PID enabled, the throttle percentage is simply (StraightSpeedMPS)/(MaxSpeedMPS).
-StraightSpeedMPS = 1.5
+StraightSpeedMPS = 1.4
 
 # Maximum allowable throttle gain.
 # EX: 2.0 means throttle will never exceed (StraightSpeedMPS)/(MaxSpeedMPS)*2.0.
 # If PID is set to false, then this doesn't matter.
-MaxAllowableThrottleGain = 2.0
+MaxAllowableThrottleGain = 4.0
 
 # Multiplier for increasing backwards movement
 BackMultiplier = 1.2
@@ -91,7 +89,7 @@ GPSUncertainty = 2.0
 OffAngleDeviate = 20.0
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
-CalibrationTime = 6.0
+CalibrationTime = 10.0
 
 # Vehicle should recalibrate after each consecutive payload drop
 ReCalibrate = 0
@@ -100,10 +98,10 @@ ReCalibrate = 0
 MinimumMaintainTime = 2.0
 
 # Angle to sweep away backwards from obstacle to diverge (degrees)
-ObstacleDivergenceAngle = 55.0
+ObstacleDivergenceAngle = 35.0
 
 # Amount of time to travel "parallel" to an obstacle before converging back to target (seconds)
-ObstacleDivergenceTime = 3.0
+ObstacleDivergenceTime = 2.0
 
 # ------------------------------------
 #                             CONTROLS
@@ -137,9 +135,11 @@ Cam_Device = 0
 # P8.12
 Laser_Left = 44
 # (unknown)
-Laser_Center = -1
+Laser_Center = 46
+#Laser_Center = -1
 # P8.14
-Laser_Right = 26
+#Laser_Right = 26
+Laser_Right = -1
 
 # GPIO Port numbers used for transistor to switch to payload servo
 # P9.23

@@ -32,7 +32,7 @@ namespace sensors {
 		/// Returns a pointer to the GPS class on the Sensor Hub.
 		GPS* GetGPS() { return &gps0; }
 		/// Returns a pointer to the vector of laser classes in the Sensor Hub.
-		std::vector<Laser> GetLasers() { return lasers; }
+		std::vector<Laser>* GetLasers() { return &lasers; }
 		/// Returns a pointer to the Camera class in the sensor hub.
 		Camera* GetCamera() { return &cam0; }
 

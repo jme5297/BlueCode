@@ -219,7 +219,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 				g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge)// ||
 //				g->GetCurrentGuidanceManeuver().state == ManeuverState::Turn )
 		{
-			TimeModule::Log("CTL", "No reason to update speed gain here.");
+//			TimeModule::Log("CTL", "No reason to update speed gain here.");
 		}
 		else
 		{

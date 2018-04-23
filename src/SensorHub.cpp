@@ -23,9 +23,10 @@ bool SensorHub::InitAllSensors() {
 	bool cami = cam0.Init();
 	bool las0i = lasers[0].Init();
 	bool las1i = lasers[1].Init();
+	bool las2i = lasers[2].Init();
 
 	// If all sensors initialized properly, return true.
-	if (gpsi && cami && las0i && las1i) {
+	if (gpsi && cami && las2i && las0i && las1i) {
 		return true;
 	}
 
@@ -39,9 +40,10 @@ bool SensorHub::ResetAllSensors() {
 	bool camr = cam0.Reset();
 	bool las0r = lasers[0].Reset();
 	bool las1r = lasers[1].Reset();
+	bool las2r = lasers[2].Reset();
 
 	// If sensors reset properly, return true.
-	if (gpsr && camr && las0r && las1r) {
+	if (gpsr && camr && las0r && las2r && las1r) {
 		return true;
 	}
 
