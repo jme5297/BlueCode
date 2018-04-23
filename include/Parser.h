@@ -85,6 +85,7 @@ public:
 	static double GetOffAngleDeviate() { return OffAngleDeviate; }
 
 	// Dynamics
+	static int GetPowerPort(){ return PowerPort; }
 	static double GetTurnFactorDPS() { return TurnFactorDPS; }
 	static double GetMaxSpeedMPS() { return MaxSpeedMPS; }
 	static double GetTurnSpeedMPS(){ return TurnSpeedMPS; }
@@ -144,6 +145,7 @@ public:
 	static std::vector<pLas> GetPLasers() { return Lasers; }
 
 protected:
+	static int PowerPort;
 	static double Refresh_GNC;
 	static double Refresh_OUT;
 	static double Refresh_Gains;

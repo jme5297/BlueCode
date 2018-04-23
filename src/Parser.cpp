@@ -5,6 +5,7 @@ using namespace sensors;
 using namespace std;
 
 // General Configuration
+int Parser::PowerPort;
 double Parser::Refresh_GNC;
 double Parser::Refresh_OUT;
 double Parser::Refresh_Gains;
@@ -109,6 +110,12 @@ void Parser::ReadInputs(std::string file)
 				getline(configFile, s);
 				s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
 			}
+			continue;
+		}
+		else if (s.find("PowerPort") != std::string::npos) {
+			std::string a = s.substr(s.find("=") + 1);
+			std::stringstream ss(a);
+			ss >> PowerPort;
 			continue;
 		}
 		else if (s.find("Refresh_GNC") != std::string::npos) {
