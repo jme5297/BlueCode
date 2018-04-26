@@ -8,10 +8,12 @@ sudo cp ../../InterfaceCode/pwm/pwm_disabler1 .
 sudo cp ../../InterfaceCode/pwm/pwm_disabler2 .
 sudo cp ../../InterfaceCode/pwm/pru1.bin .
 sudo cp ../../InterfaceCode/pwm/pru2.bin .
-echo Copying laser and gps test code to BlueCode/Build ...
+echo Copying gps test code to BlueCode/Build ...
 sudo cp ../../InterfaceCode/gps .
 sudo cp ../../InterfaceCode/py_gps_write.py .
 sudo cp ../../InterfaceCode/py_gps_read.py .
+echo Copying laser test code into BlueCode/Build...
 sudo cp ../../InterfaceCode/laser .
+echo Copying camera testing code into BlueCode/Build...
 sudo cp ../../InterfaceCode/grabber .
 sudo cp ../../InterfaceCode/takePhoto .

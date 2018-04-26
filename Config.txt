@@ -10,9 +10,11 @@
 # Format: [ lon, lat ]
 
 BEGIN_COORDINATES
--77.87026947, 40.79447825
--77.86987316, 40.79439886
--77.86974847, 40.79482669
+-77.86719324, 40.80598896
+-77.86661847, 40.80583731
+-77.86704821, 40.80634929
+-77.86750383, 40.80681013
+-77.86785015, 40.80627068
 END_COORDINATES
 
 # Should the Nav Plan be optimized at the start of the mission?
@@ -30,8 +32,6 @@ Output_GPS_Data = 0
 # ############################################################################
 #                                                                Configuration
 # ############################################################################
-
-PowerPort = 48
 
 # ------------------------------------
 #                                RATES
@@ -89,7 +89,7 @@ GPSUncertainty = 2.0
 OffAngleDeviate = 20.0
 
 # Minimum amount of time to travel straight to calibrate GPS (seconds)
-CalibrationTime = 10.0
+CalibrationTime = 12.0
 
 # Vehicle should recalibrate after each consecutive payload drop
 ReCalibrate = 0
@@ -98,7 +98,7 @@ ReCalibrate = 0
 MinimumMaintainTime = 2.0
 
 # Angle to sweep away backwards from obstacle to diverge (degrees)
-ObstacleDivergenceAngle = 35.0
+ObstacleDivergenceAngle = 55.0
 
 # Amount of time to travel "parallel" to an obstacle before converging back to target (seconds)
 ObstacleDivergenceTime = 2.0
@@ -106,9 +106,6 @@ ObstacleDivergenceTime = 2.0
 # ------------------------------------
 #                             CONTROLS
 # ------------------------------------
-
-# Maximum number of times to attempt to take an image before moving to next target.
-MaxCameraAttempts = 3
 
 # Amount of time to hold down Payload servo (seconds)
 PayloadServoTime = 1.0
@@ -127,16 +124,12 @@ DC_Payload_Delta = 0.0105
 #                         SENSORS AND PORTS
 # -----------------------------------------
 
-# Camera resolution
-Cam_Width = 320
-Cam_Height = 240
-Cam_Device = 0
-
 # P8.12
 Laser_Left = 44
+#Laser_Left = -1
 # (unknown)
-Laser_Center = 46
-#Laser_Center = -1
+#Laser_Center = 46
+Laser_Center = -1
 # P8.14
 #Laser_Right = 26
 Laser_Right = -1
