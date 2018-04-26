@@ -35,6 +35,12 @@ void Navigator::Run(SensorHub* sh)
 		}
 	}
 
+	for (int i = 0; i < isPathObstructed.size(); i++){
+
+		std::cout << isPathObstructed[i] << " -- ";
+	}
+
+	std::cout << "\n";
 	// Run the GPS.
 	lastCoordinates = curPos;
 	curPos = sh->GetGPS()->GetCurrentGPSCoordinates();

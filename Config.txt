@@ -9,8 +9,9 @@
 # Coordinates to target
 # Format: [ lon, lat ]
 
+#-77.86719324, 40.80598896
+
 BEGIN_COORDINATES
--77.86719324, 40.80598896
 -77.86661847, 40.80583731
 -77.86704821, 40.80634929
 -77.86750383, 40.80681013
@@ -48,7 +49,7 @@ Refresh_Gains = 0.2
 MaxSpeedMPS = 10.0
 
 # PID Gains. if PID is set to false in Control.cpp, these won't matter.
-Use_PID = 1
+Use_PID = 0
 PID_P = -0.25
 PID_I = -0.15
 PID_D = -0.10
@@ -70,7 +71,7 @@ StraightSpeedMPS = 1.4
 MaxAllowableThrottleGain = 4.0
 
 # Multiplier for increasing backwards movement
-BackMultiplier = 1.2
+BackMultiplier = 0.15
 
 # Intensity of vehicle breaking (between 0.0 and 1.0)
 BreakFactor = 0.99
@@ -125,11 +126,11 @@ DC_Payload_Delta = 0.0105
 # -----------------------------------------
 
 # P8.12
-Laser_Left = 44
-#Laser_Left = -1
+#Laser_Left = 44
+Laser_Left = -1
 # (unknown)
-#Laser_Center = 46
-Laser_Center = -1
+Laser_Center = 46
+#Laser_Center = -1
 # P8.14
 #Laser_Right = 26
 Laser_Right = -1
@@ -184,8 +185,8 @@ VehicleHeight = 0.241
 VehicleLength = 0.34
 
 # Initial location and true heading of vehicle at start of sim.
-InitialLatitude = 40.79439669
-InitialLongitude = -77.86980177
+InitialLatitude = 40.80598896
+InitialLongitude = -77.86719324
 InitialHeading = 0
 
 # Add some obstacles to the scene

@@ -234,7 +234,7 @@ void Parser::ReadInputs(std::string file)
 			ss >> PID_D;
 			continue;
 		}
-		else if (s.find("BackMultipier") != std::string::npos) {
+		else if (s.find("BackMultiplier") != std::string::npos) {
 			std::string a = s.substr(s.find("=") + 1);
 			std::stringstream ss(a);
 			ss >> BackMultiplier;

@@ -86,7 +86,7 @@ void Controller::Run(Guider* g, SensorHub* sh) {
 	// Special case for obstacle avoidance: throw full reverse if obstacle is found!
 	if(g->GetCurrentGuidanceManeuver().state == ManeuverState::AvoidDiverge &&
 			g->GetCurrentGuidanceManeuver().avoidDivergeState <= 1){
-		norm_throttle = -0.35;
+		norm_throttle = -1.0 * Parser::GetBackMultipier();
 //		norm_throttle = g->GetCurrentGuidanceManeuver().speed;
 	}
 
